@@ -1,0 +1,92 @@
+[
+  {
+    "id": "cauldron",
+    "name": "Котелок на огне",
+    "description": "Базовое алхимическое оборудование",
+    "brewingBonus": -2,
+    "cost": 0,
+    "weight": 1,
+    "rarity": "common"
+  },
+  {
+    "id": "herbalism_kit",
+    "name": "Набор травника",
+    "description": "Основные инструменты для работы с растениями",
+    "brewingBonus": 0,
+    "cost": 5,
+    "weight": 3,
+    "rarity": "common"
+  },
+  {
+    "id": "alchemist_supplies",
+    "name": "Инструменты алхимика",
+    "description": "Профессиональные алхимические инструменты",
+    "brewingBonus": 2,
+    "cost": 50,
+    "weight": 8,
+    "rarity": "uncommon"
+  },
+  {
+    "id": "alchemical_jug",
+    "name": "Алхимическая стопка",
+    "description": "Магическая посуда для точной дозировки",
+    "brewingBonus": 4,
+    "cost": 500,
+    "weight": 12,
+    "rarity": "rare"
+  },
+  {
+    "id": "portable_alchemy_set",
+    "name": "Стационарный алхимический набор",
+    "description": "Полная лаборатория в портативном исполнении",
+    "brewingBonus": 6,
+    "cost": 5000,
+    "weight": 0,
+    "rarity": "very rare"
+  },
+  {
+    "id": "laboratory",
+    "name": "Лаборатория",
+    "description": "Полноценная алхимическая лаборатория",
+    "brewingBonus": 8,
+    "cost": 50000,
+    "weight": 0,
+    "rarity": "legendary"
+  },
+  {
+    "id": "crystal_crucible",
+    "name": "Кристальный тигель",
+    "description": "Тигель из чистого кристалла для магических зелий",
+    "brewingBonus": 3,
+    "cost": 200,
+    "weight": 2,
+    "rarity": "rare"
+  },
+  {
+    "id": "enchanted_mortar",
+    "name": "Зачарованная ступка",
+    "description": "Ступка с пестиком, зачарованная для лучшего измельчения",
+    "brewingBonus": 1,
+    "cost": 100,
+    "weight": 5,
+    "rarity": "uncommon"
+  },
+  {
+    "id": "precision_scales",
+    "name": "Точные весы",
+    "description": "Весы для точного дозирования ингредиентов",
+    "brewingBonus": 1,
+    "cost": 75,
+    "weight": 3,
+    "rarity": "uncommon"
+  },
+  {
+    "id": "mystical_retort",
+    "name": "Мистическая реторта",
+    "description": "Волшебный дистилляционный аппарат",
+    "brewingBonus": 5,
+    "cost": 1500,
+    "weight": 15,
+    "rarity": "very rare"
+  }
+]

@@ -1,0 +1,399 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-size: 16px;
+  --background: #ffffff;
+  --foreground: #0c0c0c;
+  --card: #ffffff;
+  --card-foreground: #0c0c0c;
+  --popover: #ffffff;
+  --popover-foreground: #0c0c0c;
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: transparent;
+  --input-background: #ffffff;
+  --switch-background: #cbd5e1;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: #6366f1;
+  --chart-1: #3b82f6;
+  --chart-2: #10b981;
+  --chart-3: #f59e0b;
+  --chart-4: #ef4444;
+  --chart-5: #8b5cf6;
+  --radius: 0.5rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0c0c0c;
+  --sidebar-primary: #6366f1;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #6366f1;
+}
+
+.dark {
+  --background: #0f0f23;
+  --foreground: #e2e8f0;
+  --card: #1e1e3f;
+  --card-foreground: #e2e8f0;
+  --popover: #1e1e3f;
+  --popover-foreground: #e2e8f0;
+  --primary: #8b5cf6;
+  --primary-foreground: #ffffff;
+  --secondary: #1e293b;
+  --secondary-foreground: #e2e8f0;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #1e293b;
+  --accent-foreground: #e2e8f0;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #334155;
+  --input: transparent;
+  --input-background: #1e293b;
+  --switch-background: #475569;
+  --ring: #8b5cf6;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --chart-1: #8b5cf6;
+  --chart-2: #10b981;
+  --chart-3: #f59e0b;
+  --chart-4: #ef4444;
+  --chart-5: #06b6d4;
+  --sidebar: #0f0f23;
+  --sidebar-foreground: #e2e8f0;
+  --sidebar-primary: #8b5cf6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1e293b;
+  --sidebar-accent-foreground: #e2e8f0;
+  --sidebar-border: #334155;
+  --sidebar-ring: #8b5cf6;
+}
+
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/**
+ * Base typography. This is not applied to elements which have an ancestor with a Tailwind text class.
+ */
+@layer base {
+  :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) {
+    h1 {
+      font-size: var(--text-2xl);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h2 {
+      font-size: var(--text-xl);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h3 {
+      font-size: var(--text-lg);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h4 {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    p {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+
+    label {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    button {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    input {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+  }
+}
+
+html {
+  font-size: var(--font-size);
+}
+
+/* Утилита для скрытия скроллбара */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Стилизованный скроллбар */
+.scrollbar-styled {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.scrollbar-styled::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-styled::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-styled::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.scrollbar-styled::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* Глобальный стилизованный скроллбар */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* Карточки с минимальной шириной для адаптивной сетки */
+.card-grid-responsive {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+}
+
+/* На больших планшетах - минимум 320px */
+@media (max-width: 1024px) {
+  .card-grid-responsive {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+/* На планшетах - минимум 300px, максимум 2 в ряд */
+@media (max-width: 768px) {
+  .card-grid-responsive {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+  }
+}
+
+/* На мобильных - минимум 280px, обычно 1-2 в ряд */
+@media (max-width: 640px) {
+  .card-grid-responsive {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+}
+
+/* На очень узких экранах - одна карточка на ряд */
+@media (max-width: 480px) {
+  .card-grid-responsive {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* Специальный класс для ограничения максимум 2 карточки в ряд */
+.card-grid-max-2 {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 45%), 1fr));
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  .card-grid-max-2 {
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 45%), 1fr));
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .card-grid-max-2 {
+    grid-template-columns: repeat(auto-fit, minmax(min(260px, 45%), 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .card-grid-max-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Динамическая навигация */
+.sidebar-nav {
+  will-change: width;
+  transition: width 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* Навигационные кнопки с единообразной анимацией */
+.nav-button {
+  will-change: transform;
+  transition: transform 0.2s ease-out, background-color 0.2s ease-out;
+  border-radius: 0.75rem;
+}
+
+.nav-button:hover {
+  transform: translateX(2px);
+}
+
+.nav-button:active {
+  transform: translateX(1px) scale(0.98);
+}
+
+/* Улучшенный hover эффект для свернутых кнопок */
+.nav-button:not(:has(> div > div:nth-child(2):not(.opacity-0))):hover {
+  transform: translateX(1px) scale(1.02);
+}
+
+/* Индикатор активной страницы в свернутом состоянии */
+.nav-button.nav-active::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 40px;
+  background: var(--primary);
+  border-radius: 0 3px 3px 0;
+  transition: all 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+
+
+/* Кастомная длительность анимации */
+.duration-350 {
+  transition-duration: 350ms;
+}
+
+/* Улучшенная анимация для текста навигации */
+.nav-text-slide-in {
+  opacity: 1;
+  transform: translateX(0);
+  width: auto;
+  transition: opacity 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) 0.1s,
+              transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) 0.1s,
+              width 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.nav-text-slide-out {
+  opacity: 0;
+  transform: translateX(-16px);
+  width: 0;
+  transition: opacity 0.2s cubic-bezier(0.25, 0.1, 0.25, 1),
+              transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1),
+              width 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) 0.1s;
+}
+
+/* Анимация для badge */
+.nav-badge-slide-in {
+  opacity: 1;
+  transform: translateX(0);
+  margin-left: 0.5rem;
+  width: auto;
+  transition: opacity 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) 0.15s,
+              transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) 0.15s,
+              width 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) 0.05s;
+}
+
+.nav-badge-slide-out {
+  opacity: 0;
+  transform: translateX(16px);
+  margin-left: 0;
+  width: 0;
+  overflow: hidden;
+  transition: opacity 0.15s cubic-bezier(0.25, 0.1, 0.25, 1),
+              transform 0.15s cubic-bezier(0.25, 0.1, 0.25, 1),
+              width 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) 0.1s;
+}
+
+
+
+/* Фокус состояния */
+.nav-button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Улучшения для мобильных устройств */
+@media (max-width: 640px) {
+  .card-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .compact-card-header {
+    padding: 0.75rem;
+  }
+
+  .compact-card-content {
+    padding: 0.75rem;
+    padding-top: 0;
+  }
+
+  .badge-list {
+    gap: 0.25rem;
+  }
+
+  .action-buttons {
+    gap: 0.25rem;
+  }
+}

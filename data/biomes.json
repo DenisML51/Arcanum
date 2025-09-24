@@ -1,0 +1,144 @@
+[
+  {
+    "id": "green_plains",
+    "name": "Зеленые равнины",
+    "description": "Обширные луга с разнообразной флорой",
+    "difficulty": "Легко",
+    "cost": 5,
+    "commonIngredients": [
+      { "id": "wildflower", "chance": 0.7, "quantity": [2, 4] },
+      { "id": "healing_moss", "chance": 0.5, "quantity": [1, 3] }
+    ],
+    "uncommonIngredients": [
+      { "id": "silver_dust", "chance": 0.2, "quantity": [1, 2] }
+    ],
+    "rareIngredients": [],
+    "legendaryIngredients": []
+  },
+  {
+    "id": "mystic_forest",
+    "name": "Мистический лес",
+    "description": "Древний лес, пропитанный магией",
+    "difficulty": "Средне",
+    "cost": 15,
+    "commonIngredients": [
+      { "id": "healing_moss", "chance": 0.6, "quantity": [1, 3] },
+      { "id": "wildflower", "chance": 0.4, "quantity": [1, 2] }
+    ],
+    "uncommonIngredients": [
+      { "id": "moonstone", "chance": 0.4, "quantity": [1, 2] },
+      { "id": "spider_venom", "chance": 0.3, "quantity": [1, 1] }
+    ],
+    "rareIngredients": [
+      { "id": "mandrake_root", "chance": 0.15, "quantity": [1, 1] },
+      { "id": "shadow_essence", "chance": 0.1, "quantity": [1, 1] }
+    ],
+    "legendaryIngredients": []
+  },
+  {
+    "id": "volcanic_caves",
+    "name": "Вулканические пещеры",
+    "description": "Опасные пещеры у подножия вулкана",
+    "difficulty": "Сложно",
+    "cost": 30,
+    "commonIngredients": [
+      { "id": "iron_powder", "chance": 0.8, "quantity": [2, 5] }
+    ],
+    "uncommonIngredients": [
+      { "id": "fire_crystal", "chance": 0.6, "quantity": [1, 2] }
+    ],
+    "rareIngredients": [
+      { "id": "dragon_scale", "chance": 0.3, "quantity": [1, 1] }
+    ],
+    "legendaryIngredients": [
+      { "id": "phoenix_feather", "chance": 0.05, "quantity": [1, 1] }
+    ]
+  },
+  {
+    "id": "ice_caves",
+    "name": "Ледяные пещеры",
+    "description": "Замерзшие пещеры вечной зимы",
+    "difficulty": "Сложно",
+    "cost": 25,
+    "commonIngredients": [],
+    "uncommonIngredients": [
+      { "id": "ice_shard", "chance": 0.7, "quantity": [1, 3] },
+      { "id": "silver_dust", "chance": 0.3, "quantity": [1, 2] }
+    ],
+    "rareIngredients": [
+      { "id": "shadow_essence", "chance": 0.2, "quantity": [1, 1] }
+    ],
+    "legendaryIngredients": []
+  },
+  {
+    "id": "toxic_swamps",
+    "name": "Ядовитые болота",
+    "description": "Опасные болота с токсичными растениями",
+    "difficulty": "Средне-сложно",
+    "cost": 20,
+    "commonIngredients": [
+      { "id": "acid_root", "chance": 0.8, "quantity": [2, 4] },
+      { "id": "healing_moss", "chance": 0.4, "quantity": [1, 2] }
+    ],
+    "uncommonIngredients": [
+      { "id": "spider_venom", "chance": 0.6, "quantity": [1, 2] },
+      { "id": "whale_oil", "chance": 0.3, "quantity": [1, 1] }
+    ],
+    "rareIngredients": [
+      { "id": "shadow_essence", "chance": 0.25, "quantity": [1, 1] }
+    ],
+    "legendaryIngredients": []
+  },
+  {
+    "id": "dragon_lair",
+    "name": "Драконье логово",
+    "description": "Логово древнего красного дракона",
+    "difficulty": "Крайне сложно",
+    "cost": 100,
+    "commonIngredients": [],
+    "uncommonIngredients": [
+      { "id": "fire_crystal", "chance": 0.5, "quantity": [2, 3] }
+    ],
+    "rareIngredients": [
+      { "id": "dragon_scale", "chance": 0.8, "quantity": [1, 3] }
+    ],
+    "legendaryIngredients": [
+      { "id": "phoenix_feather", "chance": 0.3, "quantity": [1, 1] },
+      { "id": "void_crystal", "chance": 0.1, "quantity": [1, 1] }
+    ]
+  },
+  {
+    "id": "void_rift",
+    "name": "Разлом в реальности",
+    "description": "Мистическое место, где реальность искажена",
+    "difficulty": "Легендарно",
+    "cost": 500,
+    "commonIngredients": [],
+    "uncommonIngredients": [],
+    "rareIngredients": [
+      { "id": "shadow_essence", "chance": 0.7, "quantity": [1, 2] }
+    ],
+    "legendaryIngredients": [
+      { "id": "void_crystal", "chance": 0.6, "quantity": [1, 1] },
+      { "id": "phoenix_feather", "chance": 0.2, "quantity": [1, 1] }
+    ]
+  },
+  {
+    "id": "ancient_library",
+    "name": "Древняя библиотека",
+    "description": "Заброшенная библиотека с магическими реагентами",
+    "difficulty": "Средне",
+    "cost": 12,
+    "commonIngredients": [
+      { "id": "silver_dust", "chance": 0.6, "quantity": [1, 3] }
+    ],
+    "uncommonIngredients": [
+      { "id": "moonstone", "chance": 0.5, "quantity": [1, 2] },
+      { "id": "spider_venom", "chance": 0.2, "quantity": [1, 1] }
+    ],
+    "rareIngredients": [
+      { "id": "mandrake_root", "chance": 0.3, "quantity": [1, 1] }
+    ],
+    "legendaryIngredients": []
+  }
+]
