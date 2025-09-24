@@ -1,5 +1,6 @@
 // components/CompactIngredientCard.tsx
 
+import { memo, useCallback } from "react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
@@ -38,7 +39,7 @@ const rarityLabels = {
   legendary: 'Легендарный'
 };
 
-export function CompactIngredientCard({ ingredient, onQuantityChange }: CompactIngredientCardProps) {
+export const CompactIngredientCard = memo(function CompactIngredientCard({ ingredient, onQuantityChange }: CompactIngredientCardProps) {
   // Отладка для проверки данных ингредиента
   if (!ingredient) {
     console.error('CompactIngredientCard: ingredient is undefined');
@@ -50,11 +51,11 @@ export function CompactIngredientCard({ ingredient, onQuantityChange }: CompactI
   //   console.warn('CompactIngredientCard: ingredient missing category:', ingredient);
   // }
 
-  const handleQuantityChange = (newQuantity: number) => {
+  const handleQuantityChange = useCallback((newQuantity: number) => {
     if (newQuantity >= 0) {
       onQuantityChange(ingredient.id, newQuantity);
     }
-  };
+  }, [ingredient.id, onQuantityChange]);
 
   const badges = [
     {
@@ -174,4 +175,4 @@ export function CompactIngredientCard({ ingredient, onQuantityChange }: CompactI
       </div>
     </CompactCard>
   );
-}
+});

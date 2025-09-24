@@ -1,6 +1,6 @@
 // components/InventoryPage.tsx
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -36,28 +36,65 @@ const rarityOptions = [
 export function InventoryPage({ store }: InventoryPageProps) {
   const [showFilters, setShowFilters] = useState(false);
 
-  // Простая фильтрация ингредиентов
-  const filteredIngredients = store.ingredients.filter(ingredient => {
-    const filters = store.activeFilters;
-    
-    if (filters.search && !ingredient.name.toLowerCase().includes(filters.search.toLowerCase())) {
-      return false;
-    }
-    
-    if (filters.ingredientTypes.length > 0 && !filters.ingredientTypes.includes(ingredient.type)) {
-      return false;
-    }
-    
-    if (filters.rarities.length > 0 && !filters.rarities.includes(ingredient.rarity)) {
-      return false;
-    }
-    
-    if (filters.tags.length > 0 && !filters.tags.some(tag => ingredient.tags.includes(tag))) {
-      return false;
-    }
-    
-    return true;
-  });
+  // Простая фильтрация ингредиентов с мемоизацией
+  const filteredIngredients = useMemo(() => {
+    return store.ingredients.filter(ingredient => {
+      const filters = store.activeFilters;
+      
+      if (filters.search && !ingredient.name.toLowerCase().includes(filters.search.toLowerCase())) {
+        return false;
+      }
+      
+      if (filters.ingredientTypes.length > 0 && !filters.ingredientTypes.includes(ingredient.type)) {
+        return false;
+      }
+      
+      if (filters.rarities.length > 0 && !filters.rarities.includes(ingredient.rarity)) {
+        return false;
+      }
+      
+      if (filters.tags.length > 0 && !filters.tags.some(tag => ingredient.tags.includes(tag))) {
+        return false;
+      }
+      
+      // Фильтрация по рецептам - проверяем, используется ли ингредиент в выбранных рецептах
+      if (filters.availableForRecipes.length > 0) {
+        const isUsedInSelectedRecipes = filters.availableForRecipes.some(recipeId => {
+          const recipe = store.recipes.find(r => r.id === recipeId);
+          if (!recipe) return false;
+          
+          // Проверяем, используется ли этот ингредиент в компонентах рецепта
+          return recipe.components.some(component => {
+            // Проверяем совместимость по типу
+            if (component.types && component.types.length > 0) {
+              if (!component.types.includes(ingredient.type)) return false;
+            }
+            
+            // Проверяем совместимость по категории
+            if (component.categories && component.categories.length > 0) {
+              if (!component.categories.includes(ingredient.category)) return false;
+            }
+            
+            // Проверяем элементы - должны быть ВСЕ требуемые элементы
+            if (component.requiredElements && component.requiredElements.length > 0) {
+              const hasAllRequiredElements = component.requiredElements.every(requiredElement =>
+                ingredient.elements && ingredient.elements.includes(requiredElement)
+              );
+              if (!hasAllRequiredElements) return false;
+            }
+            
+            return true;
+          });
+        });
+        
+        if (!isUsedInSelectedRecipes) {
+          return false;
+        }
+      }
+      
+      return true;
+    });
+  }, [store.ingredients, store.activeFilters, store.recipes]);
   const recipesInLab = store.getLaboratoryRecipes();
 
   // Получаем все уникальные теги
@@ -319,19 +356,23 @@ export function InventoryPage({ store }: InventoryPageProps) {
 
       {/* Сетка ингредиентов */}
       <div className="card-grid-responsive">
-        {filteredIngredients.map((ingredient) => (
-          <motion.div
-            key={ingredient.id}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.2 }}
-          >
-            <CompactIngredientCard
-              ingredient={ingredient}
-              onQuantityChange={store.updateIngredientQuantity}
-            />
-          </motion.div>
-        ))}
+        <AnimatePresence mode="popLayout">
+          {filteredIngredients.map((ingredient) => (
+            <motion.div
+              key={`${ingredient.id}-${ingredient.quantity}`}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.2 }}
+              layout
+            >
+              <CompactIngredientCard
+                ingredient={ingredient}
+                onQuantityChange={store.updateIngredientQuantity}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
 
       {filteredIngredients.length === 0 && (
