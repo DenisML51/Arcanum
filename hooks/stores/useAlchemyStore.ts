@@ -61,12 +61,12 @@ export function useAlchemyStore() {
         if (!component.categories.includes(ingredient.category)) return false;
       }
 
-      // Проверяем элементы
+      // Проверяем элементы - должны быть ВСЕ требуемые элементы
       if (component.requiredElements && component.requiredElements.length > 0) {
-        const hasRequiredElements = component.requiredElements.some(element =>
-          ingredient.elements.includes(element)
+        const hasAllRequiredElements = component.requiredElements.every(requiredElement =>
+          ingredient.elements && ingredient.elements.includes(requiredElement)
         );
-        if (!hasRequiredElements) return false;
+        if (!hasAllRequiredElements) return false;
       }
 
       return true;

@@ -140,15 +140,30 @@ function ComponentSelector({
       {onSelectIngredient && (
         <Select
           value={selectedIngredientId || ""}
-          onValueChange={(value) =>
-            onSelectIngredient(recipeId, component.id, value === "clear" ? undefined : value || undefined)
-          }
+          onValueChange={(value) => {
+            if (value === "clear" || value === "no-ingredients") {
+              onSelectIngredient(recipeId, component.id, undefined);
+            } else {
+              onSelectIngredient(recipeId, component.id, value);
+            }
+          }}
         >
           <SelectTrigger
             className={`h-8 text-xs ${selectBorderClass}`}
             onClick={(e) => e.stopPropagation()}
           >
-            <SelectValue placeholder="Выберите ингредиент" />
+            <SelectValue placeholder="Выберите ингредиент">
+              {selectedIngredient ? (
+                <div className="flex items-center justify-between w-full">
+                  <span>{selectedIngredient.name} (×{selectedIngredient.quantity})</span>
+                  {!isSelectedIngredientValid && (
+                    <span className="text-red-500 text-xs ml-2">⚠️</span>
+                  )}
+                </div>
+              ) : (
+                "Выберите ингредиент"
+              )}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="clear">
