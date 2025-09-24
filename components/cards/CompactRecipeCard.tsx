@@ -386,31 +386,28 @@ export function CompactRecipeCard({
       actions={actions}
     >
       <div className="space-y-4">
-        <p className="text-sm text-muted-foreground">
-          {recipe.description}
-        </p>
-
-        <div className="p-3 bg-muted/50 rounded-lg">
-          <p className="text-sm">
-            <span>Эффект:</span> {recipe.effect}
-          </p>
+        <div className="stat-container">
+          <div className="text-xs text-muted-foreground mb-1 text-center">Эффект</div>
+          <div className="text-sm font-medium text-left">{recipe.effect}</div>
         </div>
 
-        <div className="space-y-3">
-          <h4 className="text-sm">Компоненты:</h4>
-          {recipe.components?.map((component) => (
-              <ComponentSelector
-                key={component.id}
-                component={component}
-                ingredients={ingredients}
-                recipeId={recipe.id}
-                onSelectIngredient={onSelectIngredient}
-                selectedIngredientId={getSelectedIngredient?.(recipe.id, component.id)}
-              />
-          )) || (
-            <p className="text-sm text-muted-foreground">Нет компонентов</p>
-          )}
-        </div>
+        {isInLaboratory && (
+          <div className="space-y-3">
+            <h4 className="text-sm">Компоненты:</h4>
+            {recipe.components?.map((component) => (
+                <ComponentSelector
+                  key={component.id}
+                  component={component}
+                  ingredients={ingredients}
+                  recipeId={recipe.id}
+                  onSelectIngredient={onSelectIngredient}
+                  selectedIngredientId={getSelectedIngredient?.(recipe.id, component.id)}
+                />
+            )) || (
+              <p className="text-sm text-muted-foreground">Нет компонентов</p>
+            )}
+          </div>
+        )}
 
         <div className="pt-2 border-t space-y-2">
           {!recipe.inLaboratory ? (

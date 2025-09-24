@@ -66,7 +66,7 @@ export function CompactCard({
           {/* Badges в отдельной строке */}
           {badges && badges.length > 0 && (
             <div className="flex items-center gap-1 flex-wrap min-w-0">
-              {badges.slice(0, 3).map((badge, index) => (
+              {badges.map((badge, index) => (
                 <Badge
                   key={index}
                   variant={badge.variant || "outline"}
@@ -76,11 +76,6 @@ export function CompactCard({
                   {badge.label}
                 </Badge>
               ))}
-              {badges.length > 3 && (
-                <Badge variant="outline" className="text-xs shrink-0">
-                  +{badges.length - 3}
-                </Badge>
-              )}
             </div>
           )}
 
@@ -122,8 +117,8 @@ export function CompactCard({
                     <TooltipTrigger asChild>
                       {circleElement}
                     </TooltipTrigger>
-                    <TooltipContent className="text-white">
-                      <div className="text-xs text-white">{circle.tooltip}</div>
+                    <TooltipContent className="text-white dark:text-black">
+                      <div className="text-xs text-white dark:text-black">{circle.tooltip}</div>
                     </TooltipContent>
                   </Tooltip>
                 ) : (
