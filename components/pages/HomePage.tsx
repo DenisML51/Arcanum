@@ -75,7 +75,7 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
   });
   const [tempCurrency, setTempCurrency] = useState(store.currency);
 
-  const { stats, ingredients, recipes, potions, playerGold, character } = store;
+  const { stats, ingredients, recipes, potions, playerGold, character, availableEquipment, availableForPurchaseEquipment } = store;
 
   // Защита от отсутствующего персонажа
   if (!character) {
@@ -97,8 +97,6 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
     laboratoryRecipes > 0 && `Рецептов в лаборатории: ${laboratoryRecipes}`
   ].filter(Boolean).slice(0, 3);
 
-  // Оборудование не в инвентаре
-  const availableEquipment = store.availableEquipment;
 
   const handleSaveCharacter = () => {
     store.updateCharacterName(tempCharacterName);
@@ -183,16 +181,16 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
                           <span className="text-primary">{totalBrewingBonus > 0 ? '+' : ''}{totalBrewingBonus}</span>
                         </Badge>
                       </TooltipTrigger>
-                      <TooltipContent className="text-white">
+                      <TooltipContent className="text-white dark:text-black">
                         <div>
-                          <div className="font-medium text-white">Бонус варки</div>
-                          <div className="text-xs text-white">
+                          <div className="font-medium">Бонус варки</div>
+                          <div className="text-xs">
                             {character.alchemyToolsProficiency ? `Мастерство: +${proficiencyBonus}` : 'Без мастерства: +0'}
                           </div>
                           {activeEquipment && (
-                            <div className="text-xs text-white">{activeEquipment.name}: {activeEquipment.brewingBonus > 0 ? '+' : ''}{activeEquipment.brewingBonus}</div>
+                            <div className="text-xs">{activeEquipment.name}: {activeEquipment.brewingBonus > 0 ? '+' : ''}{activeEquipment.brewingBonus}</div>
                           )}
-                          {!activeEquipment && <div className="text-xs text-white">Без оборудования: +0</div>}
+                          {!activeEquipment && <div className="text-xs">Без оборудования: +0</div>}
                         </div>
                       </TooltipContent>
                     </Tooltip>
@@ -204,10 +202,10 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
                           <span className="text-primary">{character.alchemyToolsProficiency ? 'Да' : 'Нет'}</span>
                         </Badge>
                       </TooltipTrigger>
-                      <TooltipContent className="text-white">
+                      <TooltipContent className="text-white dark:text-black">
                         <div>
-                          <div className="font-medium text-white">Мастерство инструментов алхимика</div>
-                          <div className="text-xs text-white">
+                          <div className="font-medium">Мастерство инструментов алхимика</div>
+                          <div className="text-xs">
                             {character.alchemyToolsProficiency
                               ? `Дает +${proficiencyBonus} к броскам варки`
                               : 'Не изучено - нет бонуса к броскам'
@@ -442,7 +440,7 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
                     </DialogHeader>
                     <div className="space-y-4">
                       <div>
-                        <h4 className="mb-3">Текущее оборудование</h4>
+                        <h4 className="mb-3">Имеющееся оборудование</h4>
                         <div className="space-y-2">
                           {availableEquipment.map((eq) => (
                             <div key={eq.id} className={`flex items-center justify-between p-3 border rounded-lg transition-colors ${
@@ -462,6 +460,9 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
                                       Активно
                                     </Badge>
                                   )}
+                                  <Badge variant="outline" className="text-xs bg-green-100 text-green-800">
+                                    В наличии
+                                  </Badge>
                                 </div>
                                 <p className="text-xs text-muted-foreground">{eq.description}</p>
                               </div>
@@ -487,11 +488,11 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
                         </div>
                       </div>
 
-                      {availableEquipment.length > 0 && (
+                      {availableForPurchaseEquipment.length > 0 && (
                         <div>
-                          <h4 className="mb-3">Доступное оборудование</h4>
+                          <h4 className="mb-3">Доступное для покупки</h4>
                           <div className="space-y-2">
-                            {availableEquipment.map((eq) => (
+                            {availableForPurchaseEquipment.map((eq) => (
                               <div key={eq.id} className="flex items-center justify-between p-3 border rounded-lg">
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-1">
@@ -522,6 +523,14 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
                               </div>
                             ))}
                           </div>
+                        </div>
+                      )}
+
+                      {availableForPurchaseEquipment.length === 0 && (
+                        <div className="text-center py-8 text-muted-foreground">
+                          <ShoppingBag className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                          <p>Все оборудование уже куплено!</p>
+                          <p className="text-sm">Вы владеете всеми доступными предметами.</p>
                         </div>
                       )}
                     </div>
@@ -558,7 +567,7 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
               ].map((stat, index) => {
                 const Icon = stat.icon;
                 return (
-                  <div key={stat.name} className="text-center p-3 bg-muted/30 rounded-lg">
+                  <div key={stat.name} className="stat-container">
                     <Icon className="h-4 w-4 mx-auto mb-1 text-muted-foreground" />
                     <div className="text-xs text-muted-foreground">{stat.name}</div>
                     <div className="text-lg font-medium">{stat.value}</div>

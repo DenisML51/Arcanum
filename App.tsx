@@ -155,7 +155,7 @@ export default function App() {
             <div className="flex items-center gap-1 sm:gap-3">
               <Badge variant="outline" className="gap-1 px-2 py-1 text-xs hidden sm:inline-flex">
                 <Package className="h-3 w-3" />
-                <span className="text-primary">{totalIngredients}</span> ингр.
+                <span className="text-black dark:text-white">{totalIngredients}</span> ингр.
               </Badge>
 
               <CurrencyPopover

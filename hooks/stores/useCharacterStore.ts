@@ -9,7 +9,11 @@ interface CharacterStore {
   currency: Currency;
   stats: BrewingStats;
   equipment: Equipment[];
+  ownedEquipment: string[];
   activeEquipment: Equipment | null;
+  getOwnedEquipment: () => Equipment[];
+  getAvailableForPurchaseEquipment: () => Equipment[];
+  hasEquipment: (equipmentId: string) => boolean;
   updateCharacterName: (name: string) => void;
   updateCharacterLevel: (level: number) => void;
   updateAlchemyToolsProficiency: (hasProficiency: boolean) => void;
@@ -105,6 +109,20 @@ export function useCharacterStore(): CharacterStore {
   });
 
   const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [ownedEquipment, setOwnedEquipment] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return ['cauldron']; // Базовое оборудование
+    
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        return data.ownedEquipment || ['cauldron'];
+      } catch {
+        return ['cauldron'];
+      }
+    }
+    return ['cauldron'];
+  });
 
   useEffect(() => {
     const loadEquipment = async () => {
@@ -120,9 +138,9 @@ export function useCharacterStore(): CharacterStore {
   }, []);
 
   useEffect(() => {
-    const data = { character, currency, stats };
+    const data = { character, currency, stats, ownedEquipment };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, [character, currency, stats]);
+  }, [character, currency, stats, ownedEquipment]);
 
   const updateCharacterName = (name: string) => {
     setCharacter(prev => ({ ...prev, name }));
@@ -177,10 +195,15 @@ export function useCharacterStore(): CharacterStore {
       return { success: false, message: 'Оборудование не найдено' };
     }
 
+    if (ownedEquipment.includes(equipmentId)) {
+      return { success: false, message: 'Оборудование уже куплено' };
+    }
+
     if (!spendGold(equipmentItem.cost)) {
       return { success: false, message: 'Недостаточно золота' };
     }
 
+    setOwnedEquipment(prev => [...prev, equipmentId]);
     return { success: true, message: 'Оборудование куплено' };
   };
 
@@ -192,6 +215,21 @@ export function useCharacterStore(): CharacterStore {
   };
 
   const activeEquipment = equipment.find(eq => eq.id === character.activeEquipmentId) || null;
+
+  // Получаем имеющееся оборудование
+  const getOwnedEquipment = () => {
+    return equipment.filter(eq => ownedEquipment.includes(eq.id));
+  };
+
+  // Получаем доступное для покупки оборудование
+  const getAvailableForPurchaseEquipment = () => {
+    return equipment.filter(eq => !ownedEquipment.includes(eq.id));
+  };
+
+  // Проверяем, есть ли оборудование у персонажа
+  const hasEquipment = (equipmentId: string) => {
+    return ownedEquipment.includes(equipmentId);
+  };
 
   const updateStats = (updates: Partial<BrewingStats>) => {
     setStats(prev => ({ ...prev, ...updates }));
@@ -206,7 +244,11 @@ export function useCharacterStore(): CharacterStore {
     currency,
     stats,
     equipment,
+    ownedEquipment,
     activeEquipment,
+    getOwnedEquipment,
+    getAvailableForPurchaseEquipment,
+    hasEquipment,
     updateCharacterName,
     updateCharacterLevel,
     updateAlchemyToolsProficiency,
