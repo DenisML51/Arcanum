@@ -104,7 +104,7 @@ export function RecipesPage({ store }: RecipesPageProps) {
                   onSelectIngredient={store.selectIngredientForComponent}
                   getSelectedIngredient={store.getSelectedIngredient}
                   characterBonus={totalCharacterBonus}
-                  isInLaboratory={false}
+                  isInLaboratory={store.isRecipeInLaboratory(recipe.id)}
                 />
               </motion.div>
             ))}
@@ -135,7 +135,7 @@ export function RecipesPage({ store }: RecipesPageProps) {
                   onSelectIngredient={store.selectIngredientForComponent}
                   getSelectedIngredient={store.getSelectedIngredient}
                   characterBonus={totalCharacterBonus}
-                  isInLaboratory={false}
+                  isInLaboratory={store.isRecipeInLaboratory(recipe.id)}
                 />
               </motion.div>
             ))}

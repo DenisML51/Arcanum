@@ -52,8 +52,14 @@ export default function App() {
   };
 
   const totalIngredients = Array.isArray(store.ingredients) ? store.ingredients.reduce((sum, ing) => sum + ing.quantity, 0) : 0;
-  const laboratoryRecipes = Array.isArray(store.recipes) ? store.recipes.filter(r => r.inLaboratory).length : 0;
+  const laboratoryRecipes = store.getLaboratoryRecipes().length;
   const totalPotions = Array.isArray(store.potions) ? store.potions.reduce((sum, potion) => sum + potion.quantity, 0) : 0;
+
+  // Подсчитываем готовые к варке рецепты в лаборатории
+  const readyToBrewRecipes = store.getLaboratoryRecipes().filter(recipe => {
+    const { canBrew } = store.canBrewRecipe(recipe);
+    return canBrew;
+  }).length;
 
   const navigation = [
     {
@@ -74,14 +80,14 @@ export default function App() {
       id: 'recipes' as const,
       label: 'Книга рецептов',
       icon: BookOpen,
-      badge: Array.isArray(store.recipes) ? store.recipes.length : 0,
+      badge: laboratoryRecipes,
       description: 'Изучение рецептов'
     },
     {
       id: 'laboratory' as const,
       label: 'Лаборатория',
       icon: FlaskConical,
-      badge: laboratoryRecipes,
+      badge: readyToBrewRecipes,
       description: 'Варка зелий'
     },
     {

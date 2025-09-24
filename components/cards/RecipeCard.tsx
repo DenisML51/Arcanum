@@ -12,6 +12,7 @@ interface RecipeCardProps {
   onToggleLaboratory: (recipeId: string) => void;
   canBrew?: boolean;
   onBrew?: (recipeId: string) => void;
+  isInLaboratory?: boolean;
 }
 
 const difficultyColors = {
@@ -26,7 +27,7 @@ function getDifficultyLabel(difficulty: number) {
   return { label: 'Сложный', color: difficultyColors.hard };
 }
 
-export function RecipeCard({ recipe, ingredients, onToggleLaboratory, canBrew, onBrew }: RecipeCardProps) {
+export function RecipeCard({ recipe, ingredients, onToggleLaboratory, canBrew, onBrew, isInLaboratory = false }: RecipeCardProps) {
   const difficultyInfo = getDifficultyLabel(recipe.difficulty);
 
   const getIngredientInfo = (ingredientId: string, requiredQuantity: number) => {
@@ -111,7 +112,7 @@ export function RecipeCard({ recipe, ingredients, onToggleLaboratory, canBrew, o
         </div>
 
         <div className="pt-2 border-t space-y-2">
-          {!recipe.inLaboratory ? (
+          {!isInLaboratory ? (
             <Button
               onClick={() => onToggleLaboratory(recipe.id)}
               variant="outline"

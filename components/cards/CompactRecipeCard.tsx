@@ -410,7 +410,7 @@ export function CompactRecipeCard({
         )}
 
         <div className="pt-2 border-t space-y-2">
-          {!recipe.inLaboratory ? (
+          {!isInLaboratory ? (
             <Button
               onClick={() => onToggleLaboratory(recipe.id)}
               variant="outline"
