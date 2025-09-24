@@ -162,11 +162,11 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
+        <Card className="character-card">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-start gap-4">
-                <Avatar className="h-16 w-16 bg-primary/20 self-center">
+                <Avatar className="character-avatar h-16 w-16 self-center">
                   <AvatarFallback className="text-xl">
                     {character.name.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
@@ -174,40 +174,40 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
                 <div className="flex-1">
                   <CardTitle className="text-xl mb-3">{character.name}</CardTitle>
                   <div className="flex items-center gap-3">
-                    <Badge variant="secondary">Уровень {character.level}</Badge>
+                    <Badge className="character-badge">Уровень <span className="text-primary">{character.level}</span></Badge>
 
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Badge variant="outline" className="gap-1 cursor-help">
+                        <Badge className="character-badge gap-1 cursor-help">
                           <Zap className="h-3 w-3" />
-                          {totalBrewingBonus > 0 ? '+' : ''}{totalBrewingBonus}
+                          <span className="text-primary">{totalBrewingBonus > 0 ? '+' : ''}{totalBrewingBonus}</span>
                         </Badge>
                       </TooltipTrigger>
-                      <TooltipContent>
+                      <TooltipContent className="text-white">
                         <div>
-                          <div className="font-medium">Бонус варки</div>
-                          <div className="text-xs">
+                          <div className="font-medium text-white">Бонус варки</div>
+                          <div className="text-xs text-white">
                             {character.alchemyToolsProficiency ? `Мастерство: +${proficiencyBonus}` : 'Без мастерства: +0'}
                           </div>
                           {activeEquipment && (
-                            <div className="text-xs">{activeEquipment.name}: {activeEquipment.brewingBonus > 0 ? '+' : ''}{activeEquipment.brewingBonus}</div>
+                            <div className="text-xs text-white">{activeEquipment.name}: {activeEquipment.brewingBonus > 0 ? '+' : ''}{activeEquipment.brewingBonus}</div>
                           )}
-                          {!activeEquipment && <div className="text-xs">Без оборудования: +0</div>}
+                          {!activeEquipment && <div className="text-xs text-white">Без оборудования: +0</div>}
                         </div>
                       </TooltipContent>
                     </Tooltip>
 
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Badge variant="outline" className="gap-1 cursor-help">
+                        <Badge className="character-badge gap-1 cursor-help">
                           <Star className="h-3 w-3" />
-                          {character.alchemyToolsProficiency ? 'Да' : 'Нет'}
+                          <span className="text-primary">{character.alchemyToolsProficiency ? 'Да' : 'Нет'}</span>
                         </Badge>
                       </TooltipTrigger>
-                      <TooltipContent>
+                      <TooltipContent className="text-white">
                         <div>
-                          <div className="font-medium">Мастерство инструментов алхимика</div>
-                          <div className="text-xs">
+                          <div className="font-medium text-white">Мастерство инструментов алхимика</div>
+                          <div className="text-xs text-white">
                             {character.alchemyToolsProficiency
                               ? `Дает +${proficiencyBonus} к броскам варки`
                               : 'Не изучено - нет бонуса к броскам'
@@ -239,7 +239,7 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
                   }
                 }}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" size="sm">
+                    <Button className="character-action-button" size="sm">
                       <Settings className="h-4 w-4 mr-2" />
                       Настройки
                     </Button>
@@ -428,7 +428,7 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
 
                 <Dialog open={equipmentDialogOpen} onOpenChange={setEquipmentDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" size="sm">
+                    <Button className="character-action-button" size="sm">
                       <ShoppingBag className="h-4 w-4 mr-2" />
                       Оборудование
                     </Button>
@@ -562,7 +562,7 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
                     <Icon className="h-4 w-4 mx-auto mb-1 text-muted-foreground" />
                     <div className="text-xs text-muted-foreground">{stat.name}</div>
                     <div className="text-lg font-medium">{stat.value}</div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-xs text-primary">
                       {stat.modifier >= 0 ? '+' : ''}{stat.modifier}
                     </div>
                   </div>
@@ -574,11 +574,11 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
                 <div>
                   <div className="text-sm text-muted-foreground">Проф. бонус</div>
-                  <div className="text-lg font-medium">+{proficiencyBonus}</div>
+                  <div className="text-lg font-medium text-primary">+{proficiencyBonus}</div>
                 </div>
                 <div>
                   <div className="text-sm text-muted-foreground">Бонус варки</div>
-                  <div className="text-lg font-medium">
+                  <div className="text-lg font-medium text-primary">
                     {totalBrewingBonus > 0 ? '+' : ''}{totalBrewingBonus}
                     <div className="text-xs text-muted-foreground">
                       {character.alchemyToolsProficiency ? `Мастерство +${proficiencyBonus}` : 'Без мастерства'}
@@ -591,7 +591,7 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
                 <div>
                   <div className="text-sm text-muted-foreground">Активное оборудование</div>
                   <div className="text-lg font-medium">
-                    {activeEquipment ? activeEquipment.name : 'Нет'}
+                    {activeEquipment ? activeEquipment.name : <span className="text-primary">Нет</span>}
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {activeEquipment ? activeEquipment.description : 'Выберите оборудование'}

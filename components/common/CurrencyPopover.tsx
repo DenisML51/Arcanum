@@ -52,7 +52,7 @@ export function CurrencyPopover({ currency, totalGold }: CurrencyPopoverProps) {
       <PopoverTrigger asChild>
         <Button variant="outline" className="gap-1 px-2 py-1 text-xs h-auto border-border">
           <Sparkles className="h-3 w-3" />
-          {Math.floor(totalGold)} зм
+          <span className="text-primary">{Math.floor(totalGold)}</span> зм
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-4 border-border bg-popover" align="end">
@@ -70,7 +70,7 @@ export function CurrencyPopover({ currency, totalGold }: CurrencyPopoverProps) {
                   <span className="text-sm">{coin.label}</span>
                 </div>
                 <Badge className={`${coin.color} border-none`}>
-                  {coin.amount} {coin.short}
+                  <span className="text-primary">{coin.amount}</span> {coin.short}
                 </Badge>
               </div>
             ))}
@@ -80,7 +80,7 @@ export function CurrencyPopover({ currency, totalGold }: CurrencyPopoverProps) {
                 <span className="text-sm">Общая стоимость:</span>
                 <Badge variant="outline" className="gap-1">
                   <Sparkles className="h-3 w-3" />
-                  {totalGold.toFixed(2)} зм
+                  <span className="text-primary">{totalGold.toFixed(2)}</span> зм
                 </Badge>
               </div>
             </div>

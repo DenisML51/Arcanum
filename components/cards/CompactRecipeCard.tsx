@@ -341,7 +341,7 @@ export function CompactRecipeCard({
 
   const actions = (
     <div className="flex items-center gap-1 shrink-0">
-      {isInLaboratory && canBrew && canActuallyBrew && onBrew && (
+      {isInLaboratory && canBrew && onBrew && (
         <Button
           onClick={(e) => {
             e.stopPropagation();
@@ -349,7 +349,11 @@ export function CompactRecipeCard({
           }}
           disabled={!allComponentsSelected}
           size="sm"
-          className="h-7 text-xs px-2"
+          className={`h-7 text-xs px-2 ${
+            !allComponentsSelected 
+              ? 'opacity-50 cursor-not-allowed' 
+              : ''
+          }`}
           variant={allComponentsSelected ? "default" : "secondary"}
         >
           <FlaskConical className="h-3 w-3 mr-1" />

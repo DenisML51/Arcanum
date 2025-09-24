@@ -134,7 +134,11 @@ export function RecipeCard({ recipe, ingredients, onToggleLaboratory, canBrew, o
                 <Button
                   onClick={() => onBrew(recipe.id)}
                   disabled={!allIngredientsAvailable}
-                  className="w-full"
+                  className={`w-full ${
+                    !allIngredientsAvailable 
+                      ? 'opacity-50 cursor-not-allowed' 
+                      : ''
+                  }`}
                   variant={allIngredientsAvailable ? "default" : "secondary"}
                 >
                   <FlaskConical className="h-4 w-4 mr-2" />

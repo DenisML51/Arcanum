@@ -11,7 +11,7 @@
   --card-foreground: #0c0c0c;
   --popover: #ffffff;
   --popover-foreground: #0c0c0c;
-  --primary: #6366f1;
+  --primary: #000000;
   --primary-foreground: #ffffff;
   --secondary: #f1f5f9;
   --secondary-foreground: #0f172a;
@@ -23,11 +23,11 @@
   --destructive-foreground: #ffffff;
   --border: #e2e8f0;
   --input: transparent;
-  --input-background: #ffffff;
+  --input-background: #eeeeee;
   --switch-background: #cbd5e1;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: #6366f1;
+  --ring: #000000;
   --chart-1: #3b82f6;
   --chart-2: #10b981;
   --chart-3: #f59e0b;
@@ -35,52 +35,55 @@
   --chart-5: #8b5cf6;
   --radius: 0.5rem;
   --sidebar: #ffffff;
-  --sidebar-foreground: #0c0c0c;
-  --sidebar-primary: #6366f1;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #000000;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #f1f5f9;
-  --sidebar-accent-foreground: #0f172a;
+  --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #e2e8f0;
-  --sidebar-ring: #6366f1;
+  --sidebar-ring: #000000;
+  --character-card: #ebebeb;
+  --character-card-border: #d1d5db;
 }
 
 .dark {
-  --background: #0f0f23;
-  --foreground: #e2e8f0;
-  --card: #1e1e3f;
-  --card-foreground: #e2e8f0;
-  --popover: #1e1e3f;
-  --popover-foreground: #e2e8f0;
-  --primary: #8b5cf6;
-  --primary-foreground: #ffffff;
-  --secondary: #1e293b;
-  --secondary-foreground: #e2e8f0;
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
-  --accent: #1e293b;
-  --accent-foreground: #e2e8f0;
+  --background: #060606;
+  --foreground: #f8f8f8;
+  --card: #0d0d0d;
+  --card-foreground: #eeeeee;
+  --popover: #0b0b0b;
+  --popover-foreground: #E0E0E0;
+  --primary: #c1c7ff;
+  --primary-foreground: #24242C;
+  --secondary: #24242C;
+  --secondary-foreground: #E0E0E0;
+  --muted: #24242C;
+  --muted-foreground: #A0A0A0;
+  --accent: #24242C;
+  --accent-foreground: #eeeeee;
   --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: #334155;
+  --destructive-foreground: #eeeeee;
+  --border: #33333D;
   --input: transparent;
-  --input-background: #1e293b;
-  --switch-background: #475569;
-  --ring: #8b5cf6;
+  --input-background: #131314;
+  --switch-background: #9B59B6;
+  --ring: #9B59B6;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --chart-1: #8b5cf6;
+  --chart-1: #9B59B6;
   --chart-2: #10b981;
   --chart-3: #f59e0b;
   --chart-4: #ef4444;
   --chart-5: #06b6d4;
-  --sidebar: #0f0f23;
-  --sidebar-foreground: #e2e8f0;
-  --sidebar-primary: #8b5cf6;
+  --sidebar: #1A1A1A;
+  --sidebar-foreground: #E0E0E0;
+  --sidebar-primary: #9B59B6;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1e293b;
-  --sidebar-accent-foreground: #e2e8f0;
-  --sidebar-border: #334155;
-  --sidebar-ring: #8b5cf6;
+  --sidebar-accent: #24242C;
+  --sidebar-accent-foreground: #E0E0E0;
+  --sidebar-border: #33333D;
+  --sidebar-ring: #9B59B6;
+  --character-card: #24242C;
 }
 
 
@@ -373,6 +376,270 @@ html {
   outline-offset: 2px;
 }
 
+/* Блок персонажа */
+.character-card {
+  background-color: var(--character-card); /* Светло-серый фон для карточки персонажа */
+  border: 1px solid var(--character-card-border); /* Более темная граница */
+  border-radius: 0.75rem; /* Слегка закругленные углы */
+}
+
+/* Специфичные стили для светлой темы */
+:root .character-card {
+  background-color: #ebebeb;
+  border: 1px solid #d1d5db;
+}
+
+:root .character-card .character-action-button {
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  font-weight: 500;
+}
+
+:root .character-card .character-action-button:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+  color: #111827;
+}
+
+:root .character-card .character-badge {
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  font-weight: 500;
+}
+
+:root .character-card .character-avatar {
+  background-color: #f3f4f6;
+  border: 1px solid #d1d5db;
+  color: #374151;
+}
+
+/* Стили для кнопок в блоке персонажа */
+.character-card .character-action-button {
+  background-color: #ffffff; /* Белый фон для кнопок */
+  border: 1px solid #d1d5db; /* Серая граница */
+  color: #374151; /* Темно-серый текст */
+  border-radius: 0.375rem; /* Закругленные углы */
+  transition: all 0.2s ease;
+  font-weight: 500; /* Полужирный шрифт */
+}
+
+.character-card .character-action-button:hover {
+  background-color: #f9fafb; /* Светло-серый при наведении */
+  border-color: #9ca3af;
+  color: #111827; /* Более темный текст при наведении */
+}
+
+/* Стили для бейджей в блоке персонажа */
+.character-card .character-badge {
+  background-color: #ffffff; /* Белый фон для бейджей */
+  border: 1px solid #d1d5db; /* Серая граница */
+  color: #374151; /* Темно-серый текст */
+  border-radius: 0.375rem; /* Закругленные углы */
+  font-weight: 500; /* Полужирный шрифт */
+}
+
+/* Стили для аватара в блоке персонажа */
+.character-card .character-avatar {
+  background-color: #f3f4f6; /* Светло-серый фон для аватара */
+  border: 1px solid #d1d5db; /* Серая граница */
+  color: #374151; /* Темно-серый текст */
+}
+
+/* Дополнительные стили для темной темы */
+.dark .character-card {
+  background-color: var(--character-card);
+  border: 1px solid var(--border);
+}
+
+.dark .character-card .character-action-button {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  color: var(--card-foreground);
+}
+
+.dark .character-card .character-badge {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  color: var(--card-foreground);
+}
+
+.dark .character-card .character-avatar {
+  background-color: var(--muted);
+  border: 1px solid var(--border);
+  color: var(--card-foreground);
+}
+
+.dark .character-card .character-action-button:hover {
+  background-color: var(--muted);
+  border-color: var(--primary);
+}
+
+.dark .character-card .character-badge {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  color: var(--card-foreground);
+}
+
+/* Стили для активной кнопки навигации */
+.dark .nav-button.nav-active {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* Стили для прогресс-баров */
+.dark .progress-bar {
+  background-color: var(--primary);
+}
+
+/* Стили для бейджей с числами */
+.dark .badge-number {
+  color: var(--primary);
+}
+
+/* Стили для полей ввода с лейблами */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-field-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground);
+  line-height: 1.25rem;
+}
+
+.form-field-label.required::after {
+  content: " *";
+  color: var(--destructive);
+}
+
+.form-field-input {
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background-color: var(--input-background);
+  color: var(--foreground);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.form-field-input::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-field-input:hover {
+  border-color: var(--border);
+}
+
+.form-field-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary) / 0.2;
+}
+
+.form-field-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.form-field-textarea {
+  min-height: 4rem;
+  resize: vertical;
+}
+
+.form-field-select {
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background-color: var(--input-background);
+  color: var(--foreground);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+}
+
+.form-field-select:hover {
+  border-color: var(--border);
+}
+
+.form-field-select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary) / 0.2;
+}
+
+.form-field-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.form-field-error {
+  border-color: var(--destructive);
+}
+
+.form-field-error:focus {
+  border-color: var(--destructive);
+  box-shadow: 0 0 0 2px var(--destructive) / 0.2;
+}
+
+.form-field-error-message {
+  font-size: 0.75rem;
+  color: var(--destructive);
+  margin-top: 0.25rem;
+}
+
+/* Стили для темной темы */
+.dark .form-field-input {
+  background-color: var(--input-background);
+  border-color: var(--border);
+  color: var(--foreground);
+}
+
+.dark .form-field-input::placeholder {
+  color: var(--muted-foreground);
+}
+
+.dark .form-field-input:hover {
+  border-color: var(--border);
+}
+
+.dark .form-field-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary) / 0.2;
+}
+
+.dark .form-field-select {
+  background-color: var(--input-background);
+  border-color: var(--border);
+  color: var(--foreground);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a0a0a0' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+}
+
+.dark .form-field-select:hover {
+  border-color: var(--border);
+}
+
+.dark .form-field-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary) / 0.2;
+}
+
 /* Улучшения для мобильных устройств */
 @media (max-width: 640px) {
   .card-grid {
@@ -395,5 +662,22 @@ html {
 
   .action-buttons {
     gap: 0.25rem;
+  }
+
+  .form-field-input {
+    min-height: 2.25rem;
+    padding: 0.625rem;
+    font-size: 1rem;
+  }
+
+  .form-field-textarea {
+    min-height: 3.5rem;
+  }
+
+  .form-field-select {
+    min-height: 2.25rem;
+    padding: 0.625rem;
+    font-size: 1rem;
+    padding-right: 2.25rem;
   }
 }

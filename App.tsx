@@ -155,7 +155,7 @@ export default function App() {
             <div className="flex items-center gap-1 sm:gap-3">
               <Badge variant="outline" className="gap-1 px-2 py-1 text-xs hidden sm:inline-flex">
                 <Package className="h-3 w-3" />
-                {totalIngredients} ингр.
+                <span className="text-primary">{totalIngredients}</span> ингр.
               </Badge>
 
               <CurrencyPopover
@@ -189,7 +189,9 @@ export default function App() {
                     onClick={() => setActivePage(item.id)}
                     className={`w-full h-16 p-4 relative nav-button overflow-hidden ${
                       sidebarExpanded ? 'justify-start' : 'justify-center'
-                    } ${!sidebarExpanded && isActive ? 'nav-active' : ''}`}
+                    } ${!sidebarExpanded && isActive ? 'nav-active' : ''} ${
+                      isActive ? 'text-primary-foreground' : 'text-sidebar-foreground'
+                    }`}
                     title={!sidebarExpanded ? item.label : ''}
                   >
                     <div className={`flex items-center w-full transition-all duration-350 ease-out ${
@@ -216,7 +218,7 @@ export default function App() {
                           variant={isActive ? "secondary" : "outline"}
                           className="shrink-0 ml-auto px-2 py-1 text-xs"
                         >
-                          {item.badge}
+                          <span className="text-primary">{item.badge}</span>
                         </Badge>
                       )}
                     </div>
@@ -240,14 +242,16 @@ export default function App() {
                       key={item.id}
                       variant={isActive ? "default" : "outline"}
                       onClick={() => setActivePage(item.id)}
-                      className="shrink-0 h-auto px-3 py-2"
+                      className={`shrink-0 h-auto px-3 py-2 ${
+                        isActive ? 'text-primary-foreground' : ''
+                      }`}
                       size="sm"
                     >
                       <div className="flex items-center gap-2">
                         <Icon className="h-4 w-4" />
                         <span className="text-xs">{item.label}</span>
                         <Badge variant={isActive ? "secondary" : "outline"} className="text-xs">
-                          {item.badge}
+                          <span className="text-primary">{item.badge}</span>
                         </Badge>
                       </div>
                     </Button>

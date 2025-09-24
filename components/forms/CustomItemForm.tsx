@@ -6,6 +6,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
+import { FormField, FormInput, FormTextarea, FormSelect } from "../ui/form-field";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Badge } from "../ui/badge";
 import { Separator } from "../ui/separator";
@@ -25,8 +26,8 @@ export function CustomItemForm({ store }: CustomItemFormProps) {
   const [ingredientForm, setIngredientForm] = useState({
     name: '',
     description: '',
-    type: 'herb' as IngredientType,
-    rarity: 'common' as PotionRarity,
+    type: 'plant' as IngredientType,
+    rarity: 'common' as 'common' | 'uncommon' | 'rare' | 'very rare' | 'legendary',
     quantity: 1,
     cost: 1,
     weight: 0.1,
@@ -41,7 +42,7 @@ export function CustomItemForm({ store }: CustomItemFormProps) {
     name: '',
     description: '',
     effect: '',
-    rarity: 'common' as PotionRarity,
+    rarity: 'common' as 'common' | 'uncommon' | 'rare' | 'very rare' | 'legendary',
     potionType: 'potion' as PotionType,
     potionQuality: 'low' as PotionQuality,
     tags: [] as string[],
@@ -55,8 +56,8 @@ export function CustomItemForm({ store }: CustomItemFormProps) {
     }>
   });
 
-  const ingredientTypes: IngredientType[] = ['herb', 'mineral', 'creature', 'essence', 'oil', 'crystal', 'poison'];
-  const rarities: PotionRarity[] = ['common', 'uncommon', 'rare', 'very rare', 'legendary'];
+  const ingredientTypes: IngredientType[] = ['plant', 'mineral', 'creature', 'other', 'spring_water', 'enchanted_ink', 'thick_magical_ink', 'dissolved_ether', 'irminsul_juice'];
+  const rarities: Array<'common' | 'uncommon' | 'rare' | 'very rare' | 'legendary'> = ['common', 'uncommon', 'rare', 'very rare', 'legendary'];
   const potionTypes: PotionType[] = ['potion', 'elixir', 'oil'];
   const potionQualities: PotionQuality[] = ['low', 'common', 'high'];
 
@@ -142,10 +143,12 @@ export function CustomItemForm({ store }: CustomItemFormProps) {
     }
 
     try {
-      store.addCustomIngredient({
+      store.addIngredient({
         name: ingredientForm.name.trim(),
         description: ingredientForm.description.trim(),
         type: ingredientForm.type,
+        category: ingredientForm.type as any, // Приводим к IngredientCategory
+        elements: [], // Пустой массив элементов
         rarity: ingredientForm.rarity,
         quantity: ingredientForm.quantity,
         cost: ingredientForm.cost,
@@ -160,7 +163,7 @@ export function CustomItemForm({ store }: CustomItemFormProps) {
       setIngredientForm({
         name: '',
         description: '',
-        type: 'herb',
+        type: 'plant',
         rarity: 'common',
         quantity: 1,
         cost: 1,
@@ -175,53 +178,9 @@ export function CustomItemForm({ store }: CustomItemFormProps) {
     }
   };
 
-  // Сохранение рецепта
+  // Сохранение рецепта (пока отключено)
   const saveRecipe = () => {
-    if (!recipeForm.name.trim() || !recipeForm.description.trim() || !recipeForm.effect.trim()) {
-      toast.error("Заполните обязательные поля");
-      return;
-    }
-
-    if (recipeForm.components.length === 0) {
-      toast.error("Добавьте хотя бы один компонент");
-      return;
-    }
-
-    try {
-      store.addCustomRecipe({
-        name: recipeForm.name.trim(),
-        description: recipeForm.description.trim(),
-        effect: recipeForm.effect.trim(),
-        rarity: recipeForm.rarity,
-        potionType: recipeForm.potionType,
-        potionQuality: recipeForm.potionQuality,
-        tags: recipeForm.tags,
-        inLaboratory: false,
-        components: recipeForm.components.map((comp, index) => ({
-          id: `comp_${Date.now()}_${index}`,
-          ...comp,
-          selectedIngredientId: undefined
-        })),
-        savingThrowType: 'constitution'
-      });
-
-      toast.success("Рецепт добавлен!");
-
-      // Сброс формы
-      setRecipeForm({
-        name: '',
-        description: '',
-        effect: '',
-        rarity: 'common',
-        potionType: 'potion',
-        potionQuality: 'low',
-        tags: [],
-        newTag: '',
-        components: []
-      });
-    } catch (error) {
-      toast.error("Ошибка при добавлении рецепта");
-    }
+    toast.error("Добавление рецептов временно недоступно");
   };
 
   return (
@@ -258,99 +217,80 @@ export function CustomItemForm({ store }: CustomItemFormProps) {
           <div className="space-y-4">
             {/* Форма ингредиента */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="ing-name">Название *</Label>
-                <Input
-                  id="ing-name"
+              <FormField label="Название" required>
+                <FormInput
                   value={ingredientForm.name}
                   onChange={(e) => setIngredientForm(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="Название ингредиента"
                 />
-              </div>
+              </FormField>
 
-              <div>
-                <Label htmlFor="ing-type">Тип</Label>
-                <Select value={ingredientForm.type} onValueChange={(value: IngredientType) =>
-                  setIngredientForm(prev => ({ ...prev, type: value }))}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ingredientTypes.map(type => (
-                      <SelectItem key={type} value={type}>{type}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <FormField label="Тип">
+                <FormSelect 
+                  value={ingredientForm.type} 
+                  onChange={(e) => setIngredientForm(prev => ({ ...prev, type: e.target.value as IngredientType }))}
+                >
+                  {ingredientTypes.map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </FormSelect>
+              </FormField>
             </div>
 
-            <div>
-              <Label htmlFor="ing-desc">Описание *</Label>
-              <Textarea
-                id="ing-desc"
+            <FormField label="Описание" required>
+              <FormTextarea
                 value={ingredientForm.description}
                 onChange={(e) => setIngredientForm(prev => ({ ...prev, description: e.target.value }))}
                 placeholder="Описание ингредиента"
               />
-            </div>
+            </FormField>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div>
-                <Label htmlFor="ing-rarity">Редкость</Label>
-                <Select value={ingredientForm.rarity} onValueChange={(value: PotionRarity) =>
-                  setIngredientForm(prev => ({ ...prev, rarity: value }))}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {rarities.map(rarity => (
-                      <SelectItem key={rarity} value={rarity}>{rarity}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <FormField label="Редкость">
+                <FormSelect 
+                  value={ingredientForm.rarity} 
+                  onChange={(e) => setIngredientForm(prev => ({ ...prev, rarity: e.target.value as 'common' | 'uncommon' | 'rare' | 'very rare' | 'legendary' }))}
+                >
+                  {rarities.map(rarity => (
+                    <option key={rarity} value={rarity}>{rarity}</option>
+                  ))}
+                </FormSelect>
+              </FormField>
 
-              <div>
-                <Label htmlFor="ing-quantity">Количество</Label>
-                <Input
-                  id="ing-quantity"
+              <FormField label="Количество">
+                <FormInput
                   type="number"
                   min="0"
                   value={ingredientForm.quantity}
                   onChange={(e) => setIngredientForm(prev => ({ ...prev, quantity: parseInt(e.target.value) || 0 }))}
                 />
-              </div>
+              </FormField>
 
-              <div>
-                <Label htmlFor="ing-cost">Стоимость (зм)</Label>
-                <Input
-                  id="ing-cost"
+              <FormField label="Стоимость (зм)">
+                <FormInput
                   type="number"
                   min="0"
                   step="0.1"
                   value={ingredientForm.cost}
                   onChange={(e) => setIngredientForm(prev => ({ ...prev, cost: parseFloat(e.target.value) || 0 }))}
                 />
-              </div>
+              </FormField>
 
-              <div>
-                <Label htmlFor="ing-weight">Вес (фунт)</Label>
-                <Input
-                  id="ing-weight"
+              <FormField label="Вес (фунт)">
+                <FormInput
                   type="number"
                   min="0"
                   step="0.1"
                   value={ingredientForm.weight}
                   onChange={(e) => setIngredientForm(prev => ({ ...prev, weight: parseFloat(e.target.value) || 0 }))}
                 />
-              </div>
+              </FormField>
             </div>
 
             {/* Теги */}
-            <div>
-              <Label>Теги</Label>
+            <FormField label="Теги">
               <div className="flex gap-2 mb-2">
-                <Input
+                <FormInput
                   value={ingredientForm.newTag}
                   onChange={(e) => setIngredientForm(prev => ({ ...prev, newTag: e.target.value }))}
                   placeholder="Добавить тег"
@@ -368,13 +308,12 @@ export function CustomItemForm({ store }: CustomItemFormProps) {
                   </Badge>
                 ))}
               </div>
-            </div>
+            </FormField>
 
             {/* Локации */}
-            <div>
-              <Label>Локации</Label>
+            <FormField label="Локации">
               <div className="flex gap-2 mb-2">
-                <Input
+                <FormInput
                   value={ingredientForm.newLocation}
                   onChange={(e) => setIngredientForm(prev => ({ ...prev, newLocation: e.target.value }))}
                   placeholder="Добавить локацию"
@@ -392,7 +331,7 @@ export function CustomItemForm({ store }: CustomItemFormProps) {
                   </Badge>
                 ))}
               </div>
-            </div>
+            </FormField>
 
             <Button onClick={saveIngredient} className="w-full">
               Добавить ингредиент
@@ -402,89 +341,70 @@ export function CustomItemForm({ store }: CustomItemFormProps) {
           <div className="space-y-4">
             {/* Форма рецепта */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="rec-name">Название *</Label>
-                <Input
-                  id="rec-name"
+              <FormField label="Название" required>
+                <FormInput
                   value={recipeForm.name}
                   onChange={(e) => setRecipeForm(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="Название рецепта"
                 />
-              </div>
+              </FormField>
 
-              <div>
-                <Label htmlFor="rec-rarity">Редкость</Label>
-                <Select value={recipeForm.rarity} onValueChange={(value: PotionRarity) =>
-                  setRecipeForm(prev => ({ ...prev, rarity: value }))}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {rarities.map(rarity => (
-                      <SelectItem key={rarity} value={rarity}>{rarity}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <FormField label="Редкость">
+                <FormSelect 
+                  value={recipeForm.rarity} 
+                  onChange={(e) => setRecipeForm(prev => ({ ...prev, rarity: e.target.value as 'common' | 'uncommon' | 'rare' | 'very rare' | 'legendary' }))}
+                >
+                  {rarities.map(rarity => (
+                    <option key={rarity} value={rarity}>{rarity}</option>
+                  ))}
+                </FormSelect>
+              </FormField>
             </div>
 
-            <div>
-              <Label htmlFor="rec-desc">Описание *</Label>
-              <Textarea
-                id="rec-desc"
+            <FormField label="Описание" required>
+              <FormTextarea
                 value={recipeForm.description}
                 onChange={(e) => setRecipeForm(prev => ({ ...prev, description: e.target.value }))}
                 placeholder="Описание рецепта"
               />
-            </div>
+            </FormField>
 
-            <div>
-              <Label htmlFor="rec-effect">Эффект *</Label>
-              <Textarea
-                id="rec-effect"
+            <FormField label="Эффект" required>
+              <FormTextarea
                 value={recipeForm.effect}
                 onChange={(e) => setRecipeForm(prev => ({ ...prev, effect: e.target.value }))}
                 placeholder="Описание эффекта зелья"
               />
-            </div>
+            </FormField>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="rec-type">Тип зелья</Label>
-                <Select value={recipeForm.potionType} onValueChange={(value: PotionType) =>
-                  setRecipeForm(prev => ({ ...prev, potionType: value }))}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {potionTypes.map(type => (
-                      <SelectItem key={type} value={type}>{type}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <FormField label="Тип зелья">
+                <FormSelect 
+                  value={recipeForm.potionType} 
+                  onChange={(e) => setRecipeForm(prev => ({ ...prev, potionType: e.target.value as PotionType }))}
+                >
+                  {potionTypes.map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </FormSelect>
+              </FormField>
 
-              <div>
-                <Label htmlFor="rec-quality">Качество варева</Label>
-                <Select value={recipeForm.potionQuality} onValueChange={(value: PotionQuality) =>
-                  setRecipeForm(prev => ({ ...prev, potionQuality: value }))}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {potionQualities.map(quality => (
-                      <SelectItem key={quality} value={quality}>{quality}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <FormField label="Качество варева">
+                <FormSelect 
+                  value={recipeForm.potionQuality} 
+                  onChange={(e) => setRecipeForm(prev => ({ ...prev, potionQuality: e.target.value as PotionQuality }))}
+                >
+                  {potionQualities.map(quality => (
+                    <option key={quality} value={quality}>{quality}</option>
+                  ))}
+                </FormSelect>
+              </FormField>
             </div>
 
             {/* Теги рецепта */}
-            <div>
-              <Label>Теги</Label>
+            <FormField label="Теги">
               <div className="flex gap-2 mb-2">
-                <Input
+                <FormInput
                   value={recipeForm.newTag}
                   onChange={(e) => setRecipeForm(prev => ({ ...prev, newTag: e.target.value }))}
                   placeholder="Добавить тег"
@@ -502,7 +422,7 @@ export function CustomItemForm({ store }: CustomItemFormProps) {
                   </Badge>
                 ))}
               </div>
-            </div>
+            </FormField>
 
             <Separator />
 
@@ -522,7 +442,7 @@ export function CustomItemForm({ store }: CustomItemFormProps) {
                     <div className="flex items-start gap-2 mb-3">
                       <div className="flex-1 space-y-3">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <Input
+                          <FormInput
                             placeholder="Название компонента"
                             value={component.name}
                             onChange={(e) => {
@@ -531,7 +451,7 @@ export function CustomItemForm({ store }: CustomItemFormProps) {
                               setRecipeForm(prev => ({ ...prev, components: newComponents }));
                             }}
                           />
-                          <Input
+                          <FormInput
                             type="number"
                             placeholder="Количество"
                             min="1"
@@ -543,7 +463,7 @@ export function CustomItemForm({ store }: CustomItemFormProps) {
                             }}
                           />
                         </div>
-                        <Textarea
+                        <FormTextarea
                           placeholder="Описание компонента"
                           value={component.description}
                           onChange={(e) => {

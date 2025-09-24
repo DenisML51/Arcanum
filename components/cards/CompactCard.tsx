@@ -111,7 +111,7 @@ export function CompactCard({
 
                 const circleElement = (
                   <div
-                    className={`w-5 h-5 rounded-full flex items-center justify-center text-xs text-white shrink-0 ${circle.color}`}
+                    className={`w-5 h-5 rounded-full flex items-center justify-center text-xs text-black dark:text-white shrink-0 ${circle.color}`}
                   >
                     {circle.label === "✓" || circle.label === "!" ? circle.label : (circle.label || "").slice(0, 1).toUpperCase()}
                   </div>
@@ -122,8 +122,8 @@ export function CompactCard({
                     <TooltipTrigger asChild>
                       {circleElement}
                     </TooltipTrigger>
-                    <TooltipContent>
-                      <div className="text-xs">{circle.tooltip}</div>
+                    <TooltipContent className="text-white">
+                      <div className="text-xs text-white">{circle.tooltip}</div>
                     </TooltipContent>
                   </Tooltip>
                 ) : (
