@@ -1,15 +1,15 @@
 // components/PotionsPage.tsx
 
 import { useState } from "react";
-import { Input } from "./ui/input";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
-import { Checkbox } from "./ui/checkbox";
-import { Separator } from "./ui/separator";
+import { Input } from "../ui/input";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { Checkbox } from "../ui/checkbox";
+import { Separator } from "../ui/separator";
 import { Search, Filter, X, FlaskConical } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CompactPotionCard } from "./CompactPotionCard";
-import type { useAlchemyStore } from "../hooks/useAlchemyStore";
+import { CompactPotionCard } from "../cards/CompactPotionCard";
+import { useAlchemyStore } from "../../hooks/stores/useAlchemyStore";
 
 interface PotionsPageProps {
   store: ReturnType<typeof useAlchemyStore>;
@@ -34,7 +34,24 @@ const rarityOptions = [
 export function PotionsPage({ store }: PotionsPageProps) {
   const [showFilters, setShowFilters] = useState(false);
 
-  const filteredPotions = store.getFilteredPotions();
+  // Простая фильтрация зелий
+  const filteredPotions = store.potions.filter(potion => {
+    const filters = store.activeFilters;
+    
+    if (filters.search && !potion.name.toLowerCase().includes(filters.search.toLowerCase())) {
+      return false;
+    }
+    
+    if (filters.rarities.length > 0 && !filters.rarities.includes(potion.rarity)) {
+      return false;
+    }
+    
+    if (filters.potionTypes.length > 0 && !filters.potionTypes.includes(potion.potionType)) {
+      return false;
+    }
+    
+    return true;
+  });
 
   // Получаем все уникальные теги зелий
   const allPotionTags = Array.from(new Set(store.potions.flatMap(potion => potion.tags)));
@@ -43,22 +60,20 @@ export function PotionsPage({ store }: PotionsPageProps) {
     const newRarities = checked
       ? [...store.activeFilters.rarities, rarity]
       : store.activeFilters.rarities.filter(r => r !== rarity);
-    store.updateFilters({ rarities: newRarities });
+    store.updateFilter('rarities', newRarities);
   };
 
   const handlePotionTypeFilter = (tag: string, checked: boolean) => {
     const newTypes = checked
       ? [...store.activeFilters.potionTypes, tag]
       : store.activeFilters.potionTypes.filter(t => t !== tag);
-    store.updateFilters({ potionTypes: newTypes });
+    store.updateFilter('potionTypes', newTypes);
   };
 
   const clearAllFilters = () => {
-    store.updateFilters({
-      rarities: [],
-      potionTypes: [],
-      search: ''
-    });
+    store.updateFilter('rarities', []);
+    store.updateFilter('potionTypes', []);
+    store.updateFilter('search', '');
   };
 
   const hasActiveFilters =
@@ -96,7 +111,7 @@ export function PotionsPage({ store }: PotionsPageProps) {
         <Input
           placeholder="Поиск зелий..."
           value={store.activeFilters.search}
-          onChange={(e) => store.updateFilters({ search: e.target.value })}
+          onChange={(e) => store.updateFilter('search', e.target.value)}
           className="pl-10"
         />
       </div>

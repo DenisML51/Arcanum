@@ -1,9 +1,9 @@
 // components/ShopPage.tsx
 
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Separator } from "./ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Badge } from "../ui/badge";
+import { Separator } from "../ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import {
   Coins,
   ShoppingCart,
@@ -14,16 +14,11 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { CompactShopCard } from "./CompactShopCard";
-import type { AlchemyStore } from "../hooks/useAlchemyStore";
+import { CompactShopCard } from "../cards/CompactShopCard";
+import { useAlchemyStore } from "../../hooks/stores/useAlchemyStore";
 
 interface ShopPageProps {
-  store: AlchemyStore & {
-    buyIngredient: (ingredientId: string, quantity: number) => { success: boolean; message: string };
-    sellIngredient: (ingredientId: string, quantity: number) => { success: boolean; message: string };
-    ingredients: any[];
-    playerGold: number;
-  };
+  store: ReturnType<typeof useAlchemyStore>;
 }
 
 

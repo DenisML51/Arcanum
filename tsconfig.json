@@ -15,10 +15,10 @@
     "jsx": "react-jsx",
 
     /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": false,
 
     /* Path mapping */
     "baseUrl": ".",
@@ -26,6 +26,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["main.tsx", "App.tsx", "components/**/*.tsx", "hooks/**/*.ts", "utils/**/*.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

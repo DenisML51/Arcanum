@@ -1,10 +1,10 @@
 // components/CurrencyPopover.tsx
 
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Sparkles, Coins } from "lucide-react";
-import type { Currency } from "../hooks/useAlchemyStore";
+import type { Currency } from "../../hooks/types";
 
 interface CurrencyPopoverProps {
   currency: Currency;

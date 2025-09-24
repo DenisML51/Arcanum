@@ -1,16 +1,16 @@
 // components/LaboratoryPage.tsx
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
-import { Progress } from "./ui/progress";
-import { Alert, AlertDescription } from "./ui/alert";
-import { CompactRecipeCard } from "./CompactRecipeCard";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { Progress } from "../ui/progress";
+import { Alert, AlertDescription } from "../ui/alert";
+import { CompactRecipeCard } from "../cards/CompactRecipeCard";
 import { FlaskConical, Package, AlertTriangle, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import type { useAlchemyStore } from "../hooks/useAlchemyStore";
+import { useAlchemyStore } from "../../hooks/stores/useAlchemyStore";
 
 interface LaboratoryPageProps {
   store: ReturnType<typeof useAlchemyStore>;
@@ -21,17 +21,19 @@ interface LaboratoryPageProps {
 export function LaboratoryPage({ store }: LaboratoryPageProps) {
   const [isBrewingMode, setIsBrewingMode] = useState(false);
 
-  const laboratoryRecipes = store.recipes.filter(recipe => recipe.inLaboratory);
+  const laboratoryRecipes = store.getLaboratoryRecipes();
 
   // Рассчитываем бонус персонажа к варке
-  const activeEquipment = store.character.equipment.find(eq => eq.id === store.character.activeEquipmentId);
+  const activeEquipment = store.availableEquipment.find(eq => eq.id === store.character.activeEquipmentId);
   const equipmentBonus = activeEquipment ? activeEquipment.brewingBonus : 0;
-  const proficiencyBonus = store.character.alchemyToolsProficiency ? store.character.proficiencyBonus : 0;
+  const proficiencyBonus = store.character.alchemyToolsProficiency ? 2 : 0;
   const totalCharacterBonus = equipmentBonus + proficiencyBonus;
 
 
   const handleBrew = (recipeId: string) => {
-    const result = store.brewPotion(recipeId);
+    const recipe = store.recipes.find(r => r.id === recipeId);
+    if (!recipe) return;
+    const result = store.brewPotion(recipe);
 
     if (result.success) {
       toast.success(result.message, {
@@ -49,13 +51,8 @@ export function LaboratoryPage({ store }: LaboratoryPageProps) {
   const getLabStats = () => {
     const totalRecipes = laboratoryRecipes.length;
     const availableRecipes = laboratoryRecipes.filter(recipe => {
-      return recipe.components?.every(component => {
-        if (!component.selectedIngredientId) return false;
-        const ingredient = store.ingredients.find(ing => ing.id === component.selectedIngredientId);
-        return ingredient &&
-          store.isIngredientCompatibleWithComponent(ingredient, component) &&
-          ingredient.quantity >= component.quantity;
-      }) || false;
+      const { canBrew } = store.canBrewRecipe(recipe);
+      return canBrew;
     }).length;
 
     return { totalRecipes, availableRecipes };
@@ -158,9 +155,11 @@ export function LaboratoryPage({ store }: LaboratoryPageProps) {
                     ingredients={store.ingredients}
                     onToggleLaboratory={(recipeId) => store.removeRecipeFromLaboratory(recipeId)}
                     onSelectIngredient={store.selectIngredientForComponent}
+                    getSelectedIngredient={store.getSelectedIngredient}
                     canBrew={isBrewingMode}
                     onBrew={handleBrew}
                     characterBonus={totalCharacterBonus}
+                    isInLaboratory={true}
                   />
                 </motion.div>
               ))}

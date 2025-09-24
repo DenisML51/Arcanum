@@ -1,20 +1,20 @@
 // components/DataManager.tsx
 
 import { useState, useRef } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { Alert, AlertDescription } from "./ui/alert";
-import { Separator } from "./ui/separator";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
+import { Alert, AlertDescription } from "../ui/alert";
+import { Separator } from "../ui/separator";
 import { Download, Upload, RefreshCw, FileText, AlertTriangle, CheckCircle, Database } from "lucide-react";
 import { toast } from "sonner";
-import { exportData, importData, loadAllData, validateIngredient, validateRecipe, validateBiome, validateEquipment } from "../utils/dataLoader";
-import { CustomItemForm } from "./CustomItemForm";
-import type { useAlchemyStore } from "../hooks/useAlchemyStore";
-import ingredientsData from "../data/ingredients.json";
-import recipesData from "../data/recipes.json";
-import biomesData from "../data/biomes.json";
-import equipmentData from "../data/equipment.json";
+import { exportData, importData, validateIngredient, validateRecipe, validateBiome, validateEquipment } from "../../utils/dataLoader";
+import { CustomItemForm } from "../forms/CustomItemForm";
+import { useAlchemyStore } from "../../hooks/stores/useAlchemyStore";
+import ingredientsData from "../../data/ingredients.json";
+import recipesData from "../../data/recipes.json";
+import biomesData from "../../data/biomes.json";
+import equipmentData from "../../data/equipment.json";
 
 interface DataManagerProps {
   store: ReturnType<typeof useAlchemyStore>;

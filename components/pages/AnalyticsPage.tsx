@@ -1,9 +1,9 @@
 // components/AnalyticsPage.tsx
 
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Progress } from "./ui/progress";
-import { Separator } from "./ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Badge } from "../ui/badge";
+import { Progress } from "../ui/progress";
+import { Separator } from "../ui/separator";
 import {
   BarChart,
   Bar,
@@ -27,10 +27,10 @@ import {
   XCircle,
   Award
 } from "lucide-react";
-import type { AlchemyStore } from "../hooks/useAlchemyStore";
+import { useAlchemyStore } from "../../hooks/stores/useAlchemyStore";
 
 interface AnalyticsPageProps {
-  store: AlchemyStore;
+  store: ReturnType<typeof useAlchemyStore>;
 }
 
 const RARITY_COLORS = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444'];

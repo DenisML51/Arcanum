@@ -1,11 +1,11 @@
 // components/IngredientCard.tsx
 
-import { Badge } from "./ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
+import { Badge } from "../ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
 import { Minus, Plus, MapPin, Coins } from "lucide-react";
-import type { Ingredient } from "../hooks/useAlchemyStore";
+import type { Ingredient } from "../../hooks/types";
 
 interface IngredientCardProps {
   ingredient: Ingredient;

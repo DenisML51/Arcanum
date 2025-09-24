@@ -1,16 +1,16 @@
 // components/InventoryPage.tsx
 
 import { useState } from "react";
-import { Input } from "./ui/input";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Checkbox } from "./ui/checkbox";
-import { Separator } from "./ui/separator";
+import { Input } from "../ui/input";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Checkbox } from "../ui/checkbox";
+import { Separator } from "../ui/separator";
 import { Search, Filter, X } from "lucide-react";
-import { CompactIngredientCard } from "./CompactIngredientCard";
+import { CompactIngredientCard } from "../cards/CompactIngredientCard";
 import { motion, AnimatePresence } from "framer-motion";
-import type { useAlchemyStore } from "../hooks/useAlchemyStore";
+import { useAlchemyStore } from "../../hooks/stores/useAlchemyStore";
 
 interface InventoryPageProps {
   store: ReturnType<typeof useAlchemyStore>;
@@ -36,8 +36,29 @@ const rarityOptions = [
 export function InventoryPage({ store }: InventoryPageProps) {
   const [showFilters, setShowFilters] = useState(false);
 
-  const filteredIngredients = store.getFilteredIngredients();
-  const recipesInLab = Array.isArray(store.recipes) ? store.recipes.filter(r => r.inLaboratory) : [];
+  // Простая фильтрация ингредиентов
+  const filteredIngredients = store.ingredients.filter(ingredient => {
+    const filters = store.activeFilters;
+    
+    if (filters.search && !ingredient.name.toLowerCase().includes(filters.search.toLowerCase())) {
+      return false;
+    }
+    
+    if (filters.ingredientTypes.length > 0 && !filters.ingredientTypes.includes(ingredient.type)) {
+      return false;
+    }
+    
+    if (filters.rarities.length > 0 && !filters.rarities.includes(ingredient.rarity)) {
+      return false;
+    }
+    
+    if (filters.tags.length > 0 && !filters.tags.some(tag => ingredient.tags.includes(tag))) {
+      return false;
+    }
+    
+    return true;
+  });
+  const recipesInLab = store.getLaboratoryRecipes();
 
   // Получаем все уникальные теги
   const allTags = Array.from(new Set(
@@ -48,38 +69,36 @@ export function InventoryPage({ store }: InventoryPageProps) {
     const newTypes = checked
       ? [...store.activeFilters.ingredientTypes, type]
       : store.activeFilters.ingredientTypes.filter(t => t !== type);
-    store.updateFilters({ ingredientTypes: newTypes });
+    store.updateFilter('ingredientTypes', newTypes);
   };
 
   const handleRarityFilter = (rarity: string, checked: boolean) => {
     const newRarities = checked
       ? [...store.activeFilters.rarities, rarity]
       : store.activeFilters.rarities.filter(r => r !== rarity);
-    store.updateFilters({ rarities: newRarities });
+    store.updateFilter('rarities', newRarities);
   };
 
   const handleTagFilter = (tag: string, checked: boolean) => {
     const newTags = checked
       ? [...store.activeFilters.tags, tag]
       : store.activeFilters.tags.filter(t => t !== tag);
-    store.updateFilters({ tags: newTags });
+    store.updateFilter('tags', newTags);
   };
 
   const handleRecipeFilter = (recipeId: string) => {
     const newRecipes = store.activeFilters.availableForRecipes.includes(recipeId)
       ? store.activeFilters.availableForRecipes.filter(id => id !== recipeId)
       : [...store.activeFilters.availableForRecipes, recipeId];
-    store.updateFilters({ availableForRecipes: newRecipes });
+    store.updateFilter('availableForRecipes', newRecipes);
   };
 
   const clearAllFilters = () => {
-    store.updateFilters({
-      ingredientTypes: [],
-      rarities: [],
-      tags: [],
-      search: '',
-      availableForRecipes: []
-    });
+    store.updateFilter('ingredientTypes', []);
+    store.updateFilter('rarities', []);
+    store.updateFilter('tags', []);
+    store.updateFilter('search', '');
+    store.updateFilter('availableForRecipes', []);
   };
 
   const hasActiveFilters =
@@ -98,19 +117,28 @@ export function InventoryPage({ store }: InventoryPageProps) {
             Управляйте своими алхимическими ингредиентами
           </p>
         </div>
-        <Button
-          variant="outline"
-          onClick={() => setShowFilters(!showFilters)}
-          className="ml-auto"
-        >
-          <Filter className="h-4 w-4 mr-2" />
-          Фильтры
-          {hasActiveFilters && (
-            <Badge variant="secondary" className="ml-2">
-              Активны
-            </Badge>
-          )}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => store.cleanDuplicates()}
+            size="sm"
+          >
+            <X className="h-4 w-4 mr-2" />
+            Очистить дубликаты
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <Filter className="h-4 w-4 mr-2" />
+            Фильтры
+            {hasActiveFilters && (
+              <Badge variant="secondary" className="ml-2">
+                Активны
+              </Badge>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* Поиск */}
@@ -119,7 +147,7 @@ export function InventoryPage({ store }: InventoryPageProps) {
         <Input
           placeholder="Поиск ингредиентов..."
           value={store.activeFilters.search}
-          onChange={(e) => store.updateFilters({ search: e.target.value })}
+          onChange={(e) => store.updateFilter('search', e.target.value)}
           className="pl-10"
         />
       </div>

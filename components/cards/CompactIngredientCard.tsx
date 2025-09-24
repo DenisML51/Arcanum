@@ -1,11 +1,11 @@
 // components/CompactIngredientCard.tsx
 
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
 import { Minus, Plus, MapPin, Coins } from "lucide-react";
 import { CompactCard } from "./CompactCard";
-import type { Ingredient, PotionBase } from "../hooks/useAlchemyStore";
+import type { Ingredient, PotionBase } from "../../hooks/types";
 import {
   getIngredientCategoryName,
   getIngredientCategoryColor,
@@ -13,7 +13,7 @@ import {
   getAlchemicalElementShortCode,
   getPotionBaseName,
   getPotionBaseRarity
-} from "../hooks/useAlchemyStore";
+} from "../../hooks/types";
 
 interface CompactIngredientCardProps {
   ingredient: Ingredient;

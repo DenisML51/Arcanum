@@ -1,13 +1,13 @@
 // components/CompactRecipeCard.tsx
 
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Clock, Target, FlaskConical, CheckCircle2 } from "lucide-react";
 import { CompactCard } from "./CompactCard";
-import type { Recipe, Ingredient, RecipeComponent } from "../hooks/useAlchemyStore";
-import { getRarityDetails, getRarityColor, getRarityName, getPotionTypeName, getPotionTypeColor, getPotionQualityName, getPotionQualityColor } from "../hooks/useAlchemyStore";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import type { Recipe, Ingredient, RecipeComponent } from "../../hooks/types";
+import { getRarityColor, getRarityName, getRarityDetails, getPotionTypeName, getPotionTypeColor, getPotionQualityName, getPotionQualityColor } from "../../hooks/types";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface CompactRecipeCardProps {
   recipe: Recipe;
@@ -17,6 +17,7 @@ interface CompactRecipeCardProps {
   canBrew?: boolean;
   onBrew?: (recipeId: string) => void;
   characterBonus?: number; // Общий бонус персонажа к варке
+  isInLaboratory?: boolean; // Находится ли рецепт в лаборатории
 }
 
 const difficultyColors = {
@@ -44,12 +45,14 @@ function ComponentSelector({
   component,
   ingredients,
   recipeId,
-  onSelectIngredient
+  onSelectIngredient,
+  selectedIngredientId
 }: {
   component: RecipeComponent;
   ingredients: Ingredient[];
   recipeId: string;
   onSelectIngredient?: (recipeId: string, componentId: string, ingredientId: string | undefined) => void;
+  selectedIngredientId?: string;
 }) {
   // Функция для проверки совместимости ингредиента с компонентом
   const isIngredientCompatible = (ingredient: Ingredient, component: RecipeComponent): boolean => {
@@ -78,8 +81,8 @@ function ComponentSelector({
     isIngredientCompatible(ing, component) && ing.quantity >= component.quantity
   );
 
-  const selectedIngredient = component.selectedIngredientId
-    ? ingredients.find(ing => ing.id === component.selectedIngredientId)
+  const selectedIngredient = selectedIngredientId
+    ? ingredients.find(ing => ing.id === selectedIngredientId)
     : null;
 
   // Проверяем, является ли выбранный ингредиент валидным
@@ -88,9 +91,9 @@ function ComponentSelector({
     selectedIngredient.quantity >= component.quantity;
 
   // Определяем класс для границы select
-  const selectBorderClass = component.selectedIngredientId && isSelectedIngredientValid
+  const selectBorderClass = selectedIngredientId && isSelectedIngredientValid
     ? "border-green-500 dark:border-green-400"
-    : !component.selectedIngredientId
+    : !selectedIngredientId
     ? "border-red-500 dark:border-red-400"
     : "border-red-500 dark:border-red-400"; // невалидный выбор
 
@@ -136,7 +139,7 @@ function ComponentSelector({
 
       {onSelectIngredient && (
         <Select
-          value={component.selectedIngredientId || ""}
+          value={selectedIngredientId || ""}
           onValueChange={(value) =>
             onSelectIngredient(recipeId, component.id, value === "clear" ? undefined : value || undefined)
           }
@@ -176,8 +179,10 @@ export function CompactRecipeCard({
   onSelectIngredient,
   canBrew,
   onBrew,
-  characterBonus = 0
-}: CompactRecipeCardProps) {
+  characterBonus = 0,
+  getSelectedIngredient,
+  isInLaboratory = false
+}: CompactRecipeCardProps & { getSelectedIngredient?: (recipeId: string, componentId: string) => string | undefined }) {
   const rarityDetails = getRarityDetails(recipe.rarity);
   const rarityColor = getRarityColor(recipe.rarity);
   const rarityName = getRarityName(recipe.rarity);
@@ -216,8 +221,9 @@ export function CompactRecipeCard({
 
   // Проверяем, есть ли все компоненты выбраны и валидны
   const allComponentsSelected = recipe.components?.every(component => {
-    if (!component.selectedIngredientId) return false;
-    const selectedIng = ingredients.find(ing => ing.id === component.selectedIngredientId);
+    const selectedIngredientId = getSelectedIngredient?.(recipe.id, component.id);
+    if (!selectedIngredientId) return false;
+    const selectedIng = ingredients.find(ing => ing.id === selectedIngredientId);
     return selectedIng &&
       isIngredientCompatible(selectedIng, component) &&
       selectedIng.quantity >= component.quantity;
@@ -229,6 +235,17 @@ export function CompactRecipeCard({
       isIngredientCompatible(ing, component) && ing.quantity >= component.quantity
     );
     return availableIngredients.length > 0;
+  }) || false;
+
+  // Вычисляем, можно ли сварить зелье (все компоненты выбраны и доступны)
+  const canActuallyBrew = recipe.components?.every(component => {
+    const selectedIngredientId = getSelectedIngredient?.(recipe.id, component.id);
+    if (!selectedIngredientId) return false; // Требуем явного выбора
+    
+    const selectedIngredient = ingredients.find(ing => ing.id === selectedIngredientId);
+    return selectedIngredient && 
+           isIngredientCompatible(selectedIngredient, component) &&
+           selectedIngredient.quantity >= component.quantity;
   }) || false;
 
   const badges = [
@@ -324,7 +341,7 @@ export function CompactRecipeCard({
 
   const actions = (
     <div className="flex items-center gap-1 shrink-0">
-      {recipe.inLaboratory && canBrew && onBrew && (
+      {isInLaboratory && canBrew && canActuallyBrew && onBrew && (
         <Button
           onClick={(e) => {
             e.stopPropagation();
@@ -363,13 +380,14 @@ export function CompactRecipeCard({
         <div className="space-y-3">
           <h4 className="text-sm">Компоненты:</h4>
           {recipe.components?.map((component) => (
-            <ComponentSelector
-              key={component.id}
-              component={component}
-              ingredients={ingredients}
-              recipeId={recipe.id}
-              onSelectIngredient={onSelectIngredient}
-            />
+              <ComponentSelector
+                key={component.id}
+                component={component}
+                ingredients={ingredients}
+                recipeId={recipe.id}
+                onSelectIngredient={onSelectIngredient}
+                selectedIngredientId={getSelectedIngredient?.(recipe.id, component.id)}
+              />
           )) || (
             <p className="text-sm text-muted-foreground">Нет компонентов</p>
           )}

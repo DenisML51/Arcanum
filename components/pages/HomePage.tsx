@@ -1,14 +1,14 @@
 // components/HomePage.tsx
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Progress } from "./ui/progress";
-import { Separator } from "./ui/separator";
-import { Avatar, AvatarFallback } from "./ui/avatar";
-import { Checkbox } from "./ui/checkbox";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Progress } from "../ui/progress";
+import { Separator } from "../ui/separator";
+import { Avatar, AvatarFallback } from "../ui/avatar";
+import { Checkbox } from "../ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -16,12 +16,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "./ui/dialog";
+} from "../ui/dialog";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "./ui/tooltip";
+} from "../ui/tooltip";
 import {
   FlaskConical,
   Package,
@@ -34,28 +34,19 @@ import {
   Settings,
   Award,
   ShoppingBag,
-  MapPin,
   Shield,
   Heart,
   Brain,
   Activity
 } from "lucide-react";
-import type { AlchemyStore, Currency } from "../hooks/useAlchemyStore";
-import { convertToGold } from "../hooks/useAlchemyStore";
+import type { Currency } from "../../hooks/types";
+import { convertToGold } from "../../hooks/types";
 import { motion } from "framer-motion";
-import { CompactPotionCard } from "./CompactPotionCard";
+import { CompactPotionCard } from "../cards/CompactPotionCard";
+import { useAlchemyStore } from "../../hooks/stores/useAlchemyStore";
 
 interface HomePageProps {
-  store: AlchemyStore & {
-    updateCharacterName: (name: string) => void;
-    updateCharacterLevel: (level: number) => void;
-    buyEquipment: (equipmentId: string) => { success: boolean; message: string };
-    setActiveEquipment: (equipmentId: string) => void;
-    updateAlchemyToolsProficiency: (hasProficiency: boolean) => void;
-    updateCharacterStats: (stats: Partial<{ strength: number; dexterity: number; constitution: number; intelligence: number; wisdom: number; charisma: number }>) => void;
-    updateCurrency: (currency: Partial<Currency>) => void;
-    getTotalGold: () => number;
-  };
+  store: ReturnType<typeof useAlchemyStore>;
   onNavigate?: (page: string) => void;
 }
 
@@ -107,9 +98,7 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
   ].filter(Boolean).slice(0, 3);
 
   // Оборудование не в инвентаре
-  const availableEquipment = store.availableEquipment.filter(
-    eq => !character.equipment.some(charEq => charEq.id === eq.id)
-  );
+  const availableEquipment = store.availableEquipment;
 
   const handleSaveCharacter = () => {
     store.updateCharacterName(tempCharacterName);
@@ -132,7 +121,7 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
   };
 
   // Текущее активное оборудование
-  const activeEquipment = character.equipment.find(eq => eq.id === character.activeEquipmentId);
+  const activeEquipment = store.availableEquipment.find(eq => eq.id === character.activeEquipmentId);
 
   // Базовые характеристики (без бонуса уровня)
   const currentBaseStats = character.baseStats || tempBaseStats;
@@ -147,7 +136,7 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
 
   // Правильный расчет бонуса варки
   const equipmentBonus = activeEquipment ? activeEquipment.brewingBonus : 0;
-  const proficiencyBonus = character.alchemyToolsProficiency ? character.proficiencyBonus : 0;
+  const proficiencyBonus = character.alchemyToolsProficiency ? 2 : 0;
   const totalBrewingBonus = equipmentBonus + proficiencyBonus;
 
   return (
@@ -198,7 +187,7 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
                         <div>
                           <div className="font-medium">Бонус варки</div>
                           <div className="text-xs">
-                            {character.alchemyToolsProficiency ? `Мастерство: +${character.proficiencyBonus}` : 'Без мастерства: +0'}
+                            {character.alchemyToolsProficiency ? `Мастерство: +${proficiencyBonus}` : 'Без мастерства: +0'}
                           </div>
                           {activeEquipment && (
                             <div className="text-xs">{activeEquipment.name}: {activeEquipment.brewingBonus > 0 ? '+' : ''}{activeEquipment.brewingBonus}</div>
@@ -220,7 +209,7 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
                           <div className="font-medium">Мастерство инструментов алхимика</div>
                           <div className="text-xs">
                             {character.alchemyToolsProficiency
-                              ? `Дает +${character.proficiencyBonus} к броскам варки`
+                              ? `Дает +${proficiencyBonus} к броскам варки`
                               : 'Не изучено - нет бонуса к броскам'
                             }
                           </div>
@@ -291,7 +280,7 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
                           onCheckedChange={(checked) => setTempAlchemyProficiency(checked as boolean)}
                         />
                         <label htmlFor="alchemy-proficiency" className="text-sm">
-                          Мастерство инструментов алхимика (+{character.proficiencyBonus} к броскам)
+                          Мастерство инструментов алхимика (+{proficiencyBonus} к броскам)
                         </label>
                       </div>
 
@@ -455,7 +444,7 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
                       <div>
                         <h4 className="mb-3">Текущее оборудование</h4>
                         <div className="space-y-2">
-                          {character.equipment.map((eq) => (
+                          {availableEquipment.map((eq) => (
                             <div key={eq.id} className={`flex items-center justify-between p-3 border rounded-lg transition-colors ${
                               eq.id === character.activeEquipmentId ? 'bg-primary/10 border-primary/30' : 'bg-muted/50'
                             }`}>
@@ -585,14 +574,14 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
                 <div>
                   <div className="text-sm text-muted-foreground">Проф. бонус</div>
-                  <div className="text-lg font-medium">+{character.proficiencyBonus}</div>
+                  <div className="text-lg font-medium">+{proficiencyBonus}</div>
                 </div>
                 <div>
                   <div className="text-sm text-muted-foreground">Бонус варки</div>
                   <div className="text-lg font-medium">
                     {totalBrewingBonus > 0 ? '+' : ''}{totalBrewingBonus}
                     <div className="text-xs text-muted-foreground">
-                      {character.alchemyToolsProficiency ? `Мастерство +${character.proficiencyBonus}` : 'Без мастерства'}
+                      {character.alchemyToolsProficiency ? `Мастерство +${proficiencyBonus}` : 'Без мастерства'}
                       {activeEquipment && (
                         <div>{activeEquipment.name}: {activeEquipment.brewingBonus > 0 ? '+' : ''}{activeEquipment.brewingBonus}</div>
                       )}

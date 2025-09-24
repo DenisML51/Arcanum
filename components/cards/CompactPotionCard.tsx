@@ -1,13 +1,13 @@
 // components/CompactPotionCard.tsx
 
 import { useState } from "react";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
 import { Minus, Plus, FlaskConical, Sparkles, Trash2, Heart, Zap, AlertTriangle, Star, X } from "lucide-react";
 import { CompactCard } from "./CompactCard";
-import type { Potion } from "../hooks/useAlchemyStore";
-import { getRarityColor, getRarityName, getPotionTypeName, getPotionTypeColor, getPotionQualityName, getPotionQualityColor, getBrewedQualityName, getBrewedQualityColor } from "../hooks/useAlchemyStore";
+import type { Potion } from "../../hooks/types";
+import { getRarityColor, getRarityName, getPotionTypeName, getPotionTypeColor, getPotionQualityName, getPotionQualityColor, getBrewedQualityName, getBrewedQualityColor } from "../../hooks/types";
 
 interface CompactPotionCardProps {
   potion: Potion;
@@ -171,6 +171,32 @@ export function CompactPotionCard({ potion, onQuantityChange, onToggleFavorite }
           {potion.description}
         </p>
 
+        {/* Эффекты качества варки */}
+        {potion.brewedQuality && potion.brewedQuality !== 'standard' && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-1 text-sm">
+              {potion.brewedQuality === 'poor' ? (
+                <AlertTriangle className="h-3 w-3 text-red-500" />
+              ) : (
+                <Star className="h-3 w-3 text-yellow-500" />
+              )}
+              <span className="font-medium">
+                {potion.brewedQuality === 'poor' ? 'Изъян:' : 'Изысканность:'}
+              </span>
+            </div>
+            <div className={`p-2 rounded text-sm ${
+              potion.brewedQuality === 'poor' 
+                ? 'bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800' 
+                : 'bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800'
+            }`}>
+              {potion.description.includes('Особенность:') 
+                ? potion.description.split('Особенность:')[1].trim()
+                : 'Особый эффект не найден'
+              }
+            </div>
+          </div>
+        )}
+
         <div className="space-y-2">
           <div className="flex items-center gap-1 text-sm">
             <FlaskConical className="h-3 w-3 text-primary" />
@@ -279,7 +305,7 @@ export function CompactPotionCard({ potion, onQuantityChange, onToggleFavorite }
             </p>
             <div className="bg-muted/30 p-2 rounded text-xs space-y-1">
               <p>
-                🎲 Основной бросок: {potion.rollResults.naturalRoll} + {potion.rollResults.bonus} = {potion.rollResults.mainRoll + potion.rollResults.bonus}
+                🎲 Основной бросок: {potion.rollResults.naturalRoll} + {potion.rollResults.bonus} = {potion.rollResults.mainRoll}
               </p>
               {potion.rollResults.fumbleRoll && (
                 <p className="text-orange-600 dark:text-orange-400">

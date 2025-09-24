@@ -1,9 +1,9 @@
 // components/ExplorationPage.tsx
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Separator } from "./ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Badge } from "../ui/badge";
+import { Separator } from "../ui/separator";
 import {
   MapPin,
   Coins,
@@ -15,8 +15,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { CompactBiomeCard } from "./CompactBiomeCard";
-import type { useAlchemyStore } from "../hooks/useAlchemyStore";
+import { CompactBiomeCard } from "../cards/CompactBiomeCard";
+import { useAlchemyStore } from "../../hooks/stores/useAlchemyStore";
 
 interface ExplorationPageProps {
   store: ReturnType<typeof useAlchemyStore>;
@@ -57,23 +57,33 @@ export function ExplorationPage({ store }: ExplorationPageProps) {
   const handleExplore = async (biomeId: string) => {
     setIsExploring(true);
 
+      // Показываем toast о начале исследования
+      const explorationToast = toast("Исследование в процессе...", {
+        icon: <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500"></div>,
+        duration: 2000
+      });
+
     try {
       // Небольшая задержка для эффекта загрузки
       setTimeout(() => {
         try {
           const result = store.exploreLocation(biomeId);
 
-          if (result.success) {
-            toast.success(result.message, {
-              icon: <CheckCircle className="h-4 w-4" />
-            });
-          } else {
-            toast.error(result.message, {
-              icon: <XCircle className="h-4 w-4" />
-            });
-          }
+            // Закрываем toast загрузки
+            toast.dismiss(explorationToast);
+
+            if (result.success) {
+              toast.success(result.message, {
+                icon: <CheckCircle className="h-4 w-4" />
+              });
+            } else {
+              toast.error(result.message, {
+                icon: <XCircle className="h-4 w-4" />
+              });
+            }
         } catch (error) {
           console.error('Ошибка при исследовании:', error);
+          toast.dismiss(explorationToast);
           toast.error('Произошла ошибка при исследовании', {
             icon: <XCircle className="h-4 w-4" />
           });
@@ -83,6 +93,7 @@ export function ExplorationPage({ store }: ExplorationPageProps) {
       }, 1500);
     } catch (error) {
       console.error('Ошибка в handleExplore:', error);
+      toast.dismiss(explorationToast);
       setIsExploring(false);
       toast.error('Произошла ошибка', {
         icon: <XCircle className="h-4 w-4" />
@@ -173,14 +184,6 @@ export function ExplorationPage({ store }: ExplorationPageProps) {
         )}
       </div>
 
-      {isExploring && (
-        <Card className="border-orange-200 bg-orange-50/50 dark:border-orange-800 dark:bg-orange-950/50">
-          <CardContent className="flex items-center gap-3 py-4">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
-            <span className="text-sm">Исследование в процессе...</span>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }

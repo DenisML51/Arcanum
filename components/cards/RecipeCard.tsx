@@ -1,10 +1,10 @@
 // components/RecipeCard.tsx
 
-import { Badge } from "./ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
+import { Badge } from "../ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Button } from "../ui/button";
 import { Clock, Target, FlaskConical } from "lucide-react";
-import type { Recipe, Ingredient } from "../hooks/useAlchemyStore";
+import type { Recipe, Ingredient } from "../../hooks/types";
 
 interface RecipeCardProps {
   recipe: Recipe;

@@ -1,15 +1,15 @@
 // components/RecipePage.tsx
 
 import { useState } from "react";
-import { Input } from "./ui/input";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Input } from "../ui/input";
+import { Badge } from "../ui/badge";
+// import { Button } from "../ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Search, BookOpen, FlaskConical } from "lucide-react";
-import { CompactRecipeCard } from "./CompactRecipeCard";
-import { Separator } from "./ui/separator";
+import { CompactRecipeCard } from "../cards/CompactRecipeCard";
+import { Separator } from "../ui/separator";
 import { motion } from "framer-motion";
-import type { useAlchemyStore } from "../hooks/useAlchemyStore";
+import { useAlchemyStore } from "../../hooks/stores/useAlchemyStore";
 
 interface RecipesPageProps {
   store: ReturnType<typeof useAlchemyStore>;
@@ -19,9 +19,9 @@ export function RecipesPage({ store }: RecipesPageProps) {
   const [searchTerm, setSearchTerm] = useState("");
 
   // Рассчитываем бонус персонажа к варке
-  const activeEquipment = store.character.equipment.find(eq => eq.id === store.character.activeEquipmentId);
+  const activeEquipment = store.availableEquipment.find(eq => eq.id === store.character.activeEquipmentId);
   const equipmentBonus = activeEquipment ? activeEquipment.brewingBonus : 0;
-  const proficiencyBonus = store.character.alchemyToolsProficiency ? store.character.proficiencyBonus : 0;
+  const proficiencyBonus = store.character.alchemyToolsProficiency ? 2 : 0;
   const totalCharacterBonus = equipmentBonus + proficiencyBonus;
 
   const filteredRecipes = store.recipes.filter(recipe =>
@@ -30,12 +30,11 @@ export function RecipesPage({ store }: RecipesPageProps) {
     recipe.effect.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const availableRecipes = filteredRecipes.filter(recipe => !recipe.inLaboratory);
-  const laboratoryRecipes = filteredRecipes.filter(recipe => recipe.inLaboratory);
+  const availableRecipes = filteredRecipes.filter(recipe => !store.isRecipeInLaboratory(recipe.id));
+  const laboratoryRecipes = filteredRecipes.filter(recipe => store.isRecipeInLaboratory(recipe.id));
 
   const handleToggleLaboratory = (recipeId: string) => {
-    const recipe = store.recipes.find(r => r.id === recipeId);
-    if (recipe?.inLaboratory) {
+    if (store.isRecipeInLaboratory(recipeId)) {
       store.removeRecipeFromLaboratory(recipeId);
     } else {
       store.addRecipeToLaboratory(recipeId);
@@ -103,7 +102,9 @@ export function RecipesPage({ store }: RecipesPageProps) {
                   ingredients={store.ingredients}
                   onToggleLaboratory={handleToggleLaboratory}
                   onSelectIngredient={store.selectIngredientForComponent}
+                  getSelectedIngredient={store.getSelectedIngredient}
                   characterBonus={totalCharacterBonus}
+                  isInLaboratory={false}
                 />
               </motion.div>
             ))}
@@ -132,7 +133,9 @@ export function RecipesPage({ store }: RecipesPageProps) {
                   ingredients={store.ingredients}
                   onToggleLaboratory={handleToggleLaboratory}
                   onSelectIngredient={store.selectIngredientForComponent}
+                  getSelectedIngredient={store.getSelectedIngredient}
                   characterBonus={totalCharacterBonus}
+                  isInLaboratory={false}
                 />
               </motion.div>
             ))}
@@ -161,7 +164,9 @@ export function RecipesPage({ store }: RecipesPageProps) {
                   ingredients={store.ingredients}
                   onToggleLaboratory={handleToggleLaboratory}
                   onSelectIngredient={store.selectIngredientForComponent}
+                  getSelectedIngredient={store.getSelectedIngredient}
                   characterBonus={totalCharacterBonus}
+                  isInLaboratory={true}
                 />
               </motion.div>
             ))}

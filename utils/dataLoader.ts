@@ -1,6 +1,6 @@
 // utils/dataLoader.ts
 
-import type { Ingredient, Recipe, Biome, Equipment } from '../hooks/useAlchemyStore';
+import type { Ingredient, Recipe, Biome, Equipment } from '../hooks/types';
 
 // Прямой импорт JSON файлов
 import ingredientsData from '../data/ingredients.json';

@@ -1,10 +1,10 @@
 // components/CompactShopCard.tsx
 
 import { useState } from "react";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { Input } from "./ui/input";
-import { Separator } from "./ui/separator";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
+import { Input } from "../ui/input";
+import { Separator } from "../ui/separator";
 import {
   Coins,
   ShoppingCart,
@@ -14,7 +14,7 @@ import {
   TrendingUp
 } from "lucide-react";
 import { CompactCard } from "./CompactCard";
-import type { Ingredient } from "../hooks/useAlchemyStore";
+import type { Ingredient } from "../../hooks/types";
 
 interface CompactShopCardProps {
   ingredient: Ingredient;

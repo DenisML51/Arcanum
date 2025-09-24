@@ -6,17 +6,17 @@ import { Badge } from "./components/ui/badge";
 import { Separator } from "./components/ui/separator";
 import { Toaster } from "./components/ui/sonner";
 import { Package, BookOpen, FlaskConical, Sparkles, MapPin, ShoppingCart, Home, Database } from "lucide-react";
-import { ThemeToggle } from "./components/ThemeToggle";
-import { CurrencyPopover } from "./components/CurrencyPopover";
-import { useAlchemyStore } from "./hooks/useAlchemyStore";
-import { HomePage } from "./components/HomePage";
-import { InventoryPage } from "./components/InventoryPage";
-import { RecipesPage } from "./components/RecipesPage";
-import { LaboratoryPage } from "./components/LaboratoryPage";
-import { ExplorationPage } from "./components/ExplorationPage";
-import { ShopPage } from "./components/ShopPage";
-import { PotionsPage } from "./components/PotionsPage";
-import { DataManager } from "./components/DataManager";
+import { ThemeToggle } from "./components/common/ThemeToggle";
+import { CurrencyPopover } from "./components/common/CurrencyPopover";
+import { useAlchemyStore } from "./hooks/stores/useAlchemyStore";
+import { HomePage } from "./components/pages/HomePage";
+import { InventoryPage } from "./components/pages/InventoryPage";
+import { RecipesPage } from "./components/pages/RecipesPage";
+import { LaboratoryPage } from "./components/pages/LaboratoryPage";
+import { ExplorationPage } from "./components/pages/ExplorationPage";
+import { ShopPage } from "./components/pages/ShopPage";
+import { PotionsPage } from "./components/pages/PotionsPage";
+import { DataManager } from "./components/common/DataManager";
 
 type ActivePage = 'home' | 'inventory' | 'recipes' | 'laboratory' | 'potions' | 'exploration' | 'shop' | 'data';
 
@@ -25,8 +25,8 @@ export default function App() {
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const store = useAlchemyStore();
 
-  // Показываем индикатор загрузки пока данные не инициализированы
-  if (!store.isInitialized) {
+  // Показываем индикатор загрузки пока данные не загружены
+  if (store.isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -38,7 +38,7 @@ export default function App() {
   }
 
   // Функции для управления состоянием сайдбара с задержкой
-  let hoverTimeout: NodeJS.Timeout;
+  let hoverTimeout: any;
 
   const handleMouseEnter = () => {
     clearTimeout(hoverTimeout);
@@ -118,7 +118,7 @@ export default function App() {
   const renderPage = () => {
     switch (activePage) {
       case 'home':
-        return <HomePage store={store} onNavigate={setActivePage} />;
+        return <HomePage store={store} onNavigate={(page) => setActivePage(page as ActivePage)} />;
       case 'inventory':
         return <InventoryPage store={store} />;
       case 'recipes':
@@ -145,10 +145,10 @@ export default function App() {
             <div className="flex items-center gap-2 sm:gap-4 min-w-0">
               <div className="flex items-center gap-2 min-w-0">
                 <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-primary shrink-0" />
-                <h1 className="text-lg sm:text-xl text-primary truncate">Алхимический помощник</h1>
+                <h1 className="text-lg sm:text-xl text-primary truncate">Arcanum</h1>
               </div>
               <Badge variant="secondary" className="hidden sm:inline-flex">
-                D&D 5e
+                Алхимия (D&D 5e)
               </Badge>
             </div>
 
