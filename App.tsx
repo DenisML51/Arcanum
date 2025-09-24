@@ -65,7 +65,7 @@ export default function App() {
     },
     {
       id: 'inventory' as const,
-      label: 'Инвентарь',
+      label: 'Ингредиенты',
       icon: Package,
       badge: totalIngredients,
       description: 'Управление ингредиентами'

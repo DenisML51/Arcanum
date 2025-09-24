@@ -79,7 +79,7 @@ export function CompactBiomeCard({
     ...biome.rareIngredients,
     ...biome.legendaryIngredients
   ];
-  const totalChance = Math.min(100, allIngredients.reduce((sum, ing) => sum + ing.chance, 0));
+  const totalChance = Math.min(100, Math.round(allIngredients.reduce((sum, ing) => sum + ing.chance, 0) * 100));
 
   const badges = [
     {
@@ -154,12 +154,17 @@ export function CompactBiomeCard({
                 'legendary': 'text-orange-600'
               };
 
+              // Получаем диапазон количества из массива quantity
+              const minQuantity = available.quantity[0];
+              const maxQuantity = available.quantity[1];
+              const chancePercent = Math.round(available.chance * 100);
+
               return (
                 <div key={index} className="flex items-center justify-between p-2 bg-muted/30 rounded gap-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="text-sm truncate">
-                        {ingredient?.name || `Ингредиент #${available.ingredientId}`}
+                        {ingredient?.name || `Ингредиент #${available.id}`}
                       </span>
                       {ingredient?.rarity && (
                         <Badge
@@ -171,12 +176,12 @@ export function CompactBiomeCard({
                       )}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Количество: {available.minQuantity}-{available.maxQuantity}
+                      Количество: {minQuantity}-{maxQuantity}
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-sm">{available.chance}%</span>
-                    <Progress value={available.chance} className="w-16 h-2" />
+                    <span className="text-sm">{chancePercent}%</span>
+                    <Progress value={chancePercent} className="w-16 h-2" />
                   </div>
                 </div>
               );

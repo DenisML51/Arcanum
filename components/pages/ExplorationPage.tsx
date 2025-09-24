@@ -175,7 +175,7 @@ export function ExplorationPage({ store }: ExplorationPageProps) {
                     biome={biome}
                     playerGold={Math.floor(store.getTotalGold())}
                     onExplore={handleExplore}
-                    ingredients={store.ingredients}
+                    ingredients={store.allIngredients}
                   />
                 </motion.div>
               );

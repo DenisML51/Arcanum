@@ -241,6 +241,7 @@ export function useAlchemyStore() {
   return {
     // Инвентарь
     ingredients: inventory.ingredients,
+    allIngredients: data.ingredients, // Все доступные ингредиенты из JSON
     addIngredient: inventory.addIngredient,
     updateIngredientQuantity: inventory.updateIngredientQuantity,
     removeIngredient: inventory.removeIngredient,
