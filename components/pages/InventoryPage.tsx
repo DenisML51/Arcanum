@@ -8,7 +8,7 @@ import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { Separator } from "../ui/separator";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/tabs";
-import { Search, Filter, X, Package, Database } from "lucide-react";
+import { Search, Filter, X, Package, Database, CheckCircle, AlertTriangle } from "lucide-react";
 import { CompactIngredientCard } from "../cards/CompactIngredientCard";
 import { AllIngredientsCard } from "../cards/AllIngredientsCard";
 import { motion, AnimatePresence } from "framer-motion";
@@ -348,7 +348,7 @@ export function InventoryPage({ store }: InventoryPageProps) {
       </Tabs>
 
       {/* Уведомления */}
-      <div className="fixed bottom-4 right-4 z-50 space-y-2">
+      <div className="fixed bottom-4 right-4 z-50 space-y-3">
         <AnimatePresence>
           {notifications.map((notification) => (
             <motion.div
@@ -357,13 +357,24 @@ export function InventoryPage({ store }: InventoryPageProps) {
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: 300, scale: 0.8 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className={`p-3 rounded-lg shadow-lg max-w-sm ${
+              className={`flex items-start gap-3 p-4 rounded-lg shadow-lg max-w-sm backdrop-blur-sm border ${
                 notification.type === 'success' 
-                  ? 'bg-green-500 text-white' 
-                  : 'bg-red-500 text-white'
+                  ? 'bg-green-500/80 text-white border-green-400/50' 
+                  : 'bg-red-500/80 text-white border-red-400/50'
               }`}
             >
-              <p className="text-sm font-medium">{notification.message}</p>
+              <div className="flex-shrink-0 mt-0.5">
+                {notification.type === 'success' ? (
+                  <CheckCircle className="h-4 w-4" />
+                ) : (
+                  <AlertTriangle className="h-4 w-4" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium leading-relaxed whitespace-pre-wrap">
+                  {notification.message}
+                </p>
+              </div>
             </motion.div>
           ))}
         </AnimatePresence>

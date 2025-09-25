@@ -137,28 +137,6 @@ export function CompactPotionCard({ potion, onQuantityChange, onToggleFavorite }
           </p>
         </div>
 
-        {potion.rollResults && (
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground">
-              История варки:
-            </p>
-            <div className="bg-muted/30 p-2 rounded text-xs space-y-1">
-              <p>
-                🎲 Основной бросок: {potion.rollResults.naturalRoll} + {potion.rollResults.bonus} = {potion.rollResults.mainRoll} (против СЛ {targetDifficulty})
-              </p>
-              {potion.rollResults.fumbleRoll && (
-                <p className="text-orange-600 dark:text-orange-400">
-                  💥 Провал (к100): {potion.rollResults.fumbleRoll}
-                </p>
-              )}
-              {potion.rollResults.excellenceRoll && (
-                <p className="text-green-600 dark:text-green-400">
-                  ⭐ Успех (к100): {potion.rollResults.excellenceRoll}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
 
         {potion.tags && potion.tags.length > 0 && (
           <div className="space-y-2">

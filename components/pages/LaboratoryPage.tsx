@@ -1,6 +1,6 @@
 // components/pages/LaboratoryPage.tsx
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -8,8 +8,7 @@ import { Progress } from "../ui/progress";
 import { Alert, AlertDescription } from "../ui/alert";
 import { CompactRecipeCard } from "../cards/CompactRecipeCard";
 import { FlaskConical, Package, AlertTriangle, CheckCircle } from "lucide-react";
-import { toast } from "sonner";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAlchemyStore } from "../../hooks/stores/useAlchemyStore";
 
 interface LaboratoryPageProps {
@@ -18,6 +17,7 @@ interface LaboratoryPageProps {
 
 export function LaboratoryPage({ store }: LaboratoryPageProps) {
   const [isBrewingMode, setIsBrewingMode] = useState(false);
+  const [notifications, setNotifications] = useState<Array<{ id: string; message: string; type: 'success' | 'error' }>>([]);
 
   const laboratoryRecipes = store.getLaboratoryRecipes();
 
@@ -26,22 +26,25 @@ export function LaboratoryPage({ store }: LaboratoryPageProps) {
   const proficiencyBonus = store.character.alchemyToolsProficiency ? 2 : 0;
   const totalCharacterBonus = equipmentBonus + proficiencyBonus;
 
+  // Функция для добавления уведомления
+  const addNotification = useCallback((message: string, type: 'success' | 'error' = 'success') => {
+    const id = Date.now().toString();
+    setNotifications(prev => [...prev, { id, message, type }]);
+    
+    // Автоматически удаляем уведомление через 3 секунды
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(n => n.id !== id));
+    }, 3000);
+  }, []);
+
   const handleBrew = (recipeId: string) => {
     const recipe = store.recipes.find(r => r.id === recipeId);
     if (!recipe) return;
     const result = store.brewPotion(recipe);
     if (result.success) {
-      toast.success(result.message, {
-        icon: <CheckCircle className="h-4 w-4" />,
-        duration: 5000,
-        style: { whiteSpace: 'pre-wrap' }
-      });
+      addNotification(result.message, 'success');
     } else {
-      toast.error(result.message, {
-        icon: <AlertTriangle className="h-4 w-4" />,
-        duration: 6000,
-        style: { whiteSpace: 'pre-wrap' }
-      });
+      addNotification(result.message, 'error');
     }
   };
 
@@ -135,15 +138,28 @@ export function LaboratoryPage({ store }: LaboratoryPageProps) {
         {laboratoryRecipes.length > 0 ? (
           <>
             <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
-                {availableRecipes} из {totalRecipes} рецептов готовы к варке
-              </p>
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">
+                  {availableRecipes} из {totalRecipes} рецептов готовы к варке
+                </p>
+                {isBrewingMode && (
+                  <p className="text-xs text-green-600 dark:text-green-400 font-medium">
+                    ✓ Режим варки активен - выберите ингредиенты и варите зелья
+                  </p>
+                )}
+              </div>
               <Button
                 variant={isBrewingMode ? "destructive" : "default"}
                 onClick={() => setIsBrewingMode(!isBrewingMode)}
                 size="sm"
+                className={`transition-all duration-200 ${
+                  isBrewingMode 
+                    ? 'bg-red-600 hover:bg-red-700 shadow-lg' 
+                    : 'bg-green-600 hover:bg-green-700 shadow-lg'
+                }`}
               >
-                {isBrewingMode ? 'Выйти из режима варки' : 'Режим варки'}
+                <FlaskConical className="h-4 w-4 mr-2" />
+                {isBrewingMode ? 'Завершить варку' : 'Начать варку'}
               </Button>
             </div>
             <div className="card-grid-responsive">
@@ -186,6 +202,39 @@ export function LaboratoryPage({ store }: LaboratoryPageProps) {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Анимированные уведомления */}
+      <div className="fixed bottom-4 right-4 z-50 space-y-3">
+        <AnimatePresence>
+          {notifications.map((notification) => (
+            <motion.div
+              key={notification.id}
+              initial={{ opacity: 0, x: 300, scale: 0.8 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 300, scale: 0.8 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className={`flex items-start gap-3 p-4 rounded-lg shadow-lg max-w-sm backdrop-blur-sm border ${
+                notification.type === 'success' 
+                  ? 'bg-green-500/80 text-white border-green-400/50' 
+                  : 'bg-red-500/80 text-white border-red-400/50'
+              }`}
+            >
+              <div className="flex-shrink-0 mt-0.5">
+                {notification.type === 'success' ? (
+                  <CheckCircle className="h-4 w-4" />
+                ) : (
+                  <AlertTriangle className="h-4 w-4" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium leading-relaxed whitespace-pre-wrap">
+                  {notification.message}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </div>
   );
