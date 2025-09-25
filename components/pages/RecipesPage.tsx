@@ -3,13 +3,12 @@
 import { useState } from "react";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
-// import { Button } from "../ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Search, BookOpen, FlaskConical } from "lucide-react";
 import { CompactRecipeCard } from "../cards/CompactRecipeCard";
 import { Separator } from "../ui/separator";
 import { motion } from "framer-motion";
-import { useAlchemyStore } from "../../hooks/stores/useAlchemyStore";
+import { useAlchemyStore } from "@/hooks/stores/useAlchemyStore.ts";
 
 interface RecipesPageProps {
   store: ReturnType<typeof useAlchemyStore>;
@@ -18,7 +17,6 @@ interface RecipesPageProps {
 export function RecipesPage({ store }: RecipesPageProps) {
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Рассчитываем бонус персонажа к варке
   const activeEquipment = store.availableEquipment.find(eq => eq.id === store.character.activeEquipmentId);
   const equipmentBonus = activeEquipment ? activeEquipment.brewingBonus : 0;
   const proficiencyBonus = store.character.alchemyToolsProficiency ? 2 : 0;
@@ -62,7 +60,6 @@ export function RecipesPage({ store }: RecipesPageProps) {
         </div>
       </div>
 
-      {/* Поиск */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input

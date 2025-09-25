@@ -9,7 +9,6 @@ import { useIngredientSelectionStore } from './useIngredientSelectionStore';
 import type { Recipe, Potion, AlchemicalElement } from '../types';
 import { getRarityDetails, getAlchemicalElementName } from '../types';
 
-// --- ДАННЫЕ ДЛЯ МЕХАНИКИ ПРОВАЛОВ И УСПЕХОВ ---
 const FLAW_TABLE = [
   { range: [1, 10], effect: "Ошибки - путь к успеху. Редкость зелья повышается на 1 (не выше Легендарной)." },
   { range: [11, 20], effect: "Неконтролируемый полиморфизм. Выпивший меняет расу на случайную на время действия зелья." },
@@ -28,7 +27,6 @@ const EXCELLENCE_TABLE = [
   { range: [51, 100], effect: "Награда с небес. Изготовитель получает Вдохновение." },
 ];
 
-// --- ДАННЫЕ ДЛЯ МЕХАНИКИ ПРИМЕСЕЙ ---
 export const ELEMENT_RANK: Record<string, number> = {
   'time': 4, 'matter': 4, 'stasis': 4, 'space': 4, 'decay': 4, 'mind': 4, 'chaos': 4, 'energy': 4,
   'embodiment': 3, 'challenge': 3, 'illusion': 3, 'necromancy': 3, 'reflection': 3, 'enchantment': 3, 'transmutation': 3, 'divination': 3,
@@ -120,7 +118,6 @@ export function useAlchemyStore() {
 
     const rollResults = { naturalRoll, bonus, mainRoll };
 
-    // В режиме TTRPG критический успех (20) всегда успешен и изумителен
     if (mode === 'ttrpg' && naturalRoll === 20) {
       const excellenceRoll = Math.floor(Math.random() * 100) + 1;
       const excellence = EXCELLENCE_TABLE.find(e => excellenceRoll >= e.range[0] && excellenceRoll <= e.range[1]);
@@ -174,7 +171,6 @@ export function useAlchemyStore() {
         if (dust && dust.quantity > 0) {
             usedIngredients.push({ id: 'magical_dust', quantity: 1 });
         } else {
-            // Если магическая пыль выбрана, но её нет в инвентаре, отключаем её использование
             ingredientSelection.toggleMagicalDust(recipe.id);
             return { success: false, message: 'Недостаточно магической пыли в инвентаре!' };
         }
@@ -182,7 +178,6 @@ export function useAlchemyStore() {
 
     const usedIngredientObjects = usedIngredients.map(used => inventory.getIngredient(used.id)!).filter(Boolean);
 
-    // Проверяем, действительно ли магическая пыль используется (есть в usedIngredients)
     const isMagicalDustActuallyUsed = usedIngredients.some(ing => ing.id === 'magical_dust');
     
     let impurityEffect: string | undefined = undefined;
@@ -326,19 +321,15 @@ export function useAlchemyStore() {
 
   const exportAllData = () => {
     const dataToExport = {
-      // Character
       character: character.character,
       currency: character.currency,
       stats: character.stats,
       ownedEquipment: character.ownedEquipment,
-      // Inventory & Potions
       inventory: inventory.ingredients,
       potions: potions.potions,
-      // Settings
       laboratoryRecipes: Array.from(data.getLaboratoryRecipes().map(r => r.id)),
       selectedIngredients: Array.from(ingredientSelection.selectedIngredients.entries()),
       useMagicalDust: Array.from(ingredientSelection.useMagicalDust),
-      // Metadata
       exportDate: new Date().toISOString(),
       version: "Arcanum-v1.0"
     };
@@ -369,7 +360,6 @@ export function useAlchemyStore() {
             }
           }
 
-          // Assuming you added the setters to the individual stores as per the previous response
           character.setCharacter(data.character);
           character.setCurrency(data.currency);
           character.setStats(data.stats);
@@ -404,7 +394,6 @@ export function useAlchemyStore() {
   };
 
   return {
-    // Inventory
     ingredients: inventory.ingredients,
     allIngredients: data.ingredients,
     addIngredient: inventory.addIngredient,
@@ -415,13 +404,11 @@ export function useAlchemyStore() {
     cleanDuplicates: inventory.cleanDuplicates,
     swapIngredientElements: inventory.swapIngredientElements,
 
-    // Potions
     potions: potions.potions,
     addPotion: potions.addPotion,
     updatePotionQuantity: potions.updatePotionQuantity,
     togglePotionFavorite: potions.togglePotionFavorite,
 
-    // Character & Equipment
     character: character.character,
     currency: character.currency,
     stats: character.stats,
@@ -440,7 +427,6 @@ export function useAlchemyStore() {
     updateBrewingMode: character.updateBrewingMode,
     incrementStat: character.incrementStat,
 
-    // Data
     recipes: data.recipes,
     biomes: data.biomes,
     isLoading: data.isLoading,
@@ -452,12 +438,10 @@ export function useAlchemyStore() {
     getLaboratoryRecipes: data.getLaboratoryRecipes,
      addCustomIngredient: data.addCustomIngredient,
 
-    // Filters
     activeFilters: filters.filters,
     updateFilter: filters.updateFilter,
     resetFilters: filters.resetFilters,
 
-    // Brewing
     canBrewRecipe,
     brewPotion,
     selectIngredientForComponent: ingredientSelection.setSelectedIngredient,
@@ -466,7 +450,6 @@ export function useAlchemyStore() {
     isMagicalDustActive: ingredientSelection.isMagicalDustActive,
     hasMagicalDust,
 
-    // Shop & Exploration
     buyIngredient,
     sellIngredient,
     exploreLocation,

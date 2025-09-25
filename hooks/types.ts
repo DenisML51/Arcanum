@@ -1,9 +1,7 @@
 // hooks/types.ts
 
-// Основные категории ингредиентов по D&D правилам
 export type IngredientCategory = 'plant' | 'mineral' | 'creature' | 'other';
 
-// Элементы для алхимии согласно таблице D&D
 export type AlchemicalElement =
   // Сущность
   | 'time' | 'matter' | 'stasis' | 'space' | 'decay' | 'mind' | 'chaos' | 'energy' | 'sound' | 'radiance' | 'acid' | 'necrotic' | 'fire' | 'foam'
@@ -24,17 +22,15 @@ export const ALCHEMICAL_ELEMENT_DETAILS: Record<AlchemicalElement, { name: strin
   'mind': { name: 'Разум', shortCode: 'Рм', category: 'Сущность', color: 'bg-indigo-500' },
   'chaos': { name: 'Хаос', shortCode: 'Х', category: 'Сущность', color: 'bg-indigo-500' },
   'energy': { name: 'Энергия', shortCode: 'Э', category: 'Сущность', color: 'bg-indigo-500' },
-
   // Школа
   'embodiment': { name: 'Воплощение', shortCode: 'Вопл', category: 'Школа', color: 'bg-sky-500' },
   'challenge': { name: 'Вызов', shortCode: 'Выз', category: 'Школа', color: 'bg-sky-500' },
   'illusion': { name: 'Иллюзия', shortCode: 'Илл', category: 'Школа', color: 'bg-sky-500' },
-  'necromancy': { name: 'Некромантия', shortCode: 'Некя', category: 'Школа', color: 'bg-sky-500' },
-  'reflection': { name: 'Ограждение', shortCode: 'Огр', category: 'Школа', color: 'bg-sky-500' }, // Отражение -> Ограждение
+  'necromancy': { name: 'Некромантия', shortCode: 'Некр', category: 'Школа', color: 'bg-sky-500' },
+  'reflection': { name: 'Ограждение', shortCode: 'Огр', category: 'Школа', color: 'bg-sky-500' },
   'enchantment': { name: 'Очарование', shortCode: 'Очар', category: 'Школа', color: 'bg-sky-500' },
   'transmutation': { name: 'Преобразование', shortCode: 'Прео', category: 'Школа', color: 'bg-sky-500' },
   'divination': { name: 'Прорицание', shortCode: 'Прор', category: 'Школа', color: 'bg-sky-500' },
-
   // Стихия
   'sound': { name: 'Звук', shortCode: 'Зв', category: 'Стихия', color: 'bg-amber-500' },
   'radiance': { name: 'Излучение', shortCode: 'Изл', category: 'Стихия', color: 'bg-amber-500' },
@@ -48,7 +44,6 @@ export const ALCHEMICAL_ELEMENT_DETAILS: Record<AlchemicalElement, { name: strin
   'cold': { name: 'Холод', shortCode: 'Хол', category: 'Стихия', color: 'bg-amber-500' },
   'electricity': { name: 'Электрический', shortCode: 'Элк', category: 'Стихия', color: 'bg-amber-500' },
   'poison': { name: 'Яд', shortCode: 'Яд', category: 'Стихия', color: 'bg-amber-500' },
-
   // Вид существа
   'aberration': { name: 'Аберрация', shortCode: 'Аб', category: 'Вид', color: 'bg-emerald-500' },
   'giant': { name: 'Великан', shortCode: 'Вел', category: 'Вид', color: 'bg-emerald-500' },
@@ -64,16 +59,13 @@ export const ALCHEMICAL_ELEMENT_DETAILS: Record<AlchemicalElement, { name: strin
   'fey': { name: 'Фея', shortCode: 'Фея', category: 'Вид', color: 'bg-emerald-500' },
   'elemental': { name: 'Элементаль', shortCode: 'Элм', category: 'Вид', color: 'bg-emerald-500' },
   'fiend': {name: 'Исчадие', shortCode: 'Исч', category: 'Вид', color: 'bg-emerald-500'},
-
   // Дополнительные
   'healing': { name: 'Лечение', shortCode: 'Л', category: 'Эффект', color: 'bg-rose-500' },
   'protection': { name: 'Защита', shortCode: 'Зщ', category: 'Эффект', color: 'bg-rose-500' }
 };
 
-// Базы для зелий согласно таблице
 export type PotionBase = 'spring_water' | 'enchanted_ink' | 'thick_magical_ink' | 'dissolved_ether' | 'irminsul_juice';
 
-// Расширенный тип ингредиентов, включающий базы
 export type IngredientType = IngredientCategory | PotionBase;
 
 export type PotionRarity = 'common' | 'uncommon' | 'rare' | 'very rare' | 'legendary' | 'artifact';
@@ -223,7 +215,6 @@ export interface Filters {
   potionTypes: string[];
 }
 
-// Utility functions for potion types
 export const getPotionTypeName = (type: PotionType): string => {
   switch (type) {
     case 'oil': return 'Масло';

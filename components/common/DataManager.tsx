@@ -8,7 +8,7 @@ import { Separator } from "../ui/separator";
 import { Download, Upload, RefreshCw, FileText, AlertTriangle, CheckCircle, Database } from "lucide-react";
 import { Badge } from "../ui/badge"
 import { toast } from "sonner";
-import { useAlchemyStore } from "../../hooks/stores/useAlchemyStore";
+import { useAlchemyStore } from "@/hooks/stores/useAlchemyStore.ts";
 
 interface DataManagerProps {
   store: ReturnType<typeof useAlchemyStore>;
@@ -18,7 +18,6 @@ export function DataManager({ store }: DataManagerProps) {
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 1. Экспорт данных (вызывает функцию из store)
   const handleExport = () => {
     try {
       store.exportAllData();
@@ -33,7 +32,6 @@ export function DataManager({ store }: DataManagerProps) {
     }
   };
 
-  // 2. Импорт данных (вызывает функцию из store)
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -63,12 +61,10 @@ export function DataManager({ store }: DataManagerProps) {
     }
   };
 
-  // 3. Полный сброс (вызывает функцию из store)
   const handleResetToDefaults = () => {
     if (confirm("Вы уверены, что хотите сбросить ВСЕ данные к значениям по умолчанию? Это действие необратимо и удалит всех персонажей, инвентарь и настройки!")) {
       try {
         store.resetAllData();
-        // Страница перезагрузится автоматически через store
       } catch (error) {
         toast.error("Ошибка при сбросе данных", {
           icon: <AlertTriangle className="h-4 w-4" />
@@ -89,7 +85,6 @@ export function DataManager({ store }: DataManagerProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Экспорт */}
         <div className="space-y-3">
           <h4 className="text-lg font-medium">Экспорт данных</h4>
           <p className="text-sm text-muted-foreground">
@@ -102,7 +97,6 @@ export function DataManager({ store }: DataManagerProps) {
         </div>
         <Separator />
 
-        {/* Импорт */}
         <div className="space-y-3">
           <h4 className="text-lg font-medium">Импорт данных</h4>
           <p className="text-sm text-muted-foreground">
@@ -129,7 +123,6 @@ export function DataManager({ store }: DataManagerProps) {
         </div>
         <Separator />
 
-        {/* Полный сброс */}
         <div className="space-y-3">
           <h4 className="text-lg font-medium">Полный сброс</h4>
            <Alert variant="destructive">
@@ -150,7 +143,6 @@ export function DataManager({ store }: DataManagerProps) {
         </div>
         <Separator />
 
-        {/* 4. Актуализированный формат данных */}
         <div className="space-y-3">
           <h4 className="text-lg font-medium">Формат данных</h4>
           <p className="text-sm text-muted-foreground">

@@ -34,7 +34,6 @@ const rarityOptions = [
 export function PotionsPage({ store }: PotionsPageProps) {
   const [showFilters, setShowFilters] = useState(false);
 
-  // Простая фильтрация зелий
   const filteredPotions = store.potions.filter(potion => {
     const filters = store.activeFilters;
     
@@ -53,7 +52,6 @@ export function PotionsPage({ store }: PotionsPageProps) {
     return true;
   });
 
-  // Получаем все уникальные теги зелий
   const allPotionTags = Array.from(new Set(store.potions.flatMap(potion => potion.tags)));
 
   const handleRarityFilter = (rarity: string, checked: boolean) => {
@@ -105,7 +103,6 @@ export function PotionsPage({ store }: PotionsPageProps) {
         </Button>
       </div>
 
-      {/* Поиск */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
@@ -116,7 +113,6 @@ export function PotionsPage({ store }: PotionsPageProps) {
         />
       </div>
 
-      {/* Панель фильтров */}
       <AnimatePresence>
         {showFilters && (
           <motion.div
@@ -138,7 +134,6 @@ export function PotionsPage({ store }: PotionsPageProps) {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {/* Редкость */}
                 <div className="space-y-2">
                   <h4 className="text-sm">Редкость</h4>
                   <div className="space-y-2">
@@ -157,7 +152,6 @@ export function PotionsPage({ store }: PotionsPageProps) {
                   </div>
                 </div>
 
-                {/* Теги зелий */}
                 {allPotionTags.length > 0 && (
                   <div className="space-y-2 lg:col-span-2">
                     <h4 className="text-sm">Теги зелий</h4>
@@ -186,7 +180,6 @@ export function PotionsPage({ store }: PotionsPageProps) {
 
       <Separator />
 
-      {/* Результаты */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
           Найдено: {filteredPotions.length} из {store.potions.length} зелий
@@ -211,7 +204,6 @@ export function PotionsPage({ store }: PotionsPageProps) {
         )}
       </div>
 
-      {/* Сетка зелий */}
       <div className="card-grid-responsive">
         {filteredPotions.map((potion) => (
           <motion.div

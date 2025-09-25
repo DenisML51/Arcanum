@@ -78,19 +78,16 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
 
   const { stats, ingredients, recipes, potions, playerGold, character, availableEquipment, availableForPurchaseEquipment } = store;
   const [tempBrewingMode, setTempBrewingMode] = useState(store.character.brewingMode);
-  // Защита от отсутствующего персонажа
   if (!character) {
     return <div>Загрузка...</div>;
   }
 
-  // Вычисляем метрики
   const successRate = stats.totalBrews > 0 ? (stats.successfulBrews / stats.totalBrews) * 100 : 0;
   const totalIngredients = ingredients.reduce((sum, ing) => sum + ing.quantity, 0);
   const totalPotions = potions.reduce((sum, potion) => sum + potion.quantity, 0);
   const laboratoryRecipes = recipes.filter(r => r.inLaboratory).length;
   const netGold = stats.goldEarned - stats.goldSpent;
 
-  // Последние достижения
   const recentActivity = [
     stats.successfulBrews > 0 && `Сварено зелий: ${stats.successfulBrews}`,
     stats.ingredientsUsed > 0 && `Использовано ингредиентов: ${stats.ingredientsUsed}`,
@@ -112,7 +109,6 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
   const handleBuyEquipment = (equipmentId: string) => {
     const result = store.buyEquipment(equipmentId);
     if (result.success) {
-      // Можно добавить уведомление
     }
   };
 
@@ -120,10 +116,8 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
     store.setActiveEquipment(equipmentId);
   };
 
-  // Текущее активное оборудование
   const activeEquipment = store.availableEquipment.find(eq => eq.id === character.activeEquipmentId);
 
-  // Базовые характеристики (без бонуса уровня)
   const currentBaseStats = character.baseStats || tempBaseStats;
   const baseStats = {
     strength: currentBaseStats.strength,
@@ -134,7 +128,6 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
     charisma: currentBaseStats.charisma
   };
 
-  // Правильный расчет бонуса варки
   const equipmentBonus = activeEquipment ? activeEquipment.brewingBonus : 0;
   const proficiencyBonus = character.alchemyToolsProficiency ? 2 : 0;
   const totalBrewingBonus = equipmentBonus + proficiencyBonus;
@@ -156,7 +149,6 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
 
       <Separator />
 
-      {/* Карточка персонажа */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -223,7 +215,6 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
                 <Dialog open={characterDialogOpen} onOpenChange={(open) => {
                   setCharacterDialogOpen(open);
                   if (open) {
-                    // Загружаем текущие данные при открытии диалога
                     setTempCharacterName(character.name);
                     setTempCharacterLevel(character.level);
                     setTempAlchemyProficiency(character.alchemyToolsProficiency);
@@ -568,7 +559,6 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
         </Card>
       </motion.div>
 
-      {/* Статистика персонажа */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -638,7 +628,6 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
         </Card>
       </motion.div>
 
-      {/* Основная статистика */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {[
           {
@@ -695,7 +684,6 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
         })}
       </div>
 
-      {/* Прогресс и активность */}
       <div className="grid gap-6 lg:grid-cols-2">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -784,7 +772,6 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
         </motion.div>
       </div>
 
-      {/* Избранные зелья */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

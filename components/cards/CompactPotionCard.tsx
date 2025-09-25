@@ -5,7 +5,7 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Minus, Plus, FlaskConical, Trash2, Heart, AlertTriangle, Star, Beaker } from "lucide-react";
 import { CompactCard } from "./CompactCard";
-import type { Potion } from "../../hooks/types";
+import type { Potion } from "@/hooks/types.ts";
 import { getRarityColor, getRarityName, getPotionTypeName, getPotionTypeColor, getPotionQualityName, getPotionQualityColor, getBrewedQualityName, getBrewedQualityColor, getRarityDetails } from "../../hooks/types";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 

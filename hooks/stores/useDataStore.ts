@@ -142,7 +142,6 @@ export function useDataStore(): DataStore {
 
   const addCustomIngredientState = (ingredient: Ingredient) => {
     setIngredients(prev => {
-      // Avoid adding duplicates if an ingredient with the same ID already exists
       if (prev.some(ing => ing.id === ingredient.id)) {
         return prev;
       }

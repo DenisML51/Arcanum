@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 
 interface IngredientSelectionStore {
-  selectedIngredients: Map<string, string>; // recipeId-componentId -> ingredientId
+  selectedIngredients: Map<string, string>;
   useMagicalDust: Set<string>;
   setSelectedIngredient: (recipeId: string, componentId: string, ingredientId: string | undefined) => void;
   getSelectedIngredient: (recipeId: string, componentId: string) => string | undefined;
@@ -42,7 +42,6 @@ export function useIngredientSelectionStore(): IngredientSelectionStore {
     return saved ? new Set(JSON.parse(saved)) : new Set();
   });
 
-  // Сохраняем состояние в localStorage
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(selectedIngredients.entries())));
   }, [selectedIngredients]);

@@ -106,11 +106,9 @@ export function ExpandableCard({
         </CardHeader>
       </Card>
 
-      {/* Расширенная карточка в портале */}
       <AnimatePresence>
         {isExpanded && (
           <>
-            {/* Оверлей для закрытия */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -119,7 +117,6 @@ export function ExpandableCard({
               onClick={() => setIsExpanded(false)}
             />
 
-            {/* Расширенная карточка */}
             <motion.div
               initial={{
                 opacity: 0,

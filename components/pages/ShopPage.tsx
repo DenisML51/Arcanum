@@ -15,7 +15,7 @@ import {
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { CompactShopCard } from "../cards/CompactShopCard";
-import { useAlchemyStore } from "../../hooks/stores/useAlchemyStore";
+import { useAlchemyStore } from "@/hooks/stores/useAlchemyStore.ts";
 
 interface ShopPageProps {
   store: ReturnType<typeof useAlchemyStore>;
@@ -87,7 +87,6 @@ export function ShopPage({ store }: ShopPageProps) {
         </TabsList>
 
         <TabsContent value="buy" className="space-y-6">
-          {/* Информация о покупке */}
           <Card className="border-green-200 bg-green-50/50 dark:border-green-800 dark:bg-green-950/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
@@ -127,7 +126,6 @@ export function ShopPage({ store }: ShopPageProps) {
         </TabsContent>
 
         <TabsContent value="sell" className="space-y-6">
-          {/* Информация о продаже */}
           <Card className="border-blue-200 bg-blue-50/50 dark:border-blue-800 dark:bg-blue-950/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">

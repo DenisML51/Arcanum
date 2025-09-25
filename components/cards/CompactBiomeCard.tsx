@@ -141,7 +141,6 @@ export function CompactBiomeCard({
                 'legendary': 'text-orange-600'
               };
 
-              // Получаем диапазон количества из массива quantity
               const minQuantity = available.quantity[0];
               const maxQuantity = available.quantity[1];
               const chancePercent = Math.round(available.chance * 100);

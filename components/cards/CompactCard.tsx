@@ -92,7 +92,6 @@ export function CompactCard({
                 return circle.tooltip ? (
                   <Tooltip key={index}>
                     <TooltipTrigger asChild>{circleElement}</TooltipTrigger>
-                    {/* ВОТ ИСПРАВЛЕНИЕ: ВОЗВРАЩАЕМ КЛАССЫ ДЛЯ ЦВЕТА ТЕКСТА */}
                     <TooltipContent className="text-white dark:text-black">
                       <div className="text-xs text-white dark:text-black">{circle.tooltip}</div>
                     </TooltipContent>

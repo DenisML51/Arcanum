@@ -25,7 +25,6 @@ export default function App() {
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const store = useAlchemyStore();
 
-  // Показываем индикатор загрузки пока данные не загружены
   if (store.isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -37,7 +36,6 @@ export default function App() {
     );
   }
 
-  // Функции для управления состоянием сайдбара с задержкой
   let hoverTimeout: any;
 
   const handleMouseEnter = () => {
@@ -48,14 +46,13 @@ export default function App() {
   const handleMouseLeave = () => {
     hoverTimeout = setTimeout(() => {
       setSidebarExpanded(false);
-    }, 300); // Увеличенная задержка для предотвращения случайного схлопывания
+    }, 300);
   };
 
   const totalIngredients = Array.isArray(store.ingredients) ? store.ingredients.reduce((sum, ing) => sum + ing.quantity, 0) : 0;
   const laboratoryRecipes = store.getLaboratoryRecipes().length;
   const totalPotions = Array.isArray(store.potions) ? store.potions.reduce((sum, potion) => sum + potion.quantity, 0) : 0;
 
-  // Подсчитываем готовые к варке рецепты в лаборатории
   const readyToBrewRecipes = store.getLaboratoryRecipes().filter(recipe => {
     const { canBrew } = store.canBrewRecipe(recipe);
     return canBrew;
@@ -144,7 +141,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Хедер */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="flex items-center justify-between h-14 sm:h-16">
@@ -176,7 +172,6 @@ export default function App() {
 
       <div className="px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="flex gap-4 lg:gap-8 py-4 lg:py-6">
-          {/* Сайдбар навигации */}
           <aside
             className={`${sidebarExpanded ? 'w-64 lg:w-80' : 'w-16'} shrink-0 hidden md:block sidebar-nav`}
             onMouseEnter={handleMouseEnter}
@@ -234,9 +229,7 @@ export default function App() {
             </div>
           </aside>
 
-          {/* Основной контент */}
           <main className="flex-1 min-w-0 md:pr-4 lg:pr-6">
-            {/* Мобильная навигация */}
             <div className="md:hidden mb-4">
               <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
                 {navigation.map((item) => {

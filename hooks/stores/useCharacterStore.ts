@@ -253,17 +253,14 @@ export function useCharacterStore(): {
 
   const activeEquipment = equipment.find(eq => eq.id === character.activeEquipmentId) || null;
 
-  // Получаем имеющееся оборудование
   const getOwnedEquipment = () => {
     return equipment.filter(eq => ownedEquipment.includes(eq.id));
   };
 
-  // Получаем доступное для покупки оборудование
   const getAvailableForPurchaseEquipment = () => {
     return equipment.filter(eq => !ownedEquipment.includes(eq.id));
   };
 
-  // Проверяем, есть ли оборудование у персонажа
   const hasEquipment = (equipmentId: string) => {
     return ownedEquipment.includes(equipmentId);
   };

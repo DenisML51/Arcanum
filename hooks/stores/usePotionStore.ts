@@ -42,8 +42,7 @@ export function usePotionStore(): PotionStore {
 
   const addPotion = (potion: Omit<Potion, 'id'>) => {
     setPotions(prev => {
-      // Проверяем, есть ли уже такое зелье (по recipeId)
-      const existingIndex = prev.findIndex(p => 
+      const existingIndex = prev.findIndex(p =>
         p.recipeId === potion.recipeId && 
         p.brewedQuality === potion.brewedQuality &&
         p.flawEffect === potion.flawEffect &&
@@ -51,7 +50,6 @@ export function usePotionStore(): PotionStore {
       );
 
       if (existingIndex >= 0) {
-        // Увеличиваем количество существующего зелья
         const updated = [...prev];
         updated[existingIndex] = {
           ...updated[existingIndex],
@@ -59,7 +57,6 @@ export function usePotionStore(): PotionStore {
         };
         return updated;
       } else {
-        // Добавляем новое зелье
         return [...prev, { ...potion, id: Date.now().toString() }];
       }
     });

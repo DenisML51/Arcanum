@@ -52,7 +52,6 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       localStorage.setItem('theme', theme);
     }
 
-    // Слушаем изменения системной темы
     if (theme === 'system') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       const handleChange = () => applyTheme('system');
@@ -62,7 +61,6 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     }
   }, [theme]);
 
-  // Инициализируем тему при первой загрузке
   useEffect(() => {
     applyTheme(theme);
   }, []);
