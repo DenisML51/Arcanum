@@ -9,11 +9,12 @@ interface InventoryStore {
   updateIngredientQuantity: (id: string, quantity: number) => void;
   removeIngredient: (id: string) => void;
   getIngredient: (id: string) => Ingredient | undefined;
-  getTotalIngredients: () => number;
-  getIngredientsByCategory: (category: string) => Ingredient[];
   isIngredientAvailable: (id: string, requiredQuantity?: number) => boolean;
   useIngredients: (ingredients: { id: string; quantity: number }[]) => boolean;
   cleanDuplicates: () => void;
+  swapIngredientElements: (ingredientId: string) => { success: boolean, message: string };
+  buyIngredient: (ingredient: Ingredient, quantity: number) => void;
+  sellIngredient: (ingredientId: string, quantity: number) => void;
 }
 
 const STORAGE_KEY = 'alchemy-inventory';
@@ -21,7 +22,7 @@ const STORAGE_KEY = 'alchemy-inventory';
 export function useInventoryStore(): InventoryStore {
   const [ingredients, setIngredients] = useState<Ingredient[]>(() => {
     if (typeof window === 'undefined') return [];
-    
+
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
@@ -34,94 +35,35 @@ export function useInventoryStore(): InventoryStore {
     return [];
   });
 
-  // Убираем автоматическую загрузку всех ингредиентов в инвентарь
-  // Инвентарь должен быть пустым по умолчанию
-
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(ingredients));
   }, [ingredients]);
 
-  // Функция для сравнения ингредиентов (исключая id и quantity)
   const areIngredientsEqual = (ing1: Omit<Ingredient, 'id' | 'quantity'>, ing2: Omit<Ingredient, 'id' | 'quantity'>): boolean => {
-    // Основные поля для сравнения
-    if (ing1.name !== ing2.name || ing1.type !== ing2.type) {
-      return false;
-    }
-    
-    // Сравниваем массивы элементов
-    const elements1 = [...(ing1.elements || [])].sort();
-    const elements2 = [...(ing2.elements || [])].sort();
-    if (elements1.length !== elements2.length || !elements1.every((el, i) => el === elements2[i])) {
-      return false;
-    }
-    
-    // Сравниваем массивы тегов
-    const tags1 = [...(ing1.tags || [])].sort();
-    const tags2 = [...(ing2.tags || [])].sort();
-    if (tags1.length !== tags2.length || !tags1.every((tag, i) => tag === tags2[i])) {
-      return false;
-    }
-    
-    // Сравниваем массивы локаций
-    const locations1 = [...(ing1.locations || [])].sort();
-    const locations2 = [...(ing2.locations || [])].sort();
-    if (locations1.length !== locations2.length || !locations1.every((loc, i) => loc === locations2[i])) {
-      return false;
-    }
-    
-    // Сравниваем остальные поля
-    return (
-      ing1.description === ing2.description &&
-      ing1.category === ing2.category &&
-      ing1.rarity === ing2.rarity &&
-      ing1.cost === ing2.cost &&
-      ing1.weight === ing2.weight &&
-      ing1.isBase === ing2.isBase &&
-      ing1.baseRarityModifier === ing2.baseRarityModifier &&
-      ing1.shortCode === ing2.shortCode
-    );
+    return ing1.name === ing2.name && ing1.type === ing2.type && ing1.rarity === ing2.rarity;
   };
 
   const addIngredient = (ingredient: Ingredient) => {
     setIngredients(prev => {
-      // Проверяем, что ингредиент валидный
       if (!ingredient || !ingredient.name || !ingredient.type) {
         console.warn('Invalid ingredient:', ingredient);
         return prev;
       }
 
-      // Сначала ищем по ID
       const existingByIdIndex = prev.findIndex(existing => existing.id === ingredient.id);
-      
       if (existingByIdIndex !== -1) {
-        // Если нашли по ID, обновляем количество
         const updatedIngredients = [...prev];
-        updatedIngredients[existingByIdIndex] = {
-          ...updatedIngredients[existingByIdIndex],
-          quantity: updatedIngredients[existingByIdIndex].quantity + (ingredient.quantity || 0)
-        };
+        updatedIngredients[existingByIdIndex].quantity += (ingredient.quantity || 1);
         return updatedIngredients;
       }
-      
-      // Если не нашли по ID, ищем по характеристикам
-      const existingByPropsIndex = prev.findIndex(existing => 
-        areIngredientsEqual(existing, ingredient)
-      );
 
+      const existingByPropsIndex = prev.findIndex(existing => areIngredientsEqual(existing, ingredient));
       if (existingByPropsIndex !== -1) {
-        // Если нашли совпадающий ингредиент, суммируем количества
         const updatedIngredients = [...prev];
-        updatedIngredients[existingByPropsIndex] = {
-          ...updatedIngredients[existingByPropsIndex],
-          quantity: updatedIngredients[existingByPropsIndex].quantity + (ingredient.quantity || 0)
-        };
+        updatedIngredients[existingByPropsIndex].quantity += (ingredient.quantity || 1);
         return updatedIngredients;
       } else {
-        // Если не нашли, добавляем новый ингредиент с оригинальным ID
-        return [
-          ...prev,
-          { ...ingredient }
-        ];
+        return [...prev, { ...ingredient }];
       }
     });
   };
@@ -140,62 +82,84 @@ export function useInventoryStore(): InventoryStore {
     return ingredients.find(ing => ing.id === id);
   };
 
-  const getTotalIngredients = () => {
-    return ingredients.reduce((total, ing) => total + ing.quantity, 0);
-  };
-
-  // Функция для очистки дубликатов
-  const cleanDuplicates = () => {
-    setIngredients(prev => {
-      const cleaned: Ingredient[] = [];
-      
-      prev.forEach(ingredient => {
-        const existingIndex = cleaned.findIndex(existing => 
-          areIngredientsEqual(existing, ingredient)
-        );
-        
-        if (existingIndex !== -1) {
-          // Если нашли дубликат, суммируем количества
-          cleaned[existingIndex] = {
-            ...cleaned[existingIndex],
-            quantity: cleaned[existingIndex].quantity + ingredient.quantity
-          };
-        } else {
-          // Если не нашли, добавляем как новый
-          cleaned.push(ingredient);
-        }
-      });
-      
-      return cleaned;
-    });
-  };
-
-  const getIngredientsByCategory = (category: string) => {
-    return ingredients.filter(ing => ing.category === category);
-  };
-
   const isIngredientAvailable = (id: string, requiredQuantity = 1) => {
     const ingredient = getIngredient(id);
     return ingredient ? ingredient.quantity >= requiredQuantity : false;
   };
 
   const useIngredients = (ingredientsToUse: { id: string; quantity: number }[]) => {
-    // Проверяем доступность всех ингредиентов
     for (const { id, quantity } of ingredientsToUse) {
       if (!isIngredientAvailable(id, quantity)) {
+        console.error(`Ingredient ${id} not available in required quantity.`);
         return false;
       }
     }
-
-    // Списываем ингредиенты
     for (const { id, quantity } of ingredientsToUse) {
       const ingredient = getIngredient(id);
       if (ingredient) {
         updateIngredientQuantity(id, ingredient.quantity - quantity);
       }
     }
-
     return true;
+  };
+
+  const cleanDuplicates = () => {
+    setIngredients(prev => {
+      const cleaned: Ingredient[] = [];
+      prev.forEach(ingredient => {
+        const existingIndex = cleaned.findIndex(existing => areIngredientsEqual(existing, ingredient));
+        if (existingIndex !== -1) {
+          cleaned[existingIndex].quantity += ingredient.quantity;
+        } else {
+          cleaned.push({ ...ingredient });
+        }
+      });
+      return cleaned;
+    });
+  };
+
+  const swapIngredientElements = (ingredientId: string): { success: boolean, message: string } => {
+    const potionForSwapId = 'potion_of_equality';
+    const potionInInventory = ingredients.find(ing => ing.id === potionForSwapId && ing.quantity > 0);
+
+    if (!potionInInventory) {
+      return { success: false, message: 'Нет "Зелья Равенства и Братства"!' };
+    }
+
+    const targetIngredient = ingredients.find(ing => ing.id === ingredientId);
+    if (!targetIngredient) {
+      return { success: false, message: 'Целевой ингредиент не найден.' };
+    }
+
+    if (!targetIngredient.impurity || !targetIngredient.elements[0]) {
+      return { success: false, message: 'У этого ингредиента нет примеси или основного элемента для преобразования.' };
+    }
+
+    const newIngredient: Ingredient = {
+      ...targetIngredient,
+      id: `${targetIngredient.id}-transformed-${Date.now()}`,
+      name: `Преобразованный ${targetIngredient.name}`,
+      elements: [targetIngredient.impurity],
+      impurity: targetIngredient.elements[0],
+      quantity: 1,
+    };
+
+    updateIngredientQuantity(potionForSwapId, potionInInventory.quantity - 1);
+    updateIngredientQuantity(targetIngredient.id, targetIngredient.quantity - 1);
+    addIngredient(newIngredient);
+
+    return { success: true, message: `Ингредиент ${targetIngredient.name} преобразован!` };
+  };
+
+  const buyIngredient = (ingredient: Ingredient, quantity: number) => {
+    addIngredient({ ...ingredient, quantity });
+  };
+
+  const sellIngredient = (ingredientId: string, quantity: number) => {
+    const existing = ingredients.find(ing => ing.id === ingredientId);
+    if (existing) {
+      updateIngredientQuantity(ingredientId, existing.quantity - quantity);
+    }
   };
 
   return {
@@ -204,10 +168,11 @@ export function useInventoryStore(): InventoryStore {
     updateIngredientQuantity,
     removeIngredient,
     getIngredient,
-    getTotalIngredients,
-    getIngredientsByCategory,
     isIngredientAvailable,
     useIngredients,
-    cleanDuplicates
+    cleanDuplicates,
+    swapIngredientElements,
+    buyIngredient,
+    sellIngredient,
   };
 }

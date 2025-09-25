@@ -1,13 +1,15 @@
-// components/CompactRecipeCard.tsx
+// components/cards/CompactRecipeCard.tsx
 
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Clock, Target, FlaskConical, CheckCircle2 } from "lucide-react";
+import { FlaskConical, Beaker } from "lucide-react";
 import { CompactCard } from "./CompactCard";
-import type { Recipe, Ingredient, RecipeComponent } from "../../hooks/types";
-import { getRarityColor, getRarityName, getRarityDetails, getPotionTypeName, getPotionTypeColor, getPotionQualityName, getPotionQualityColor } from "../../hooks/types";
+import type { Recipe, Ingredient, RecipeComponent, AlchemicalElement, IngredientType, PotionBase } from "../../hooks/types";
+import { getRarityColor, getRarityName, getRarityDetails, getPotionTypeName, getPotionTypeColor, getPotionQualityName, getPotionQualityColor, getAlchemicalElementDetails, getPotionBaseDetails, getAlchemicalElementName } from "../../hooks/types";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { Checkbox } from "../ui/checkbox";
+import { ELEMENT_RANK, getImpurityEffect } from "../../hooks/stores/useAlchemyStore";
 
 interface CompactRecipeCardProps {
   recipe: Recipe;
@@ -16,29 +18,13 @@ interface CompactRecipeCardProps {
   onSelectIngredient?: (recipeId: string, componentId: string, ingredientId: string | undefined) => void;
   canBrew?: boolean;
   onBrew?: (recipeId: string) => void;
-  characterBonus?: number; // Общий бонус персонажа к варке
-  isInLaboratory?: boolean; // Находится ли рецепт в лаборатории
-}
-
-const difficultyColors = {
-  easy: "bg-green-500",
-  medium: "bg-yellow-500",
-  hard: "bg-red-500"
-};
-
-const typeColors = {
-  herb: "bg-emerald-500",
-  mineral: "bg-stone-500",
-  creature: "bg-red-500",
-  essence: "bg-violet-500",
-  oil: "bg-amber-500",
-  crystal: "bg-cyan-500"
-};
-
-function getDifficultyInfo(difficulty: number) {
-  if (difficulty <= 3) return { label: 'Легкий', color: difficultyColors.easy };
-  if (difficulty <= 6) return { label: 'Средний', color: difficultyColors.medium };
-  return { label: 'Сложный', color: difficultyColors.hard };
+  characterBonus?: number;
+  isInLaboratory?: boolean;
+  getSelectedIngredient?: (recipeId: string, componentId: string) => string | undefined;
+  brewingMode?: 'percentage' | 'ttrpg';
+  toggleMagicalDust?: (recipeId: string) => void;
+  isMagicalDustActive?: (recipeId: string) => boolean;
+  hasMagicalDust?: () => boolean;
 }
 
 function ComponentSelector({
@@ -54,26 +40,16 @@ function ComponentSelector({
   onSelectIngredient?: (recipeId: string, componentId: string, ingredientId: string | undefined) => void;
   selectedIngredientId?: string;
 }) {
-  // Функция для проверки совместимости ингредиента с компонентом
   const isIngredientCompatible = (ingredient: Ingredient, component: RecipeComponent): boolean => {
-    // Проверяем наличие всех требуемых элементов
     if (component.requiredElements && component.requiredElements.length > 0) {
-      const hasAllElements = component.requiredElements.every(requiredElement =>
-        ingredient.elements && ingredient.elements.includes(requiredElement)
-      );
-      if (!hasAllElements) return false;
+      if (!component.requiredElements.every(el => ingredient.elements?.includes(el))) return false;
     }
-
-    // Проверяем категории (если указаны)
     if (component.categories && component.categories.length > 0) {
       if (!component.categories.includes(ingredient.category)) return false;
     }
-
-    // Проверяем старые типы для совместимости (если указаны)
     if (component.types && component.types.length > 0) {
       if (!component.types.includes(ingredient.type as any)) return false;
     }
-
     return true;
   };
 
@@ -85,57 +61,27 @@ function ComponentSelector({
     ? ingredients.find(ing => ing.id === selectedIngredientId)
     : null;
 
-  // Проверяем, является ли выбранный ингредиент валидным
   const isSelectedIngredientValid = selectedIngredient &&
     isIngredientCompatible(selectedIngredient, component) &&
     selectedIngredient.quantity >= component.quantity;
 
-  // Определяем класс для границы select
   const selectBorderClass = selectedIngredientId && isSelectedIngredientValid
     ? "border-green-500 dark:border-green-400"
     : !selectedIngredientId
     ? "border-red-500 dark:border-red-400"
-    : "border-red-500 dark:border-red-400"; // невалидный выбор
+    : "border-red-500 dark:border-red-400";
 
   return (
     <div className="space-y-3 p-3 border rounded-lg">
-      {/* Заголовок и количество */}
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <h4 className="text-sm mb-1">{component.name}</h4>
-          <div className="flex items-center gap-2">
-            <div className="flex gap-1">
-              {component.types.slice(0, 3).map(type => (
-                <div
-                  key={type}
-                  className={`w-4 h-4 rounded-full ${typeColors[type]} flex items-center justify-center text-xs text-white`}
-                  title={type}
-                >
-                  {type.slice(0, 1).toUpperCase()}
-                </div>
-              ))}
-              {component.types.length > 3 && (
-                <div className="w-4 h-4 rounded-full bg-muted flex items-center justify-center text-xs text-muted-foreground">
-                  +{component.types.length - 3}
-                </div>
-              )}
-            </div>
-          </div>
         </div>
         <Badge variant="outline" className="text-xs shrink-0">
           ×{component.quantity}
         </Badge>
       </div>
-
       <p className="text-xs text-muted-foreground">{component.description}</p>
-
-      <div className="flex flex-wrap gap-1">
-        {component.tags.map(tag => (
-          <Badge key={tag} variant="secondary" className="text-xs">
-            {tag}
-          </Badge>
-        ))}
-      </div>
 
       {onSelectIngredient && (
         <Select
@@ -155,9 +101,23 @@ function ComponentSelector({
             <SelectValue placeholder="Выберите ингредиент">
               {selectedIngredient ? (
                 <div className="flex items-center justify-between w-full">
-                  <span>{selectedIngredient.name} (×{selectedIngredient.quantity})</span>
+                  <div className="flex items-center gap-2">
+                    {selectedIngredient.impurity && (
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Beaker className="h-3 w-3 text-purple-500 shrink-0" />
+                            </TooltipTrigger>
+                            <TooltipContent className="text-white dark:text-black">
+                                <div className="text-xs text-white dark:text-black">
+                                    Примесь: {getAlchemicalElementName(selectedIngredient.impurity)}
+                                </div>
+                            </TooltipContent>
+                        </Tooltip>
+                    )}
+                    <span>{selectedIngredient.name} (×{selectedIngredient.quantity})</span>
+                  </div>
                   {!isSelectedIngredientValid && (
-                    <span className="text-red-500 text-xs ml-2">⚠️</span>
+                    <span className="text-red-500 text-xs ml-2"> ⚠️ </span>
                   )}
                 </div>
               ) : (
@@ -187,6 +147,7 @@ function ComponentSelector({
   );
 }
 
+
 export function CompactRecipeCard({
   recipe,
   ingredients,
@@ -197,9 +158,11 @@ export function CompactRecipeCard({
   characterBonus = 0,
   getSelectedIngredient,
   isInLaboratory = false,
-  brewingMode = 'percentage'
-}: CompactRecipeCardProps & { getSelectedIngredient?: (recipeId: string, componentId: string) => string | undefined,
-  brewingMode?: 'percentage' | 'ttrpg'}) {
+  brewingMode = 'percentage',
+  toggleMagicalDust,
+  isMagicalDustActive,
+  hasMagicalDust
+}: CompactRecipeCardProps) {
   const rarityDetails = getRarityDetails(recipe.rarity);
   const rarityColor = getRarityColor(recipe.rarity);
   const rarityName = getRarityName(recipe.rarity);
@@ -210,24 +173,18 @@ export function CompactRecipeCard({
 
   const isIngredientCompatible = (ingredient: Ingredient, component: RecipeComponent): boolean => {
     if (component.requiredElements && component.requiredElements.length > 0) {
-      const hasAllElements = component.requiredElements.every(requiredElement =>
-        ingredient.elements && ingredient.elements.includes(requiredElement)
-      );
-      if (!hasAllElements) return false;
+      if (!component.requiredElements.every(el => ingredient.elements?.includes(el))) return false;
     }
-
     if (component.categories && component.categories.length > 0) {
       if (!component.categories.includes(ingredient.category)) return false;
     }
-
     if (component.types && component.types.length > 0) {
       if (!component.types.includes(ingredient.type as any)) return false;
     }
-
     return true;
   };
 
-  const allComponentsSelected = recipe.components?.every(component => {
+  const allComponentsSelectedAndValid = recipe.components?.every(component => {
     const selectedIngredientId = getSelectedIngredient?.(recipe.id, component.id);
     if (!selectedIngredientId) return false;
     const selectedIng = ingredients.find(ing => ing.id === selectedIngredientId);
@@ -236,134 +193,118 @@ export function CompactRecipeCard({
       selectedIng.quantity >= component.quantity;
   }) || false;
 
-  const allIngredientsAvailable = recipe.components?.every(component => {
-    const availableIngredients = ingredients.filter(ing =>
-      isIngredientCompatible(ing, component) && ing.quantity >= component.quantity
-    );
-    return availableIngredients.length > 0;
-  }) || false;
-
-  const canActuallyBrew = recipe.components?.every(component => {
-    const selectedIngredientId = getSelectedIngredient?.(recipe.id, component.id);
-    if (!selectedIngredientId) return false;
-    
-    const selectedIngredient = ingredients.find(ing => ing.id === selectedIngredientId);
-    return selectedIngredient && 
-           isIngredientCompatible(selectedIngredient, component) &&
-           selectedIngredient.quantity >= component.quantity;
-  }) || false;
-
   const badges = [
-    {
-      label: rarityName,
-      className: `${rarityColor} text-white border-none`,
-      title: `Редкость зелья: ${rarityName}`
-    },
-    {
-      label: getPotionTypeName(recipe.potionType),
-      className: `${getPotionTypeColor(recipe.potionType)} text-white border-none`,
-      title: `Тип зелья: ${getPotionTypeName(recipe.potionType)}`
-    },
-    {
-      label: getPotionQualityName(recipe.potionQuality),
-      className: `${getPotionQualityColor(recipe.potionQuality)} text-white border-none`,
-      title: `Качество варева: ${getPotionQualityName(recipe.potionQuality)}`
-    },
-    {
-      label: brewingMode === 'percentage' ? `${Math.round(successPercentage)}%` : `СЛ: ${targetDifficulty}`,
-      variant: "outline" as const,
-      title: brewingMode === 'percentage'
-        ? `Шанс успеха при броске d20+${totalBonus} против СЛ ${targetDifficulty}`
-        : `Требуется бросок d20 + ${totalBonus} >= ${targetDifficulty}`
-    },
-    {
-      label: rarityDetails.brewingTimeText,
-      variant: "secondary" as const
-    }
+    { label: rarityName, className: `${rarityColor} text-white border-none`, title: `Редкость: ${rarityName}` },
+    { label: getPotionTypeName(recipe.potionType), className: `${getPotionTypeColor(recipe.potionType)} text-white border-none`, title: `Тип: ${getPotionTypeName(recipe.potionType)}` },
+    { label: getPotionQualityName(recipe.potionQuality), className: `${getPotionQualityColor(recipe.potionQuality)} text-white border-none`, title: `Качество: ${getPotionQualityName(recipe.potionQuality)}` },
+    { label: brewingMode === 'percentage' ? `${Math.round(successPercentage)}%` : `СЛ: ${targetDifficulty}`, variant: "outline" as const, title: brewingMode === 'percentage' ? `Шанс (d20+${totalBonus} vs ${targetDifficulty})` : `Бросок d20+${totalBonus} >= ${targetDifficulty}` },
+    { label: rarityDetails.brewingTimeText, variant: "secondary" as const },
+    ...(isInLaboratory ? [
+      { 
+        label: allComponentsSelectedAndValid ? 'Готово к варке' : 'Выберите ингредиенты', 
+        className: allComponentsSelectedAndValid 
+          ? 'bg-green-600 text-white border-none animate-pulse' 
+          : 'bg-orange-500 text-white border-none', 
+        title: allComponentsSelectedAndValid 
+          ? 'Все ингредиенты выбраны, можно варить!' 
+          : 'Необходимо выбрать ингредиенты для всех компонентов'
+      }
+    ] : [])
   ];
 
-  const componentAvailability = recipe.components?.map(component => {
-    const availableIngredients = ingredients.filter(ing =>
-      component.types.includes(ing.type) &&
-      component.tags.every(tag => ing.tags.includes(tag)) &&
-      ing.quantity >= component.quantity
-    );
-    return {
-      types: component.types,
-      available: availableIngredients.length > 0
-    };
-  }) || [];
+  const finalCircles: any[] = [];
 
-  const uniqueTypes = Array.from(new Set(recipe.components?.flatMap(c => c.types) || []));
-  const typeCircles = uniqueTypes.map(type => {
-    const typeAvailable = componentAvailability.some(comp =>
-      comp.types.includes(type) && comp.available
+  const baseComponent = recipe.components.find(c => c.tags.includes('база'));
+  if (baseComponent && baseComponent.types?.[0]) {
+    const baseDetails = getPotionBaseDetails(baseComponent.types[0] as PotionBase);
+    const isBaseAvailable = ingredients.some(ing => isIngredientCompatible(ing, baseComponent));
+    finalCircles.push({
+      label: baseDetails.shortCode,
+      color: `${baseDetails.color} ${isBaseAvailable ? 'ring-2 ring-green-500' : 'ring-2 ring-red-500'}`,
+      tooltip: `База: ${baseDetails.name}`
+    });
+  }
+
+  const elementComponents = recipe.components.filter(c => !c.tags.includes('база'));
+  const allRequiredElements = Array.from(new Set(elementComponents.flatMap(c => c.requiredElements)));
+
+  allRequiredElements.forEach(element => {
+    const details = getAlchemicalElementDetails(element);
+    const isElementAvailable = elementComponents.some(component =>
+      component.requiredElements.includes(element) && ingredients.some(ing => isIngredientCompatible(ing, component))
     );
-    return {
-      label: type,
-      color: typeAvailable
-        ? `${typeColors[type]} ring-2 ring-green-500 dark:ring-green-400`
-        : `${typeColors[type]} ring-2 ring-red-500 dark:ring-red-400`
-    };
+
+    if (finalCircles.length > 0) {
+        finalCircles.push({ label: "mini-separator", color: "bg-border w-2 h-px" });
+    }
+
+    finalCircles.push({
+      label: details.shortCode,
+      color: `${details.color} ${isElementAvailable ? 'ring-2 ring-green-500' : 'ring-2 ring-red-500'}`,
+      tooltip: `${details.category}: ${details.name}`
+    });
   });
 
-  // Создаем кружочки с индикатором доступности и разделителями между типами
+  const allIngredientsAvailable = recipe.components.every(component =>
+    ingredients.some(ing => isIngredientCompatible(ing, component))
+  );
+
   const typeCirclesWithIndicator = [
-    // Сначала индикатор доступности
     {
       label: allIngredientsAvailable ? "✓" : "!",
-      color: allIngredientsAvailable
-        ? "bg-green-500 dark:bg-green-600"
-        : "bg-red-500 dark:bg-red-600",
-      tooltip: allIngredientsAvailable
-        ? "Все ингредиенты доступны - в инвентаре есть подходящие ингредиенты для всех компонентов"
-        : "Не все ингредиенты доступны - некоторые компоненты недоступны в инвентаре"
+      color: allIngredientsAvailable ? "bg-green-500" : "bg-red-500",
+      tooltip: allIngredientsAvailable ? "Есть подходящие ингредиенты для всех компонентов" : "Не хватает ингредиентов"
     },
-    // Потом разделитель (специальный элемент)
-    {
-      label: "—",
-      color: "bg-border w-6 h-px rounded-none"
-    },
-    // Потом кружочки типов с мини-разделителями между ними
-    ...typeCircles.reduce((acc, circle, index) => {
-      // Добавляем кружочек типа
-      acc.push({
-        ...circle,
-        tooltip: `Тип: ${circle.label}`
-      });
-
-      // Добавляем мини-разделитель после каждого кружочка, кроме последнего
-      if (index < typeCircles.length - 1) {
-        acc.push({
-          label: "mini-separator",
-          color: "bg-muted w-2 h-px rounded-none"
-        });
-      }
-
-      return acc;
-    }, [] as Array<{ label: string; color: string; tooltip?: string }>)
+    { label: "—", color: "bg-border w-6 h-px" },
+    ...finalCircles
   ];
 
+  const selectedIngredientIds = recipe.components.map(c => getSelectedIngredient?.(recipe.id, c.id)).filter(Boolean) as string[];
+  const selectedIngredients = ingredients.filter(ing => selectedIngredientIds.includes(ing.id));
+  const impurities = selectedIngredients.map(ing => ing.impurity).filter(Boolean) as AlchemicalElement[];
+  let dominantImpurity: AlchemicalElement | undefined;
+  if (impurities.length > 0) {
+      dominantImpurity = impurities.reduce((dominant, current) => {
+          const dominantRank = ELEMENT_RANK[dominant] || 0;
+          const currentRank = ELEMENT_RANK[current] || 0;
+          return currentRank > dominantRank ? current : dominant;
+      });
+  }
+
+  const impurityEffect = dominantImpurity ? getImpurityEffect(dominantImpurity, rarityDetails.rarityModifier) : null;
+  const hasMagicalDustInInventory = hasMagicalDust ? hasMagicalDust() : false;
+  const magicalDustIsActive = isMagicalDustActive?.(recipe.id) ?? false;
+
   const actions = (
-    <div className="flex items-center gap-1 shrink-0">
+    <div className="flex items-center gap-2 shrink-0">
       {isInLaboratory && canBrew && onBrew && (
-        <Button
-          onClick={(e) => {
-            e.stopPropagation();
-            onBrew(recipe.id);
-          }}
-          disabled={!allComponentsSelected}
-          size="sm"
-          className={`h-7 text-xs px-2 ${
-            !allComponentsSelected 
-              ? 'opacity-50 cursor-not-allowed' 
-              : ''
-          }`}
-          variant={allComponentsSelected ? "default" : "secondary"}
-        >
-          <FlaskConical className="h-3 w-3 mr-1" />
-          Варить
-        </Button>
+        <div className="flex flex-col items-end gap-1">
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              onBrew(recipe.id);
+            }}
+            disabled={!allComponentsSelectedAndValid}
+            size="sm"
+            className={`h-8 text-sm px-4 font-medium transition-all duration-200 ${
+              allComponentsSelectedAndValid 
+                ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105' 
+                : 'bg-gray-400 hover:bg-gray-500 text-white cursor-not-allowed'
+            }`}
+            variant="default"
+          >
+            <FlaskConical className="h-4 w-4 mr-2" />
+            {allComponentsSelectedAndValid ? 'Сварить зелье' : 'Выберите ингредиенты'}
+          </Button>
+          {!allComponentsSelectedAndValid && (
+            <span className="text-xs text-red-500 font-medium">
+              {recipe.components?.filter(component => {
+                const selectedIngredientId = getSelectedIngredient?.(recipe.id, component.id);
+                return !selectedIngredientId;
+              }).length || 0} компонентов не выбрано
+            </span>
+          )}
+        </div>
       )}
     </div>
   );
@@ -376,23 +317,54 @@ export function CompactRecipeCard({
       actions={actions}
     >
       <div className="space-y-4">
-        <div className="stat-container">
-          <div className="text-xs text-muted-foreground mb-1 text-center">Эффект</div>
+        <div className="p-3 bg-muted/30 rounded-lg">
+          <div className="text-xs text-muted-foreground mb-1">Эффект</div>
           <div className="text-sm font-medium text-left">{recipe.effect}</div>
         </div>
+
+        {isInLaboratory && dominantImpurity && impurityEffect && (
+            <div className="space-y-3 p-3 border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
+                <div className="flex items-center gap-2">
+                    <Beaker className="h-4 w-4 text-purple-500" />
+                    <h4 className="text-sm font-medium text-purple-700 dark:text-purple-300">Потенциальный эффект примеси</h4>
+                </div>
+                <p className={`text-xs text-muted-foreground transition-opacity ${magicalDustIsActive ? 'line-through opacity-50' : ''}`}>
+                    {impurityEffect}
+                </p>
+
+                {hasMagicalDustInInventory && (
+                    <div className="pt-2 border-t border-purple-200 dark:border-purple-800">
+                        <div className="flex items-center space-x-2 mt-2">
+                            <Checkbox
+                                id={`dust-${recipe.id}`}
+                                checked={magicalDustIsActive}
+                                onCheckedChange={() => toggleMagicalDust?.(recipe.id)}
+                                onClick={(e) => e.stopPropagation()}
+                            />
+                            <label
+                                htmlFor={`dust-${recipe.id}`}
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                                Использовать Магическую пыль (в наличии: {ingredients.find(ing => ing.id === 'magical_dust')?.quantity})
+                            </label>
+                        </div>
+                    </div>
+                )}
+            </div>
+        )}
 
         {isInLaboratory && (
           <div className="space-y-3">
             <h4 className="text-sm">Компоненты:</h4>
             {recipe.components?.map((component) => (
-                <ComponentSelector
-                  key={component.id}
-                  component={component}
-                  ingredients={ingredients}
-                  recipeId={recipe.id}
-                  onSelectIngredient={onSelectIngredient}
-                  selectedIngredientId={getSelectedIngredient?.(recipe.id, component.id)}
-                />
+              <ComponentSelector
+                key={component.id}
+                component={component}
+                ingredients={ingredients}
+                recipeId={recipe.id}
+                onSelectIngredient={onSelectIngredient}
+                selectedIngredientId={getSelectedIngredient?.(recipe.id, component.id)}
+              />
             )) || (
               <p className="text-sm text-muted-foreground">Нет компонентов</p>
             )}
@@ -400,26 +372,22 @@ export function CompactRecipeCard({
         )}
 
         <div className="pt-2 border-t space-y-2">
-          {!isInLaboratory ? (
-            <Button
-              onClick={() => onToggleLaboratory(recipe.id)}
-              variant="outline"
-              className="w-full"
-              size="sm"
-            >
-              <FlaskConical className="h-4 w-4 mr-2" />
-              Добавить в лабораторию
-            </Button>
-          ) : (
-            <Button
-              onClick={() => onToggleLaboratory(recipe.id)}
-              variant="outline"
-              className="w-full"
-              size="sm"
-            >
-              Убрать из лаборатории
-            </Button>
-          )}
+          <Button
+            onClick={() => onToggleLaboratory(recipe.id)}
+            variant="outline"
+            className={`w-full text-xs ${
+              isInLaboratory 
+                ? 'text-muted-foreground hover:text-destructive hover:border-destructive' 
+                : 'text-primary hover:text-primary-foreground'
+            }`}
+            size="sm"
+          >
+            {isInLaboratory ? (
+              <>Убрать из лаборатории</>
+            ) : (
+              <><FlaskConical className="h-4 w-4 mr-2" />Добавить в лабораторию</>
+            )}
+          </Button>
         </div>
       </div>
     </CompactCard>

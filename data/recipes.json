@@ -1,291 +1,20 @@
 [
   {
-    "id": "r1",
-    "name": "Алхимическая краска",
-    "description": "Можно нанести на любую поверхность. Скрывается только Белым духом, Жёлтым отваром и Исполнением желаний",
-    "effect": "Можно нанести на любую поверхность. Скрывается только Белым духом, Жёлтым отваром и Исполнением желаний. Если предмет уничтожен, краска тоже уничтожается",
-    "rarity": "common",
-    "potionType": "oil",
-    "potionQuality": "low",
-    "tags": ["краска", "маскировка"],
-    "savingThrowType": "none",
-    "inLaboratory": true,
-    "cost": 13,
-    "components": [
-      {
-        "id": "c1-base",
-        "name": "Родниковая вода",
-        "description": "База зелья",
-        "quantity": 1,
-        "requiredElements": [],
-        "categories": ["other"],
-        "tags": ["база"],
-        "types": ["spring_water"]
-      },
-      {
-        "id": "c1-1",
-        "name": "Вяз",
-        "description": "Кора вяза для основы краски",
-        "quantity": 1,
-        "requiredElements": ["protection"],
-        "categories": ["plant"],
-        "tags": ["защита"],
-        "types": ["plant"]
-      },
-      {
-        "id": "c1-2",
-        "name": "Ядовитый компонент",
-        "description": "Компонент с ядовитыми свойствами",
-        "quantity": 1,
-        "requiredElements": ["poison"],
-        "categories": ["plant"],
-        "tags": ["яд"],
-        "types": ["plant"]
-      }
-    ]
-  },
-  {
-    "id": "r2",
-    "name": "Белый дух",
-    "description": "Снимает эффект любого ОВ и Не зелья. Для зелий большей редкости совершите спасбросок Т с базовой сложностью воздействующего на вас зелья, при успехе окончивающий его эффект",
-    "effect": "Снимает эффект любого ОВ и Не зелья. Для зелий большей редкости совершите спасбросок Т с базовой сложностью воздействующего на вас зелья, при успехе окончивающий его эффект",
-    "rarity": "uncommon",
-    "potionType": "potion",
-    "potionQuality": "common",
-    "tags": ["очищение", "антидот"],
-    "savingThrowType": "constitution",
-    "inLaboratory": false,
-    "cost": 384,
-    "components": [
-      {
-        "id": "c2-base",
-        "name": "Волшебные чернила",
-        "description": "База зелья",
-        "quantity": 1,
-        "requiredElements": [],
-        "categories": ["other"],
-        "tags": ["база"],
-        "types": ["enchanted_ink"]
-      },
-      {
-        "id": "c2-1",
-        "name": "Ртуть",
-        "description": "Жидкий металл для трансмутации",
-        "quantity": 1,
-        "requiredElements": ["transmutation"],
-        "categories": ["mineral"],
-        "tags": ["трансмутация"],
-        "types": ["mineral"]
-      },
-      {
-        "id": "c2-2",
-        "name": "Кислотный компонент",
-        "description": "Компонент с кислотными свойствами",
-        "quantity": 1,
-        "requiredElements": ["acid"],
-        "categories": ["plant"],
-        "tags": ["кислота"],
-        "types": ["plant"]
-      }
-    ]
-  },
-  {
-    "id": "r3",
-    "name": "Бутилированное дыхание",
-    "description": "Можно выдохнуть либо удержать: 1) \"Порыв ветра\", 2) 1 час обходиться без дыхания. Пока не выбран эффект, открытие рта окончивает действие",
-    "effect": "Можно выдохнуть либо удержать: 1) \"Порыв ветра\", 2) 1 час обходиться без дыхания. Пока не выбран эффект, открытие рта окончивает действие",
-    "rarity": "uncommon",
-    "potionType": "potion",
-    "potionQuality": "common",
-    "tags": ["дыхание", "воздух"],
-    "savingThrowType": "constitution",
-    "inLaboratory": true,
-    "cost": 327,
-    "components": [
-      {
-        "id": "c3-base",
-        "name": "Волшебные чернила",
-        "description": "База зелья",
-        "quantity": 1,
-        "requiredElements": [],
-        "categories": ["other"],
-        "tags": ["база"],
-        "types": ["enchanted_ink"]
-      },
-      {
-        "id": "c3-1",
-        "name": "Трансмутационный компонент",
-        "description": "Компонент для преобразования",
-        "quantity": 1,
-        "requiredElements": ["transmutation"],
-        "categories": ["mineral"],
-        "tags": ["преобразование"],
-        "types": ["mineral"]
-      },
-      {
-        "id": "c3-2",
-        "name": "Электрический компонент",
-        "description": "Компонент с электрическими свойствами",
-        "quantity": 1,
-        "requiredElements": ["electricity"],
-        "categories": ["plant"],
-        "tags": ["электричество"],
-        "types": ["plant"]
-      }
-    ]
-  },
-  {
-    "id": "r4",
-    "name": "Зелье лечения",
-    "description": "Восстанавливает 2d4+2 очков здоровья",
-    "effect": "Лечение 2d4+2 ОЗ",
-    "rarity": "common",
-    "potionType": "potion",
-    "potionQuality": "low",
-    "tags": ["лечение", "восстановление"],
-    "savingThrowType": "constitution",
-    "inLaboratory": true,
-    "cost": 12,
-    "components": [
-      {
-        "id": "c4-base",
-        "name": "Родниковая вода",
-        "description": "База для зелья",
-        "quantity": 1,
-        "requiredElements": [],
-        "categories": ["other"],
-        "tags": ["база"],
-        "types": ["spring_water"]
-      },
-      {
-        "id": "c4-1",
-        "name": "Лечебная основа",
-        "description": "Основной лечебный компонент",
-        "quantity": 2,
-        "requiredElements": ["healing"],
-        "categories": ["plant"],
-        "tags": ["лечение", "восстановление"],
-        "types": ["plant"]
-      },
-      {
-        "id": "c4-2",
-        "name": "Огненный компонент",
-        "description": "Усиливает лечебные свойства",
-        "quantity": 1,
-        "requiredElements": ["fire"],
-        "categories": ["plant"],
-        "tags": ["огонь"],
-        "types": ["plant"]
-      }
-    ]
-  },
-  {
-    "id": "r5",
-    "name": "Зелье холодного сопротивления",
-    "description": "Дает сопротивление к холодному урону на 1 час",
-    "effect": "Сопротивление холоду на 1 час",
-    "rarity": "common",
-    "potionType": "potion",
-    "potionQuality": "low",
-    "tags": ["защита", "холод", "сопротивление"],
-    "savingThrowType": "constitution",
-    "inLaboratory": true,
-    "cost": 12,
-    "components": [
-      {
-        "id": "c5-base",
-        "name": "Родниковая вода",
-        "description": "База для зелья",
-        "quantity": 1,
-        "requiredElements": [],
-        "categories": ["other"],
-        "tags": ["база"],
-        "types": ["spring_water"]
-      },
-      {
-        "id": "c5-1",
-        "name": "Лечебная основа",
-        "description": "Основной лечебный компонент",
-        "quantity": 2,
-        "requiredElements": ["healing"],
-        "categories": ["plant"],
-        "tags": ["лечение"],
-        "types": ["plant"]
-      },
-      {
-        "id": "c5-2",
-        "name": "Холодный компонент",
-        "description": "Защищает от холода",
-        "quantity": 1,
-        "requiredElements": ["cold"],
-        "categories": ["plant"],
-        "tags": ["холод"],
-        "types": ["plant"]
-      }
-    ]
-  },
-  {
-    "id": "r6",
-    "name": "Зелье против яда",
-    "description": "Дает преимущество к спасброскам против яда на 1 час",
-    "effect": "Преимущество к спасброскам против яда на 1 час",
-    "rarity": "common",
-    "potionType": "potion",
-    "potionQuality": "low",
-    "tags": ["защита", "яд", "антидот"],
-    "savingThrowType": "constitution",
-    "inLaboratory": true,
-    "cost": 12,
-    "components": [
-      {
-        "id": "c6-base",
-        "name": "Родниковая вода",
-        "description": "База для зелья",
-        "quantity": 1,
-        "requiredElements": [],
-        "categories": ["other"],
-        "tags": ["база"],
-        "types": ["spring_water"]
-      },
-      {
-        "id": "c6-1",
-        "name": "Лечебная основа",
-        "description": "Основной лечебный компонент",
-        "quantity": 2,
-        "requiredElements": ["healing"],
-        "categories": ["plant"],
-        "tags": ["лечение"],
-        "types": ["plant"]
-      },
-      {
-        "id": "c6-2",
-        "name": "Ядовитый компонент",
-        "description": "Иммунизирует против яда",
-        "quantity": 1,
-        "requiredElements": ["poison"],
-        "categories": ["plant"],
-        "tags": ["яд"],
-        "types": ["plant"]
-      }
-    ]
-  },
-  {
-    "id": "r7",
-    "name": "Эликсир невидимости",
-    "description": "Делает невидимым на 1 час",
-    "effect": "Невидимость на 1 час",
+    "id": "necromancers_will",
+    "name": "Воля некроманта",
+    "description": "При попадании на гуманоида, мёртвого не дольше недели, поднимает его на 24 часа как «Восставший труп» и наделяет способностью говорить как «Разговор с мёртвыми».",
+    "effect": "Поднимает труп гуманоида как Восставший труп на 24 часа с возможностью говорить.",
     "rarity": "rare",
-    "potionType": "elixir",
+    "potionType": "potion",
     "potionQuality": "high",
-    "tags": ["иллюзия", "скрытность", "невидимость"],
-    "savingThrowType": "wisdom",
+    "tags": ["некромантия", "нежить", "контроль"],
     "inLaboratory": false,
-    "cost": 587,
+    "cost": 1808,
     "components": [
       {
-        "id": "c7-base",
-        "name": "Густые волшебные чернила",
-        "description": "База для эликсира",
+        "id": "c_base_gvc",
+        "name": "База (Редкая)",
+        "description": "Основа для редкого зелья.",
         "quantity": 1,
         "requiredElements": [],
         "categories": ["other"],
@@ -293,89 +22,106 @@
         "types": ["thick_magical_ink"]
       },
       {
-        "id": "c7-1",
-        "name": "Иллюзорная субстанция",
-        "description": "Создает эффект невидимости",
+        "id": "c_necromancy_school",
+        "name": "Компонент школы Некромантии",
+        "description": "Ингредиент, несущий в себе силу школы Некромантии.",
         "quantity": 1,
-        "requiredElements": ["illusion"],
-        "categories": ["plant"],
-        "tags": ["иллюзия", "магия"],
-        "types": ["plant"]
+        "requiredElements": ["necromancy"],
+        "categories": ["mineral", "creature"],
+        "tags": [],
+        "types": []
       },
       {
-        "id": "c7-2",
-        "name": "Теневой элемент",
-        "description": "Усиливает скрытность",
+        "id": "c_undead_creature",
+        "name": "Компонент вида Нежить",
+        "description": "Часть существа, относящегося к Нежити.",
         "quantity": 1,
-        "requiredElements": ["necrotic"],
-        "categories": ["other"],
-        "tags": ["тьма", "скрытность"],
-        "types": ["other"]
+        "requiredElements": ["undead"],
+        "categories": ["creature"],
+        "tags": [],
+        "types": []
       }
     ]
   },
   {
-    "id": "r8",
-    "name": "Зелье героизма",
-    "description": "Дает 10 временных ОЗ и бонус +1 к атакам на 1 час",
-    "effect": "10 временных ОЗ, +1 к атакам на 1 час",
-    "rarity": "rare",
+    "id": "ether_potion",
+    "name": "Зелье эфира",
+    "description": "Существо получает 1К маны, которое сразу должно преобразовать в ячейки заклинаний. Один уровень ячейки стоит единицу маны. Восстанавливать можно ячейки не выше пятого уровня и за каждые 7 единиц использованной маны существо получает 1 уровень Истощения.",
+    "effect": "Восстанавливает ячейки заклинаний в обмен на риск получить Истощение.",
+    "rarity": "uncommon",
     "potionType": "potion",
-    "potionQuality": "high",
-    "tags": ["бафф", "боевое", "героизм"],
-    "savingThrowType": "charisma",
-    "inLaboratory": true,
-    "cost": 587,
+    "potionQuality": "common",
+    "tags": ["магия", "энергия", "риск"],
+    "inLaboratory": false,
+    "cost": 814,
     "components": [
       {
-        "id": "c8-base",
-        "name": "Густые волшебные чернила",
-        "description": "База для зелья",
+        "id": "c_base_vc",
+        "name": "База (Необычная)",
+        "description": "Основа для необычного зелья.",
         "quantity": 1,
         "requiredElements": [],
         "categories": ["other"],
         "tags": ["база"],
-        "types": ["thick_magical_ink"]
+        "types": ["enchanted_ink"]
       },
       {
-        "id": "c8-1",
-        "name": "Вдохновляющий компонент",
-        "description": "Дает героическую силу",
+        "id": "c_time_essence",
+        "name": "Компонент сущности Время",
+        "description": "Ингредиент с элементом Времени.",
         "quantity": 1,
-        "requiredElements": ["celestial"],
-        "categories": ["creature", "mineral"],
-        "tags": ["героизм", "вдохновение"],
-        "types": ["creature", "mineral"]
+        "requiredElements": ["time"],
+        "categories": ["other", "creature"],
+        "tags": [],
+        "types": []
       },
       {
-        "id": "c8-2",
-        "name": "Боевой катализатор",
-        "description": "Усиливает боевые способности",
+        "id": "c_embodiment_school",
+        "name": "Компонент школы Воплощения",
+        "description": "Ингредиент с элементом Воплощения.",
+        "quantity": 1,
+        "requiredElements": ["embodiment"],
+        "categories": ["plant", "mineral"],
+        "tags": [],
+        "types": []
+      },
+      {
+        "id": "c_force_element",
+        "name": "Компонент стихии Силовое поле",
+        "description": "Ингредиент с элементом Силового поля.",
         "quantity": 1,
         "requiredElements": ["force"],
-        "categories": ["mineral"],
-        "tags": ["сила", "боевое"],
-        "types": ["mineral"]
+        "categories": ["mineral", "creature"],
+        "tags": [],
+        "types": []
+      },
+      {
+        "id": "c_fey_creature",
+        "name": "Компонент вида Фея",
+        "description": "Часть существа, относящегося к Феям.",
+        "quantity": 1,
+        "requiredElements": ["fey"],
+        "categories": ["plant"],
+        "tags": [],
+        "types": []
       }
     ]
-  },
-  {
-    "id": "r9",
-    "name": "Зелье огненного дыхания",
-    "description": "Позволяет дышать огнем в течение 1 минуты",
-    "effect": "Огненное дыхание 3d6 урона, спасбросок Лов СЛ 13",
+  },{
+    "id": "potion_of_equality",
+    "name": "Зелье Равенства и Братства",
+    "description": "При обработке этим зельем ингредиента, его основной элемент и примесь меняются местами.",
+    "effect": "Используется для обработки одного ингредиента с примесью.",
     "rarity": "uncommon",
-    "potionType": "elixir",
+    "potionType": "potion",
     "potionQuality": "common",
-    "tags": ["боевое", "огонь", "дыхание"],
-    "savingThrowType": "dexterity",
+    "tags": ["преобразование", "очистка"],
     "inLaboratory": false,
-    "cost": 165,
+    "cost": 284,
     "components": [
       {
-        "id": "c9-base",
-        "name": "Волшебные чернила",
-        "description": "База для зелья",
+        "id": "eq-base",
+        "name": "База (Необычная)",
+        "description": "Основа для необычного зелья.",
         "quantity": 1,
         "requiredElements": [],
         "categories": ["other"],
@@ -383,70 +129,78 @@
         "types": ["enchanted_ink"]
       },
       {
-        "id": "c9-1",
-        "name": "Огненная эссенция",
-        "description": "Источник пламени",
+        "id": "eq-transmutation",
+        "name": "Компонент Преобразования",
+        "description": "Ингредиент со свойством Преобразования.",
         "quantity": 1,
-        "requiredElements": ["fire"],
+        "requiredElements": ["transmutation"],
         "categories": ["plant", "mineral"],
-        "tags": ["огонь", "энергия"],
-        "types": ["plant", "mineral"]
+        "tags": [],
+        "types": []
       },
       {
-        "id": "c9-2",
-        "name": "Дыхательный компонент",
-        "description": "Дает способность к дыханию огнем",
-        "quantity": 1,
-        "requiredElements": ["dragon"],
-        "categories": ["creature"],
-        "tags": ["дракон", "дыхание"],
-        "types": ["creature"]
-      }
-    ]
-  },
-  {
-    "id": "r10",
-    "name": "Зелье возрождения",
-    "description": "Воскрешает существо, умершее н�� более 1 минуты назад",
-    "effect": "Воскрешение с 1 ОЗ",
-    "rarity": "legendary",
-    "potionType": "potion",
-    "potionQuality": "high",
-    "tags": ["воскрешение", "жизнь", "смерть"],
-    "savingThrowType": "constitution",
-    "inLaboratory": false,
-    "cost": 6080,
-    "components": [
-      {
-        "id": "c10-base",
-        "name": "Сок Ирминсула",
-        "description": "База для легендарного зелья",
-        "quantity": 1,
+        "id": "eq-opposites",
+        "name": "Противоположные элементы",
+        "description": "Два любых ингредиента с противоположными стихиями (например, Огонь и Холод).",
+        "quantity": 2,
         "requiredElements": [],
-        "categories": ["plant"],
-        "tags": ["база", "божественное"],
-        "types": ["irminsul_juice"]
-      },
-      {
-        "id": "c10-1",
-        "name": "Божественная эссенция",
-        "description": "Источник божественной силы",
-        "quantity": 1,
-        "requiredElements": ["celestial", "healing"],
-        "categories": ["creature"],
-        "tags": ["божественное", "жизнь"],
-        "types": ["creature"]
-      },
-      {
-        "id": "c10-2",
-        "name": "Временной якорь",
-        "description": "Связывает душу с телом",
-        "quantity": 1,
-        "requiredElements": ["time", "matter"],
-        "categories": ["other", "plant"],
-        "tags": ["время", "связь"],
-        "types": ["other", "plant"]
+        "categories": [],
+        "tags": ["стихия"],
+        "types": []
       }
     ]
-  }
+  },{
+  "id": "elixir_of_insight",
+  "name": "Эликсир озарения",
+  "description": "На 8 часов дарует +1к6 к броскам атаки и спасброскам, использующим Интеллект, Мудрость или Харизму.",
+  "effect": "На 8 часов +1к6 к атакам и спасброскам ИНТ, МУД, ХАР.",
+  "rarity": "very rare",
+  "potionType": "elixir",
+  "potionQuality": "high",
+  "tags": ["бафф", "разум", "социальное", "боевое"],
+  "inLaboratory": false,
+  "cost": 4913,
+  "components": [
+    {
+      "id": "c_base_re",
+      "name": "База (Очень редкая)",
+      "description": "Основа для очень редкого зелья. [РЭ]",
+      "quantity": 1,
+      "requiredElements": [],
+      "categories": ["other"],
+      "tags": ["база"],
+      "types": ["dissolved_ether"]
+    },
+    {
+      "id": "c_divination_school",
+      "name": "Компонент Прорицания",
+      "description": "Ингредиент, несущий в себе силу школы Прорицания. [Прор]",
+      "quantity": 1,
+      "requiredElements": ["divination"],
+      "categories": [],
+      "tags": [],
+      "types": []
+    },
+    {
+      "id": "c_force_element",
+      "name": "Компонент Силового поля",
+      "description": "Ингредиент со стихией Силового поля. [СП]",
+      "quantity": 1,
+      "requiredElements": ["force"],
+      "categories": [],
+      "tags": [],
+      "types": []
+    },
+    {
+      "id": "c_celestial_creature",
+      "name": "Компонент вида Небожитель",
+      "description": "Часть или эссенция существа, относящегося к Небожителям. [Неб]",
+      "quantity": 1,
+      "requiredElements": ["celestial"],
+      "categories": ["creature"],
+      "tags": [],
+      "types": []
+    }
+  ]
+}
 ]
