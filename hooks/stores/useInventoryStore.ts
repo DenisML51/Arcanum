@@ -5,7 +5,7 @@ import type { Ingredient } from '../types';
 
 interface InventoryStore {
   ingredients: Ingredient[];
-  addIngredient: (ingredient: Omit<Ingredient, 'id'>) => void;
+  addIngredient: (ingredient: Ingredient) => void;
   updateIngredientQuantity: (id: string, quantity: number) => void;
   removeIngredient: (id: string) => void;
   getIngredient: (id: string) => Ingredient | undefined;
@@ -34,21 +34,8 @@ export function useInventoryStore(): InventoryStore {
     return [];
   });
 
-  // Загружаем начальные ингредиенты из JSON если инвентарь пуст
-  useEffect(() => {
-    const loadInitialIngredients = async () => {
-      if (ingredients.length === 0) {
-        try {
-          const { loadIngredients } = await import('../../utils/dataLoader');
-          const initialIngredients = await loadIngredients();
-          setIngredients(initialIngredients);
-        } catch (error) {
-          console.error('Failed to load initial ingredients:', error);
-        }
-      }
-    };
-    loadInitialIngredients();
-  }, []);
+  // Убираем автоматическую загрузку всех ингредиентов в инвентарь
+  // Инвентарь должен быть пустым по умолчанию
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(ingredients));
@@ -95,7 +82,7 @@ export function useInventoryStore(): InventoryStore {
     );
   };
 
-  const addIngredient = (ingredient: Omit<Ingredient, 'id'>) => {
+  const addIngredient = (ingredient: Ingredient) => {
     setIngredients(prev => {
       // Проверяем, что ингредиент валидный
       if (!ingredient || !ingredient.name || !ingredient.type) {
@@ -103,24 +90,37 @@ export function useInventoryStore(): InventoryStore {
         return prev;
       }
 
-      // Ищем существующий ингредиент с такими же характеристиками
-      const existingIndex = prev.findIndex(existing => 
+      // Сначала ищем по ID
+      const existingByIdIndex = prev.findIndex(existing => existing.id === ingredient.id);
+      
+      if (existingByIdIndex !== -1) {
+        // Если нашли по ID, обновляем количество
+        const updatedIngredients = [...prev];
+        updatedIngredients[existingByIdIndex] = {
+          ...updatedIngredients[existingByIdIndex],
+          quantity: updatedIngredients[existingByIdIndex].quantity + (ingredient.quantity || 0)
+        };
+        return updatedIngredients;
+      }
+      
+      // Если не нашли по ID, ищем по характеристикам
+      const existingByPropsIndex = prev.findIndex(existing => 
         areIngredientsEqual(existing, ingredient)
       );
 
-      if (existingIndex !== -1) {
+      if (existingByPropsIndex !== -1) {
         // Если нашли совпадающий ингредиент, суммируем количества
         const updatedIngredients = [...prev];
-        updatedIngredients[existingIndex] = {
-          ...updatedIngredients[existingIndex],
-          quantity: updatedIngredients[existingIndex].quantity + (ingredient.quantity || 0)
+        updatedIngredients[existingByPropsIndex] = {
+          ...updatedIngredients[existingByPropsIndex],
+          quantity: updatedIngredients[existingByPropsIndex].quantity + (ingredient.quantity || 0)
         };
         return updatedIngredients;
       } else {
-        // Если не нашли, добавляем новый ингредиент
+        // Если не нашли, добавляем новый ингредиент с оригинальным ID
         return [
           ...prev,
-          { ...ingredient, id: Date.now().toString() + Math.random().toString(36).substr(2, 9) }
+          { ...ingredient }
         ];
       }
     });
