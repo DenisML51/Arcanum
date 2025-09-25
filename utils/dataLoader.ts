@@ -11,7 +11,20 @@ import equipmentData from '../data/equipment.json';
 // Функции для загрузки данных из JSON файлов
 export async function loadIngredients(): Promise<Ingredient[]> {
   try {
-    return ingredientsData as Ingredient[];
+    const ingredients = ingredientsData as Ingredient[];
+    
+    // Удаляем дубликаты по ID
+    const uniqueIngredients = ingredients.reduce((acc, ingredient) => {
+      const existingIndex = acc.findIndex(existing => existing.id === ingredient.id);
+      if (existingIndex === -1) {
+        acc.push(ingredient);
+      } else {
+        console.warn(`Duplicate ingredient found with ID: ${ingredient.id} (${ingredient.name})`);
+      }
+      return acc;
+    }, [] as Ingredient[]);
+    
+    return uniqueIngredients;
   } catch (error) {
     console.error('Error loading ingredients:', error);
     return [];
@@ -20,7 +33,20 @@ export async function loadIngredients(): Promise<Ingredient[]> {
 
 export async function loadRecipes(): Promise<Recipe[]> {
   try {
-    return recipesData as Recipe[];
+    const recipes = recipesData as Recipe[];
+    
+    // Удаляем дубликаты по ID
+    const uniqueRecipes = recipes.reduce((acc, recipe) => {
+      const existingIndex = acc.findIndex(existing => existing.id === recipe.id);
+      if (existingIndex === -1) {
+        acc.push(recipe);
+      } else {
+        console.warn(`Duplicate recipe found with ID: ${recipe.id} (${recipe.name})`);
+      }
+      return acc;
+    }, [] as Recipe[]);
+    
+    return uniqueRecipes;
   } catch (error) {
     console.error('Error loading recipes:', error);
     return [];
@@ -29,7 +55,20 @@ export async function loadRecipes(): Promise<Recipe[]> {
 
 export async function loadBiomes(): Promise<Biome[]> {
   try {
-    return biomesData as Biome[];
+    const biomes = biomesData as Biome[];
+    
+    // Удаляем дубликаты по ID
+    const uniqueBiomes = biomes.reduce((acc, biome) => {
+      const existingIndex = acc.findIndex(existing => existing.id === biome.id);
+      if (existingIndex === -1) {
+        acc.push(biome);
+      } else {
+        console.warn(`Duplicate biome found with ID: ${biome.id} (${biome.name})`);
+      }
+      return acc;
+    }, [] as Biome[]);
+    
+    return uniqueBiomes;
   } catch (error) {
     console.error('Error loading biomes:', error);
     return [];
@@ -38,7 +77,20 @@ export async function loadBiomes(): Promise<Biome[]> {
 
 export async function loadEquipment(): Promise<Equipment[]> {
   try {
-    return equipmentData as Equipment[];
+    const equipment = equipmentData as Equipment[];
+    
+    // Удаляем дубликаты по ID
+    const uniqueEquipment = equipment.reduce((acc, item) => {
+      const existingIndex = acc.findIndex(existing => existing.id === item.id);
+      if (existingIndex === -1) {
+        acc.push(item);
+      } else {
+        console.warn(`Duplicate equipment found with ID: ${item.id} (${item.name})`);
+      }
+      return acc;
+    }, [] as Equipment[]);
+    
+    return uniqueEquipment;
   } catch (error) {
     console.error('Error loading equipment:', error);
     return [];

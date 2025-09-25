@@ -116,8 +116,17 @@ export function InventoryPage({ store }: InventoryPageProps) {
     const allIngredients = store.allIngredients || [];
     const filtered = filterIngredients(allIngredients);
     
+    // Удаляем дубликаты по ID на случай, если они все еще есть
+    const uniqueIngredients = filtered.reduce((acc, ingredient) => {
+      const existingIndex = acc.findIndex(existing => existing.id === ingredient.id);
+      if (existingIndex === -1) {
+        acc.push(ingredient);
+      }
+      return acc;
+    }, [] as typeof filtered);
+    
     // Для каждого ингредиента проверяем, есть ли он в инвентаре
-    const result = filtered.map(ingredient => {
+    const result = uniqueIngredients.map(ingredient => {
       const inventoryIngredient = Array.isArray(store.ingredients) 
         ? store.ingredients.find(inv => inv.id === ingredient.id)
         : null;

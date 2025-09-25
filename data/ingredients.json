@@ -216,20 +216,6 @@
     "quantity": 10
   },
   {
-    "id": "small_pearl",
-    "name": "Жемчужина малая",
-    "description": "Небольшая жемчужина, способная фокусировать силовую энергию.",
-    "type": "mineral",
-    "category": "mineral",
-    "elements": ["force"],
-    "rarity": "common",
-    "tags": ["сила", "жемчуг"],
-    "cost": 2,
-    "weight": 0.1,
-    "locations": ["Побережье", "Под водой"],
-    "quantity": 10
-  },
-  {
     "id": "angel_blood",
     "name": "Кровь ангела",
     "description": "Серебристая кровь небожителя, наполненная сияющей энергией.",
