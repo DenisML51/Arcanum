@@ -35,12 +35,13 @@ const defaultCharacter: Character = {
   level: 1,
   alchemyToolsProficiency: false,
   activeEquipmentId: 'cauldron',
+  brewingMode: 'percentage',
   baseStats: {
     strength: 10,
-    dexterity: 14,
-    constitution: 12,
-    intelligence: 15,
-    wisdom: 13,
+    dexterity: 10,
+    constitution: 10,
+    intelligence: 10,
+    wisdom: 10,
     charisma: 10
   }
 };
@@ -48,7 +49,7 @@ const defaultCharacter: Character = {
 const defaultCurrency: Currency = {
   copper: 0,
   silver: 0,
-  gold: 100,
+  gold: 0,
   platinum: 0
 };
 
@@ -62,7 +63,30 @@ const defaultStats: BrewingStats = {
   goldEarned: 0
 };
 
-export function useCharacterStore(): CharacterStore {
+export function useCharacterStore(): {
+  character: Character;
+  currency: Currency;
+  stats: BrewingStats;
+  equipment: Equipment[];
+  ownedEquipment: string[];
+  activeEquipment: Equipment;
+  getOwnedEquipment: () => Equipment[];
+  getAvailableForPurchaseEquipment: () => Equipment[];
+  hasEquipment: (equipmentId: string) => boolean;
+  updateCharacterName: (name: string) => void;
+  updateCharacterLevel: (level: number) => void;
+  updateAlchemyToolsProficiency: (hasProficiency: boolean) => void;
+  updateCharacterStats: (newStats: Partial<Character["baseStats"]>) => void;
+  updateCurrency: (newCurrency: Partial<Currency>) => void;
+  spendGold: (amount: number) => (boolean);
+  earnGold: (amount: number) => void;
+  getTotalGold: () => number;
+  buyEquipment: (equipmentId: string) => ({ success: boolean; message: string });
+  setActiveEquipment: (equipmentId: string) => void;
+  updateStats: (updates: Partial<BrewingStats>) => void;
+  updateBrewingMode: (mode: ("percentage" | "ttrpg")) => void;
+  incrementStat: (stat: keyof BrewingStats, amount?: number) => void
+} {
   const [character, setCharacter] = useState<Character>(() => {
     if (typeof window === 'undefined') return defaultCharacter;
     
@@ -77,6 +101,10 @@ export function useCharacterStore(): CharacterStore {
     }
     return defaultCharacter;
   });
+
+  const updateBrewingMode = (mode: 'percentage' | 'ttrpg') => {
+    setCharacter(prev => ({ ...prev, brewingMode: mode }));
+  };
 
   const [currency, setCurrency] = useState<Currency>(() => {
     if (typeof window === 'undefined') return defaultCurrency;
@@ -110,7 +138,7 @@ export function useCharacterStore(): CharacterStore {
 
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [ownedEquipment, setOwnedEquipment] = useState<string[]>(() => {
-    if (typeof window === 'undefined') return ['cauldron']; // Базовое оборудование
+    if (typeof window === 'undefined') return ['cauldron'];
     
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -260,6 +288,7 @@ export function useCharacterStore(): CharacterStore {
     buyEquipment,
     setActiveEquipment,
     updateStats,
+    updateBrewingMode,
     incrementStat
   };
 }

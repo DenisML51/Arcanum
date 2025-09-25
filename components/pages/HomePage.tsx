@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Progress } from "../ui/progress";
 import { Separator } from "../ui/separator";
@@ -76,7 +78,7 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
   const [tempCurrency, setTempCurrency] = useState(store.currency);
 
   const { stats, ingredients, recipes, potions, playerGold, character, availableEquipment, availableForPurchaseEquipment } = store;
-
+  const [tempBrewingMode, setTempBrewingMode] = useState(store.character.brewingMode);
   // Защита от отсутствующего персонажа
   if (!character) {
     return <div>Загрузка...</div>;
@@ -104,6 +106,7 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
     store.updateAlchemyToolsProficiency(tempAlchemyProficiency);
     store.updateCharacterStats(tempBaseStats);
     store.updateCurrency(tempCurrency);
+    store.updateBrewingMode(tempBrewingMode);
     setCharacterDialogOpen(false);
   };
 
@@ -278,10 +281,34 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
                           onCheckedChange={(checked) => setTempAlchemyProficiency(checked as boolean)}
                         />
                         <label htmlFor="alchemy-proficiency" className="text-sm">
-                          Мастерство инструментов алхимика (+{proficiencyBonus} к броскам)
+                          Мастерство инструментов алхимика
                         </label>
                       </div>
 
+                      <Separator />
+                      <div>
+                        <h4 className="mb-3">Режим варки зелий</h4>
+                        <RadioGroup
+                          value={tempBrewingMode}
+                          onValueChange={(value: 'percentage' | 'ttrpg') => setTempBrewingMode(value)}
+                          className="space-y-2"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="percentage" id="mode-percentage" />
+                            <Label htmlFor="mode-percentage" className="font-normal">
+                              <span className="font-medium">Шанс</span>
+                              <p className="text-xs text-muted-foreground">Простой режим, показывающий шанс успеха в процентах. </p>
+                            </Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="ttrpg" id="mode-ttrpg" />
+                            <Label htmlFor="mode-ttrpg" className="font-normal">
+                              <span className="font-medium">TTRPG</span>
+                              <p className="text-xs text-muted-foreground">Режим, симулирующий бросок d20 против Сложности (СЛ). </p>
+                            </Label>
+                          </div>
+                        </RadioGroup>
+                      </div>
                       <Separator />
 
                       <div>

@@ -160,6 +160,7 @@ export function LaboratoryPage({ store }: LaboratoryPageProps) {
                     onBrew={handleBrew}
                     characterBonus={totalCharacterBonus}
                     isInLaboratory={true}
+                    brewingMode={store.character.brewingMode}
                   />
                 </motion.div>
               ))}

@@ -196,24 +196,19 @@ export function CompactRecipeCard({
   onBrew,
   characterBonus = 0,
   getSelectedIngredient,
-  isInLaboratory = false
-}: CompactRecipeCardProps & { getSelectedIngredient?: (recipeId: string, componentId: string) => string | undefined }) {
+  isInLaboratory = false,
+  brewingMode = 'percentage'
+}: CompactRecipeCardProps & { getSelectedIngredient?: (recipeId: string, componentId: string) => string | undefined,
+  brewingMode?: 'percentage' | 'ttrpg'}) {
   const rarityDetails = getRarityDetails(recipe.rarity);
   const rarityColor = getRarityColor(recipe.rarity);
   const rarityName = getRarityName(recipe.rarity);
 
-  // Рассчитываем шанс успеха в новой системе D&D 5e
-  // Нужно бросить к20 + бонус >= сложность
-  const targetDifficulty = rarityDetails.savingThrow;
+  const targetDifficulty = 5 * rarityDetails.rarityModifier + 5 + recipe.components.length;
   const totalBonus = characterBonus;
+  const successPercentage = Math.max(5, Math.min(95, ((21 - (targetDifficulty - totalBonus)) / 20) * 100));
 
-  // Вероятность успеха = (21 - (сложность - бонус)) / 20, но не больше 95% и не меньше 5%
-  const baseSuccessRolls = Math.max(1, Math.min(20, 21 - (targetDifficulty - totalBonus)));
-  const successPercentage = Math.max(5, Math.min(95, (baseSuccessRolls / 20) * 100));
-
-  // Функция для проверки совместимости (та же что в ComponentSelector)
   const isIngredientCompatible = (ingredient: Ingredient, component: RecipeComponent): boolean => {
-    // Проверяем наличие всех требуемых элементов
     if (component.requiredElements && component.requiredElements.length > 0) {
       const hasAllElements = component.requiredElements.every(requiredElement =>
         ingredient.elements && ingredient.elements.includes(requiredElement)
@@ -221,12 +216,10 @@ export function CompactRecipeCard({
       if (!hasAllElements) return false;
     }
 
-    // Проверяем категории (если указаны)
     if (component.categories && component.categories.length > 0) {
       if (!component.categories.includes(ingredient.category)) return false;
     }
 
-    // Проверяем старые типы для совместимости (если указаны)
     if (component.types && component.types.length > 0) {
       if (!component.types.includes(ingredient.type as any)) return false;
     }
@@ -234,7 +227,6 @@ export function CompactRecipeCard({
     return true;
   };
 
-  // Проверяем, есть ли все компоненты выбраны и валидны
   const allComponentsSelected = recipe.components?.every(component => {
     const selectedIngredientId = getSelectedIngredient?.(recipe.id, component.id);
     if (!selectedIngredientId) return false;
@@ -244,7 +236,6 @@ export function CompactRecipeCard({
       selectedIng.quantity >= component.quantity;
   }) || false;
 
-  // Проверяем, доступны ли все ингредиенты (даже если не выбраны)
   const allIngredientsAvailable = recipe.components?.every(component => {
     const availableIngredients = ingredients.filter(ing =>
       isIngredientCompatible(ing, component) && ing.quantity >= component.quantity
@@ -252,10 +243,9 @@ export function CompactRecipeCard({
     return availableIngredients.length > 0;
   }) || false;
 
-  // Вычисляем, можно ли сварить зелье (все компоненты выбраны и доступны)
   const canActuallyBrew = recipe.components?.every(component => {
     const selectedIngredientId = getSelectedIngredient?.(recipe.id, component.id);
-    if (!selectedIngredientId) return false; // Требуем явного выбора
+    if (!selectedIngredientId) return false;
     
     const selectedIngredient = ingredients.find(ing => ing.id === selectedIngredientId);
     return selectedIngredient && 
@@ -280,9 +270,11 @@ export function CompactRecipeCard({
       title: `Качество варева: ${getPotionQualityName(recipe.potionQuality)}`
     },
     {
-      label: `${Math.round(successPercentage)}%`,
+      label: brewingMode === 'percentage' ? `${Math.round(successPercentage)}%` : `СЛ: ${targetDifficulty}`,
       variant: "outline" as const,
-      title: `к20+${totalBonus} против СЛ ${targetDifficulty}`
+      title: brewingMode === 'percentage'
+        ? `Шанс успеха при броске d20+${totalBonus} против СЛ ${targetDifficulty}`
+        : `Требуется бросок d20 + ${totalBonus} >= ${targetDifficulty}`
     },
     {
       label: rarityDetails.brewingTimeText,
@@ -290,7 +282,6 @@ export function CompactRecipeCard({
     }
   ];
 
-  // Создаем typeCircles с учетом доступности ингредиентов для каждого компонента
   const componentAvailability = recipe.components?.map(component => {
     const availableIngredients = ingredients.filter(ing =>
       component.types.includes(ing.type) &&
@@ -303,7 +294,6 @@ export function CompactRecipeCard({
     };
   }) || [];
 
-  // Получаем уникальные типы и определяем их доступность
   const uniqueTypes = Array.from(new Set(recipe.components?.flatMap(c => c.types) || []));
   const typeCircles = uniqueTypes.map(type => {
     const typeAvailable = componentAvailability.some(comp =>
