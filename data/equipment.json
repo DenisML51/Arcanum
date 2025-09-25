@@ -52,41 +52,5 @@
     "cost": 50000,
     "weight": 0,
     "rarity": "legendary"
-  },
-  {
-    "id": "crystal_crucible",
-    "name": "Кристальный тигель",
-    "description": "Тигель из чистого кристалла для магических зелий",
-    "brewingBonus": 3,
-    "cost": 200,
-    "weight": 2,
-    "rarity": "rare"
-  },
-  {
-    "id": "enchanted_mortar",
-    "name": "Зачарованная ступка",
-    "description": "Ступка с пестиком, зачарованная для лучшего измельчения",
-    "brewingBonus": 1,
-    "cost": 100,
-    "weight": 5,
-    "rarity": "uncommon"
-  },
-  {
-    "id": "precision_scales",
-    "name": "Точные весы",
-    "description": "Весы для точного дозирования ингредиентов",
-    "brewingBonus": 1,
-    "cost": 75,
-    "weight": 3,
-    "rarity": "uncommon"
-  },
-  {
-    "id": "mystical_retort",
-    "name": "Мистическая реторта",
-    "description": "Волшебный дистилляционный аппарат",
-    "brewingBonus": 5,
-    "cost": 1500,
-    "weight": 15,
-    "rarity": "very rare"
   }
 ]

@@ -26,6 +26,11 @@ interface CharacterStore {
   setActiveEquipment: (equipmentId: string) => void;
   updateStats: (updates: Partial<BrewingStats>) => void;
   incrementStat: (stat: keyof BrewingStats, amount?: number) => void;
+
+  setCharacter: (character: Character) => void;
+  setCurrency: (currency: Currency) => void;
+  setStats: (stats: BrewingStats) => void;
+  setOwnedEquipment: (equipmentIds: string[]) => void;
 }
 
 const STORAGE_KEY = 'alchemy-character';
@@ -85,7 +90,11 @@ export function useCharacterStore(): {
   setActiveEquipment: (equipmentId: string) => void;
   updateStats: (updates: Partial<BrewingStats>) => void;
   updateBrewingMode: (mode: ("percentage" | "ttrpg")) => void;
-  incrementStat: (stat: keyof BrewingStats, amount?: number) => void
+  incrementStat: (stat: keyof BrewingStats, amount?: number) => void;
+  setCharacter: (newCharacter: Character) => void;
+  setCurrency: (newCurrency: Currency) => void;
+  setStats: (newStats: BrewingStats) => void;
+  setOwnedEquipment: (equipmentIds: string[]) => void
 } {
   const [character, setCharacter] = useState<Character>(() => {
     if (typeof window === 'undefined') return defaultCharacter;
@@ -267,6 +276,22 @@ export function useCharacterStore(): {
     setStats(prev => ({ ...prev, [stat]: prev[stat] + amount }));
   };
 
+  const setCharacterState = (newCharacter: Character) => {
+    setCharacter(newCharacter || defaultCharacter);
+  };
+
+  const setCurrencyState = (newCurrency: Currency) => {
+    setCurrency(newCurrency || defaultCurrency);
+  };
+
+  const setStatsState = (newStats: BrewingStats) => {
+    setStats(newStats || defaultStats);
+  };
+
+  const setOwnedEquipmentState = (equipmentIds: string[]) => {
+    setOwnedEquipment(Array.isArray(equipmentIds) ? equipmentIds : ['cauldron']);
+  };
+
   return {
     character,
     currency,
@@ -289,6 +314,10 @@ export function useCharacterStore(): {
     setActiveEquipment,
     updateStats,
     updateBrewingMode,
-    incrementStat
+    incrementStat,
+    setCharacter: setCharacterState,
+    setCurrency: setCurrencyState,
+    setStats: setStatsState,
+    setOwnedEquipment: setOwnedEquipmentState,
   };
 }

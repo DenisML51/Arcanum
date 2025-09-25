@@ -323,6 +323,85 @@ export function useAlchemyStore() {
     return dust && dust.quantity > 0;
   };
 
+  const exportAllData = () => {
+    const dataToExport = {
+      // Character
+      character: character.character,
+      currency: character.currency,
+      stats: character.stats,
+      ownedEquipment: character.ownedEquipment,
+      // Inventory & Potions
+      inventory: inventory.ingredients,
+      potions: potions.potions,
+      // Settings
+      laboratoryRecipes: Array.from(data.getLaboratoryRecipes().map(r => r.id)),
+      selectedIngredients: Array.from(ingredientSelection.selectedIngredients.entries()),
+      useMagicalDust: Array.from(ingredientSelection.useMagicalDust),
+      // Metadata
+      exportDate: new Date().toISOString(),
+      version: "Arcanum-v1.0"
+    };
+
+    const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `arcanum_backup_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const importAllData = async (file: File): Promise<{ success: boolean; message: string }> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = JSON.parse(event.target?.result as string);
+
+          const requiredKeys = ['character', 'currency', 'stats', 'inventory', 'potions', 'laboratoryRecipes'];
+          for (const key of requiredKeys) {
+            if (!(key in data)) {
+              resolve({ success: false, message: `Ошибка: в файле отсутствует обязательный ключ "${key}".` });
+              return;
+            }
+          }
+
+          // Assuming you added the setters to the individual stores as per the previous response
+          character.setCharacter(data.character);
+          character.setCurrency(data.currency);
+          character.setStats(data.stats);
+          character.setOwnedEquipment(data.ownedEquipment || ['cauldron']);
+          inventory.setIngredients(data.inventory);
+          potions.setPotions(data.potions);
+          data.setLaboratoryRecipes(data.laboratoryRecipes || []);
+          ingredientSelection.setSelectedIngredients(data.selectedIngredients || []);
+          ingredientSelection.setUseMagicalDust(data.useMagicalDust || []);
+
+          resolve({ success: true, message: 'Все данные успешно импортированы!' });
+        } catch (error) {
+          console.error(error);
+          resolve({ success: false, message: 'Ошибка парсинга файла. Убедитесь, что это корректный JSON.' });
+        }
+      };
+      reader.onerror = () => {
+        resolve({ success: false, message: 'Не удалось прочитать файл.' });
+      };
+      reader.readAsText(file);
+    });
+  };
+
+  const resetAllData = () => {
+    localStorage.removeItem('alchemy-character');
+    localStorage.removeItem('alchemy-inventory');
+    localStorage.removeItem('alchemy-potions');
+    localStorage.removeItem('alchemy-laboratory');
+    localStorage.removeItem('alchemy-ingredient-selections');
+    localStorage.removeItem('alchemy-magical-dust');
+    window.location.reload();
+  };
+
   return {
     // Inventory
     ingredients: inventory.ingredients,
@@ -370,6 +449,7 @@ export function useAlchemyStore() {
     removeRecipeFromLaboratory: data.removeRecipeFromLaboratory,
     isRecipeInLaboratory: data.isRecipeInLaboratory,
     getLaboratoryRecipes: data.getLaboratoryRecipes,
+     addCustomIngredient: data.addCustomIngredient,
 
     // Filters
     activeFilters: filters.filters,
@@ -389,5 +469,9 @@ export function useAlchemyStore() {
     buyIngredient,
     sellIngredient,
     exploreLocation,
+
+    exportAllData,
+    importAllData,
+    resetAllData
   };
 }

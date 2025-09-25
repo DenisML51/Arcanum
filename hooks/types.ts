@@ -1,7 +1,7 @@
 // hooks/types.ts
 
 // Основные категории ингредиентов по D&D правилам
-export type IngredientCategory = 'poition' | 'mineral' | 'creature' | 'other';
+export type IngredientCategory = 'plant' | 'mineral' | 'creature' | 'other';
 
 // Элементы для алхимии согласно таблице D&D
 export type AlchemicalElement =
@@ -14,7 +14,7 @@ export type AlchemicalElement =
   // Дополнительные
   | 'protection';
 
-const ALCHEMICAL_ELEMENT_DETAILS: Record<AlchemicalElement, { name: string; shortCode: string; category: string; color: string; }> = {
+export const ALCHEMICAL_ELEMENT_DETAILS: Record<AlchemicalElement, { name: string; shortCode: string; category: string; color: string; }> = {
   // Сущность
   'time': { name: 'Время', shortCode: 'В', category: 'Сущность', color: 'bg-indigo-500' },
   'matter': { name: 'Материя', shortCode: 'М', category: 'Сущность', color: 'bg-indigo-500' },
@@ -308,7 +308,7 @@ export const getRarityDetails = (rarity: string): { savingThrow: number; brewing
 
 export const getIngredientCategoryName = (category: IngredientCategory): string => {
   switch (category) {
-    case 'poition': return 'Яд';
+    case 'plant': return 'Растение';
     case 'mineral': return 'Минерал';
     case 'creature': return 'Существо';
     case 'other': return 'Иное';
@@ -318,7 +318,7 @@ export const getIngredientCategoryName = (category: IngredientCategory): string 
 
 export const getIngredientCategoryColor = (category: IngredientCategory): string => {
   switch (category) {
-    case 'poition': return 'bg-red-500';
+    case 'plant': return 'bg-red-500';
     case 'mineral': return 'bg-gray-500';
     case 'creature': return 'bg-red-500';
     case 'other': return 'bg-purple-500';

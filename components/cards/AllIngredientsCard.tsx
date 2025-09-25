@@ -5,7 +5,7 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Plus, Minus, MapPin } from "lucide-react";
 import { CompactCard } from "./CompactCard";
-import type { Ingredient, PotionBase } from "../../hooks/types";
+import type { Ingredient, PotionBase } from "@/hooks/types.ts";
 import {
   getIngredientCategoryName,
   getIngredientCategoryColor,
@@ -13,7 +13,7 @@ import {
   getAlchemicalElementShortCode,
   getPotionBaseName,
   getPotionBaseRarity
-} from "../../hooks/types";
+} from "@/hooks/types.ts";
 
 interface AllIngredientsCardProps {
   ingredient: Ingredient;

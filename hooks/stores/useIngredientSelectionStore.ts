@@ -11,6 +11,9 @@ interface IngredientSelectionStore {
   isMagicalDustActive: (recipeId: string) => boolean;
   clearSelection: (recipeId: string, componentId: string) => void;
   clearAllSelections: () => void;
+
+  setSelectedIngredients: (entries: [string, string][]) => void;
+  setUseMagicalDust: (recipeIds: string[]) => void;
 }
 
 const STORAGE_KEY = 'alchemy-ingredient-selections';
@@ -95,6 +98,14 @@ export function useIngredientSelectionStore(): IngredientSelectionStore {
     setSelectedIngredients(new Map());
   };
 
+  const setSelectedIngredientsState = (entries: [string, string][]) => {
+    setSelectedIngredients(new Map(Array.isArray(entries) ? entries : []));
+  };
+
+  const setUseMagicalDustState = (recipeIds: string[]) => {
+    setUseMagicalDust(new Set(Array.isArray(recipeIds) ? recipeIds : []));
+  };
+
   return {
     selectedIngredients,
     setSelectedIngredient,
@@ -103,6 +114,9 @@ export function useIngredientSelectionStore(): IngredientSelectionStore {
     getSelectedIngredient,
     toggleMagicalDust,
     clearSelection,
-    clearAllSelections
+    clearAllSelections,
+
+    setSelectedIngredients: setSelectedIngredientsState,
+    setUseMagicalDust: setUseMagicalDustState,
   };
 }

@@ -16,20 +16,15 @@ import {
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { CompactBiomeCard } from "../cards/CompactBiomeCard";
-import { useAlchemyStore } from "../../hooks/stores/useAlchemyStore";
+import { useAlchemyStore } from "@/hooks/stores/useAlchemyStore.ts";
 
 interface ExplorationPageProps {
   store: ReturnType<typeof useAlchemyStore>;
 }
 
-
-
-
-
 export function ExplorationPage({ store }: ExplorationPageProps) {
   const [isExploring, setIsExploring] = useState(false);
 
-  // Проверяем наличие необходимых данных
   if (!store) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -57,19 +52,16 @@ export function ExplorationPage({ store }: ExplorationPageProps) {
   const handleExplore = async (biomeId: string) => {
     setIsExploring(true);
 
-      // Показываем toast о начале исследования
       const explorationToast = toast("Исследование в процессе...", {
         icon: <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500"></div>,
         duration: 2000
       });
 
     try {
-      // Небольшая задержка для эффекта загрузки
       setTimeout(() => {
         try {
           const result = store.exploreLocation(biomeId);
 
-            // Закрываем toast загрузки
             toast.dismiss(explorationToast);
 
             if (result.success) {
@@ -125,7 +117,6 @@ export function ExplorationPage({ store }: ExplorationPageProps) {
 
       <Separator />
 
-      {/* Советы по исследованию */}
       <Card className="border-blue-200 bg-blue-50/50 dark:border-blue-800 dark:bg-blue-950/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
@@ -149,7 +140,6 @@ export function ExplorationPage({ store }: ExplorationPageProps) {
         </CardContent>
       </Card>
 
-      {/* Список биомов */}
       <div>
         <h3 className="mb-4">Доступные локации</h3>
         {store.biomes.length === 0 ? (
@@ -176,6 +166,7 @@ export function ExplorationPage({ store }: ExplorationPageProps) {
                     playerGold={Math.floor(store.getTotalGold())}
                     onExplore={handleExplore}
                     ingredients={store.allIngredients}
+                    isDisabled={isExploring}
                   />
                 </motion.div>
               );
