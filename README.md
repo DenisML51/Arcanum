@@ -325,18 +325,6 @@ chore: обновление зависимостей
 
 ---
 
-## 📊 Статистика проекта
-
-![GitHub stars](https://img.shields.io/github/stars/your-username/arcanum?style=social)
-![GitHub forks](https://img.shields.io/github/forks/your-username/arcanum?style=social)
-![GitHub issues](https://img.shields.io/github/issues/your-username/arcanum)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/your-username/arcanum)
-
-![GitHub last commit](https://img.shields.io/github/last-commit/your-username/arcanum)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/y/your-username/arcanum)
-![GitHub contributors](https://img.shields.io/github/contributors/your-username/arcanum)
-
----
 
 <div align="center">
 
@@ -344,9 +332,9 @@ chore: обновление зависимостей
 
 **Arcanum** - ваш надежный спутник в мире алхимии D&D 5e
 
-[![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/your-username/arcanum)
-[![Issues](https://img.shields.io/badge/GitHub-Issues-FF6B6B?style=for-the-badge&logo=github)](https://github.com/your-username/arcanum/issues)
-[![Discussions](https://img.shields.io/badge/GitHub-Discussions-5865F2?style=for-the-badge&logo=github)](https://github.com/your-username/arcanum/discussions)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/DenisML51/Arcanum)
+[![Issues](https://img.shields.io/badge/GitHub-Issues-FF6B6B?style=for-the-badge&logo=github)](https://github.com/DenisML51/Arcanum/issues)
+
 
 ---
 
