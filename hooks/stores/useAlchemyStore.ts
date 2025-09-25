@@ -118,13 +118,25 @@ export function useAlchemyStore() {
     const naturalRoll = Math.floor(Math.random() * 20) + 1;
     const mainRoll = naturalRoll + bonus;
 
+    const rollResults = { naturalRoll, bonus, mainRoll };
+
+    // В режиме TTRPG критический успех (20) всегда успешен и изумителен
+    if (mode === 'ttrpg' && naturalRoll === 20) {
+      const excellenceRoll = Math.floor(Math.random() * 100) + 1;
+      const excellence = EXCELLENCE_TABLE.find(e => excellenceRoll >= e.range[0] && excellenceRoll <= e.range[1]);
+      return {
+        success: true,
+        quality: 'excellent',
+        excellenceEffect: excellence?.effect || "Невероятный результат!",
+        rollResults: { ...rollResults, excellenceRoll }
+      };
+    }
+
     let success = mainRoll >= targetDifficulty;
     if (mode === 'percentage') {
         const successPercentage = Math.max(5, Math.min(95, ((21 - (targetDifficulty - bonus)) / 20) * 100));
         success = (Math.random() * 100) < successPercentage;
     }
-
-    const rollResults = { naturalRoll, bonus, mainRoll };
 
     if (!success) {
       const fumbleRoll = Math.floor(Math.random() * 100) + 1;
@@ -134,17 +146,6 @@ export function useAlchemyStore() {
         quality: 'poor',
         flawEffect: flaw?.effect || "Неизвестный изъян.",
         rollResults: { ...rollResults, fumbleRoll }
-      };
-    }
-
-    if (naturalRoll === 20) {
-      const excellenceRoll = Math.floor(Math.random() * 100) + 1;
-      const excellence = EXCELLENCE_TABLE.find(e => excellenceRoll >= e.range[0] && excellenceRoll <= e.range[1]);
-      return {
-        success: true,
-        quality: 'excellent',
-        excellenceEffect: excellence?.effect || "Невероятный результат!",
-        rollResults: { ...rollResults, excellenceRoll }
       };
     }
 
