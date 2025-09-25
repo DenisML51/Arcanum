@@ -78,6 +78,8 @@ export interface Potion {
   potionType: PotionType;
   potionQuality: PotionQuality;
   brewedQuality?: 'poor' | 'standard' | 'excellent';
+  flawEffect?: string;
+  excellenceEffect?: string;
   tags: string[];
   quantity: number;
   isFavorite?: boolean;
@@ -246,7 +248,6 @@ export const getRarityDetails = (rarity: string): { savingThrow: number; brewing
   }
 };
 
-// Функции для работы с ингредиентами
 export const getIngredientCategoryName = (category: IngredientCategory): string => {
   switch (category) {
     case 'plant': return 'Растение';
@@ -355,7 +356,6 @@ export const getPotionBaseRarity = (base: PotionBase): string => {
   }
 };
 
-// Currency conversion functions
 export function convertToGold(currency: Currency): number {
   return currency.copper * 0.01 + currency.silver * 0.1 + currency.gold + currency.platinum * 10;
 }

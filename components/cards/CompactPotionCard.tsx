@@ -1,10 +1,9 @@
-// components/CompactPotionCard.tsx
+// components/cards/CompactPotionCard.tsx
 
-import { useState } from "react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { Minus, Plus, FlaskConical, Sparkles, Trash2, Heart, Zap, AlertTriangle, Star, X } from "lucide-react";
+import { Minus, Plus, FlaskConical, Trash2, Heart, AlertTriangle, Star } from "lucide-react";
 import { CompactCard } from "./CompactCard";
 import type { Potion } from "../../hooks/types";
 import { getRarityColor, getRarityName, getPotionTypeName, getPotionTypeColor, getPotionQualityName, getPotionQualityColor, getBrewedQualityName, getBrewedQualityColor } from "../../hooks/types";
@@ -50,47 +49,6 @@ export function CompactPotionCard({ potion, onQuantityChange, onToggleFavorite }
     }
   ];
 
-  // Определяем иконки качества варки
-  const qualityIcons = [];
-  if (potion.brewedQuality === 'excellent') {
-    qualityIcons.push({
-      icon: Star,
-      className: "text-yellow-400",
-      title: "Изысканное зелье - высшее качество варки"
-    });
-  }
-  if (potion.brewedQuality === 'poor') {
-    qualityIcons.push({
-      icon: X,
-      className: "text-red-500",
-      title: "Зелье с изъянами - низкое качество варки"
-    });
-  }
-
-  // Определяем иконки дополнительных эффектов
-  const effectIcons = [];
-  if (potion.additionalEffects?.positive?.length) {
-    effectIcons.push({
-      icon: Sparkles,
-      className: "text-green-500",
-      title: `Положительные эффекты: ${potion.additionalEffects.positive.join(', ')}`
-    });
-  }
-  if (potion.additionalEffects?.negative?.length) {
-    effectIcons.push({
-      icon: AlertTriangle,
-      className: "text-red-500",
-      title: `Негативные эффекты: ${potion.additionalEffects.negative.join(', ')}`
-    });
-  }
-  if (potion.additionalEffects?.brewingComplications?.length) {
-    effectIcons.push({
-      icon: Zap,
-      className: "text-yellow-500",
-      title: `Осложнения при варке: ${potion.additionalEffects.brewingComplications.join(', ')}`
-    });
-  }
-
   const quantityActions = (
     <div className="flex items-center gap-1 shrink-0">
       {onToggleFavorite && (
@@ -107,7 +65,6 @@ export function CompactPotionCard({ potion, onQuantityChange, onToggleFavorite }
           <Heart className={`h-3 w-3 ${potion.isFavorite ? 'fill-current' : ''}`} />
         </Button>
       )}
-
       <Button
         variant="outline"
         size="sm"
@@ -120,7 +77,6 @@ export function CompactPotionCard({ potion, onQuantityChange, onToggleFavorite }
       >
         <Minus className="h-3 w-3" />
       </Button>
-
       <Input
         type="number"
         value={potion.quantity}
@@ -129,7 +85,6 @@ export function CompactPotionCard({ potion, onQuantityChange, onToggleFavorite }
         className="h-7 w-14 text-center text-xs p-1"
         min="0"
       />
-
       <Button
         variant="outline"
         size="sm"
@@ -141,7 +96,6 @@ export function CompactPotionCard({ potion, onQuantityChange, onToggleFavorite }
       >
         <Plus className="h-3 w-3" />
       </Button>
-
       {potion.quantity > 0 && (
         <Button
           variant="outline"
@@ -171,28 +125,28 @@ export function CompactPotionCard({ potion, onQuantityChange, onToggleFavorite }
           {potion.description}
         </p>
 
-        {/* Эффекты качества варки */}
-        {potion.brewedQuality && potion.brewedQuality !== 'standard' && (
+        {/* НОВЫЙ БЛОК ДЛЯ ОТОБРАЖЕНИЯ ИЗЪЯНОВ */}
+        {potion.flawEffect && (
           <div className="space-y-2">
             <div className="flex items-center gap-1 text-sm">
-              {potion.brewedQuality === 'poor' ? (
-                <AlertTriangle className="h-3 w-3 text-red-500" />
-              ) : (
-                <Star className="h-3 w-3 text-yellow-500" />
-              )}
-              <span className="font-medium">
-                {potion.brewedQuality === 'poor' ? 'Изъян:' : 'Изысканность:'}
-              </span>
+              <AlertTriangle className="h-3 w-3 text-red-500" />
+              <span className="font-medium">Изъян:</span>
             </div>
-            <div className={`p-2 rounded text-sm ${
-              potion.brewedQuality === 'poor' 
-                ? 'bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800' 
-                : 'bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800'
-            }`}>
-              {potion.description.includes('Особенность:') 
-                ? potion.description.split('Особенность:')[1].trim()
-                : 'Особый эффект не найден'
-              }
+            <div className="p-2 rounded text-sm bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800">
+              {potion.flawEffect}
+            </div>
+          </div>
+        )}
+
+        {/* НОВЫЙ БЛОК ДЛЯ ОТОБРАЖЕНИЯ ИСКЛЮЧИТЕЛЬНЫХ ЭФФЕКТОВ */}
+        {potion.excellenceEffect && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-1 text-sm">
+              <Star className="h-3 w-3 text-yellow-500" />
+              <span className="font-medium">Изысканность:</span>
+            </div>
+            <div className="p-2 rounded text-sm bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800">
+              {potion.excellenceEffect}
             </div>
           </div>
         )}
@@ -205,99 +159,8 @@ export function CompactPotionCard({ potion, onQuantityChange, onToggleFavorite }
           <p className="text-sm bg-muted/50 p-2 rounded">
             {potion.effect}
           </p>
-
-          {potion.actualDuration && (
-            <p className="text-xs text-muted-foreground">
-              Длительность: {potion.actualDuration}
-            </p>
-          )}
         </div>
 
-        {/* Иконки качества варки и дополнительных эффектов */}
-        {(qualityIcons.length > 0 || effectIcons.length > 0) && (
-          <div className="flex items-center gap-3 pt-2 border-t border-border/50">
-            {qualityIcons.length > 0 && (
-              <div className="flex items-center gap-1">
-                <span className="text-xs text-muted-foreground">Качество:</span>
-                <div className="flex items-center gap-1">
-                  {qualityIcons.map((quality, index) => {
-                    const IconComponent = quality.icon;
-                    return (
-                      <div key={index} title={quality.title} className="p-1 rounded-full bg-muted/50">
-                        <IconComponent className={`h-3 w-3 ${quality.className}`} />
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {effectIcons.length > 0 && (
-              <div className="flex items-center gap-1">
-                <span className="text-xs text-muted-foreground">Эффекты:</span>
-                <div className="flex items-center gap-1">
-                  {effectIcons.map((effect, index) => {
-                    const IconComponent = effect.icon;
-                    return (
-                      <div key={index} title={effect.title} className="p-1 rounded-full bg-muted/50">
-                        <IconComponent className={`h-3 w-3 ${effect.className}`} />
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Подробная информация о дополнительных эффектах */}
-        {potion.additionalEffects && (
-          <div className="space-y-2">
-            {potion.additionalEffects.positive && potion.additionalEffects.positive.length > 0 && (
-              <div className="bg-green-50 dark:bg-green-950/20 p-2 rounded border border-green-200 dark:border-green-800">
-                <div className="flex items-center gap-1 text-sm text-green-700 dark:text-green-300 mb-1">
-                  <Sparkles className="h-3 w-3" />
-                  <span>Положительные эффекты:</span>
-                </div>
-                <ul className="text-xs text-green-600 dark:text-green-400 space-y-1">
-                  {potion.additionalEffects.positive.map((effect, index) => (
-                    <li key={index}>• {effect}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {potion.additionalEffects.negative && potion.additionalEffects.negative.length > 0 && (
-              <div className="bg-orange-50 dark:bg-orange-950/20 p-2 rounded border border-orange-200 dark:border-orange-800">
-                <div className="flex items-center gap-1 text-sm text-orange-700 dark:text-orange-300 mb-1">
-                  <AlertTriangle className="h-3 w-3" />
-                  <span>Негативные эффекты:</span>
-                </div>
-                <ul className="text-xs text-orange-600 dark:text-orange-400 space-y-1">
-                  {potion.additionalEffects.negative.map((effect, index) => (
-                    <li key={index}>• {effect}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {potion.additionalEffects.brewingComplications && potion.additionalEffects.brewingComplications.length > 0 && (
-              <div className="bg-red-50 dark:bg-red-950/20 p-2 rounded border border-red-200 dark:border-red-800">
-                <div className="flex items-center gap-1 text-sm text-red-700 dark:text-red-300 mb-1">
-                  <Zap className="h-3 w-3" />
-                  <span>Осложнения варки:</span>
-                </div>
-                <ul className="text-xs text-red-600 dark:text-red-400 space-y-1">
-                  {potion.additionalEffects.brewingComplications.map((effect, index) => (
-                    <li key={index}>• {effect}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Информация о результатах бросков */}
         {potion.rollResults && (
           <div className="space-y-2">
             <p className="text-xs text-muted-foreground">

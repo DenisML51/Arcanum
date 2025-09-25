@@ -9,6 +9,24 @@ import { useIngredientSelectionStore } from './useIngredientSelectionStore';
 import type { Ingredient, Recipe, RecipeComponent, Potion } from '../types';
 import { getQualityEffect, getRarityDetails } from '../types';
 
+const FLAW_TABLE = [
+  { range: [1, 10], effect: "Ошибки - путь к успеху. Редкость зелья повышается на 1 (не выше Легендарной)."}, // [cite: 2014]
+  { range: [11, 20], effect: "Неконтролируемый полиморфизм. Выпивший меняет расу на случайную на время действия зелья."}, // [cite: 2014]
+  { range: [21, 30], effect: "Гремучая смесь. Выпивший получает 1к6 степеней Истощения."}, // [cite: 2014]
+  { range: [31, 40], effect: "Некачественные ингредиенты. Редкость зелья снижается на 1 (не ниже Обычной)."}, // [cite: 2014]
+  { range: [41, 50], effect: "Богомерзкое варево. Пока активен эффект зелья, магическое лечение вместо исцеления наносит выпившему некротический урон."}, // [cite: 2014]
+  { range: [51, 100], effect: "Внезапное открытие. Зелье превращается в Зелье экспериментальной алхимии."}, // [cite: 2014]
+];
+
+const EXCELLENCE_TABLE = [
+  { range: [1, 10], effect: "Неконтролируемое деление. Вы изготавливаете два зелья. Их редкость снижается на 1 от первоначальной (не ниже Обычной)."}, // [cite: 2017]
+  { range: [11, 20], effect: "Экономный подход. Изготовление не затратило Базу зелья."}, // [cite: 2017]
+  { range: [21, 30], effect: "Первая проба. По окончании изготовления изготовитель получает эффект зелья."}, // [cite: 2017]
+  { range: [31, 40], effect: "Внезапное открытие. В процессе изготовления вы создали ещё одно варево. Вы получаете ещё одно зелье. Совершите бросок по таблице «Эффектов экспериментальной алхимии» для определения его эффекта."}, // [cite: 2017]
+  { range: [41, 50], effect: "Тщательная очистка. Зелье не имеет эффектов от примесей. Если примесей нет, зелье не имеет негативных эффектов, содержащихся в описании зелья."}, // [cite: 2017]
+  { range: [51, 100], effect: "Награда с небес. Изготовитель получает Вдохновение."}, // [cite: 2017]
+];
+
 // Главный хук, объединяющий все остальные хуки
 export function useAlchemyStore() {
   const inventory = useInventoryStore();
@@ -73,7 +91,8 @@ export function useAlchemyStore() {
     });
   };
 
-  const brewPotion = (recipe: Recipe): { success: boolean; message: string; potion?: Potion } => {
+    const brewPotion = (recipe: Recipe): { success: boolean; message: string; potion?: Potion } => {
+    // ... (проверка canBrew остается без изменений)
     const { canBrew, missingIngredients } = canBrewRecipe(recipe);
     if (!canBrew) {
       return {
@@ -82,55 +101,60 @@ export function useAlchemyStore() {
       };
     }
 
-    // Шаг 1: Рассчитываем правильную сложность
     const rarityDetails = getRarityDetails(recipe.rarity);
     const targetDifficulty = 5 * rarityDetails.rarityModifier + 5 + recipe.components.length;
-
-    // Шаг 2: Симулируем варку
     const brewResult = determineBrewedQuality(targetDifficulty, character.character.brewingMode);
 
-    // Обновляем общую статистику попыток
     character.incrementStat('totalBrews');
 
-    // Шаг 3: Проверяем результат варки
-    if (!brewResult.success) {
-      character.incrementStat('failedBrews');
-      // Ингредиенты все равно тратятся при провале
-      const usedIngredientsOnFail = recipe.components.map(component => ({
-        id: ingredientSelection.getSelectedIngredient(recipe.id, component.id)!,
-        quantity: component.quantity
-      }));
-      inventory.useIngredients(usedIngredientsOnFail);
-
-      let message = `Варка провалилась! (Бросок: ${brewResult.rollResults.mainRoll} против СЛ ${targetDifficulty})`;
-      if (brewResult.rollResults.fumbleRoll) {
-        message += `\nКритический провал! (d100): ${brewResult.rollResults.fumbleRoll}`;
-      }
-      return { success: false, message };
-    }
-
-    // Шаг 4: Списываем ингредиенты при успехе
+    // При любом провале ингредиенты тратятся
     const usedIngredients = recipe.components.map(component => ({
       id: ingredientSelection.getSelectedIngredient(recipe.id, component.id)!,
       quantity: component.quantity
     }));
     inventory.useIngredients(usedIngredients);
+    character.incrementStat('ingredientsUsed', usedIngredients.reduce((sum, ing) => sum + ing.quantity, 0));
 
-    // Шаг 5: Создаем зелье
-    const qualityEffect = getQualityEffect(brewResult.quality);
-    let finalDescription = recipe.description;
-    if (qualityEffect) {
-      finalDescription += `\n\nОсобенность: ${qualityEffect}`;
+    if (!brewResult.success) {
+      character.incrementStat('failedBrews');
+
+      let message = `Варка провалилась! (Бросок: ${brewResult.rollResults.mainRoll} против СЛ ${targetDifficulty})`;
+      if (brewResult.flawEffect) {
+        message += `\nИзъян: ${brewResult.flawEffect}`;
+      }
+
+      // Создаем "испорченное" зелье с описанием изъяна
+      const flawedPotion: Omit<Potion, 'id'> = {
+        name: `Испорченное ${recipe.name}`,
+        description: recipe.description,
+        effect: "Эффект непредсказуем из-за неудачной варки.",
+        rarity: recipe.rarity,
+        potionType: recipe.potionType,
+        potionQuality: recipe.potionQuality,
+        brewedQuality: 'poor',
+        flawEffect: brewResult.flawEffect,
+        tags: [...recipe.tags, 'испорченное'],
+        quantity: 1,
+        recipeId: recipe.id,
+        dateCreated: new Date().toISOString(),
+        components: recipe.components,
+        rollResults: brewResult.rollResults
+      };
+      potions.addPotion(flawedPotion);
+
+      return { success: false, message };
     }
 
-    const potion: Omit<Potion, 'id'> = {
+    // Логика для успешной варки
+    const newPotion: Omit<Potion, 'id'> = {
       name: recipe.name,
-      description: finalDescription,
+      description: recipe.description,
       effect: recipe.effect,
       rarity: recipe.rarity,
       potionType: recipe.potionType,
       potionQuality: recipe.potionQuality,
       brewedQuality: brewResult.quality,
+      excellenceEffect: brewResult.excellenceEffect,
       tags: recipe.tags,
       quantity: 1,
       recipeId: recipe.id,
@@ -138,26 +162,20 @@ export function useAlchemyStore() {
       components: recipe.components,
       rollResults: brewResult.rollResults
     };
-    potions.addPotion(potion);
+    potions.addPotion(newPotion);
 
-    // Обновляем статистику успеха
     character.incrementStat('successfulBrews');
     character.incrementStat('potionsCreated');
-    character.incrementStat('ingredientsUsed', usedIngredients.reduce((sum, ing) => sum + ing.quantity, 0));
 
-    // Формируем сообщение
     let message = `Зелье "${recipe.name}" успешно создано! (Бросок: ${brewResult.rollResults.mainRoll} против СЛ ${targetDifficulty})`;
-    if (brewResult.rollResults.excellenceRoll) {
-        message += `\nКритический успех! (d100): ${brewResult.rollResults.excellenceRoll}`;
-    }
-    if (qualityEffect) {
-        message += `\nОсобенность: ${qualityEffect}`;
+    if (brewResult.excellenceEffect) {
+        message += `\nИзысканность: ${brewResult.excellenceEffect}`;
     }
 
     return {
       success: true,
       message,
-      potion: { ...potion, id: Date.now().toString() }
+      potion: { ...newPotion, id: Date.now().toString() }
     };
   };
 
@@ -167,6 +185,8 @@ export function useAlchemyStore() {
   ): {
     success: boolean;
     quality: 'poor' | 'standard' | 'excellent';
+    flawEffect?: string;
+    excellenceEffect?: string;
     rollResults: {
       naturalRoll: number;
       bonus: number;
@@ -175,56 +195,44 @@ export function useAlchemyStore() {
       excellenceRoll?: number
     }
   } => {
-    // Бонус от оборудования и навыков
     let bonus = 0;
     const activeEquipment = character.equipment.find(eq => eq.id === character.character.activeEquipmentId);
-    if (activeEquipment) {
-      bonus += activeEquipment.brewingBonus;
-    }
-    if (character.character.alchemyToolsProficiency) {
-      bonus += 2;
-    }
+    if (activeEquipment) bonus += activeEquipment.brewingBonus;
+    if (character.character.alchemyToolsProficiency) bonus += 2;
 
     const naturalRoll = Math.floor(Math.random() * 20) + 1;
     const mainRoll = naturalRoll + bonus;
 
-    let success: boolean;
-    if (mode === 'ttrpg') {
-        success = mainRoll >= targetDifficulty;
-    } else { // percentage mode
-        const successPercentage = Math.max(5, Math.min(95, ((21 - (targetDifficulty - bonus)) / 20) * 100));
-        success = Math.random() * 100 < successPercentage;
-    }
+    const success = mainRoll >= targetDifficulty;
 
-    let quality: 'poor' | 'standard' | 'excellent';
+    const rollResults = { naturalRoll, bonus, mainRoll, fumbleRoll: undefined, excellenceRoll: undefined };
+
     if (!success) {
-        quality = 'poor';
-    } else {
-        if (naturalRoll === 20) {
-            quality = 'excellent';
-        } else if (mainRoll >= targetDifficulty + 10) {
-            quality = 'excellent';
-        } else {
-            quality = 'standard';
-        }
+      const fumbleRoll = Math.floor(Math.random() * 100) + 1;
+      const flaw = FLAW_TABLE.find(f => fumbleRoll >= f.range[0] && fumbleRoll <= f.range[1]);
+      return {
+        success: false,
+        quality: 'poor',
+        flawEffect: flaw?.effect || "Неизвестный изъян.",
+        rollResults: { ...rollResults, fumbleRoll }
+      };
     }
 
-    // Провалы и успехи
-    let fumbleRoll: number | undefined;
-    let excellenceRoll: number | undefined;
-
-    if (naturalRoll === 1) {
-      quality = 'poor';
-      fumbleRoll = Math.floor(Math.random() * 100) + 1;
-    } else if (naturalRoll === 20 && success) {
-      quality = 'excellent';
-      excellenceRoll = Math.floor(Math.random() * 100) + 1;
+    if (naturalRoll === 20) {
+      const excellenceRoll = Math.floor(Math.random() * 100) + 1;
+      const excellence = EXCELLENCE_TABLE.find(e => excellenceRoll >= e.range[0] && excellenceRoll <= e.range[1]);
+      return {
+        success: true,
+        quality: 'excellent',
+        excellenceEffect: excellence?.effect || "Невероятный результат!",
+        rollResults: { ...rollResults, excellenceRoll }
+      };
     }
 
     return {
-      success,
-      quality,
-      rollResults: { naturalRoll, bonus, mainRoll, fumbleRoll, excellenceRoll }
+      success: true,
+      quality: 'standard',
+      rollResults
     };
   };
 

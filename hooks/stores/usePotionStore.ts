@@ -43,7 +43,9 @@ export function usePotionStore(): PotionStore {
       // Проверяем, есть ли уже такое зелье (по recipeId)
       const existingIndex = prev.findIndex(p => 
         p.recipeId === potion.recipeId && 
-        p.brewedQuality === potion.brewedQuality
+        p.brewedQuality === potion.brewedQuality &&
+        p.flawEffect === potion.flawEffect &&
+        p.excellenceEffect === potion.excellenceEffect
       );
 
       if (existingIndex >= 0) {
