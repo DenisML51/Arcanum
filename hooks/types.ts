@@ -10,7 +10,7 @@ export type AlchemicalElement =
   // Шкала
   | 'embodiment' | 'challenge' | 'illusion' | 'necromancy' | 'reflection' | 'enchantment' | 'transmutation' | 'divination' | 'psychic' | 'force' | 'physical' | 'cold' | 'electricity' | 'poison'
   // Вид существа
-  | 'aberration' | 'giant' | 'humanoid' | 'dragon' | 'beast' | 'healing' | 'construct' | 'monster' | 'celestial' | 'undead' | 'plant' | 'slime' | 'fey' | 'elemental'
+  | 'aberration' | 'giant' | 'humanoid' | 'dragon' | 'beast' | 'healing' | 'construct' | 'monster' | 'celestial' | 'undead' | 'plant' | 'slime' | 'fey' | 'elemental' | 'fiend'
   // Дополнительные
   | 'protection';
 
@@ -63,6 +63,7 @@ const ALCHEMICAL_ELEMENT_DETAILS: Record<AlchemicalElement, { name: string; shor
   'slime': { name: 'Слизь', shortCode: 'Сли', category: 'Вид', color: 'bg-emerald-500' },
   'fey': { name: 'Фея', shortCode: 'Фея', category: 'Вид', color: 'bg-emerald-500' },
   'elemental': { name: 'Элементаль', shortCode: 'Элм', category: 'Вид', color: 'bg-emerald-500' },
+  'fiend': {name: 'Исчадие', shortCode: 'Исч', category: 'Вид', color: 'bg-emerald-500'},
 
   // Дополнительные
   'healing': { name: 'Лечение', shortCode: 'Л', category: 'Эффект', color: 'bg-rose-500' },

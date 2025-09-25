@@ -11,7 +11,7 @@
     "cost": 50,
     "weight": 0.5,
     "locations": ["Магическая академия", "Лавки торговцев"],
-    "quantity": 5,
+    "quantity": 0,
     "isBase": true
   },
   {
@@ -26,7 +26,7 @@
     "cost": 500,
     "weight": 0.8,
     "locations": ["Башня архимага", "Алхимическая лаборатория"],
-    "quantity": 5,
+    "quantity": 0,
     "isBase": true
   },
   {
@@ -41,7 +41,7 @@
     "cost": 15,
     "weight": 0.2,
     "locations": ["Лавки торговцев"],
-    "quantity": 5
+    "quantity": 0
   },
   {
     "id": "undead_bone",
@@ -55,7 +55,7 @@
     "cost": 10,
     "weight": 0.3,
     "locations": ["Кладбища", "Древние руины"],
-    "quantity": 5
+    "quantity": 0
   },
   {
     "id": "book_dust",
@@ -69,7 +69,7 @@
     "cost": 9,
     "weight": 0.1,
     "locations": ["Библиотеки"],
-    "quantity": 5
+    "quantity": 0
   },
   {
     "id": "amber_dust",
@@ -83,7 +83,7 @@
     "cost": 15,
     "weight": 0.1,
     "locations": ["Лавки торговцев"],
-    "quantity": 5
+    "quantity": 0
   },
   {
     "id": "small_pearl",
@@ -97,7 +97,7 @@
     "cost": 2,
     "weight": 0.1,
     "locations": ["Побережье", "Под водой"],
-    "quantity": 5
+    "quantity": 0
   },
   {
     "id": "fey_pollen",
@@ -111,6 +111,137 @@
     "cost": 247,
     "weight": 0.1,
     "locations": ["Зачарованные рощи", "Поселения фей"],
+    "quantity": 0
+  },
+    {
+    "id": "magical_dust",
+    "name": "Магическая пыль",
+    "description": "Дополнительный ингредиент, добавление которого в зелье нейтрализует действие старшей примеси.",
+    "type": "other",
+    "category": "other",
+    "elements": [],
+    "rarity": "uncommon",
+    "tags": ["очистка", "реагент"],
+    "cost": 100,
+    "weight": 0.1,
+    "locations": ["Лавки алхимиков"],
+    "quantity": 0
+  },
+  {
+    "id": "cleric_talisman",
+    "name": "Оберег ворожеи",
+    "description": "Амулет для защиты от злых духов.",
+    "type": "other",
+    "category": "other",
+    "elements": ["celestial"],
+    "impurity": "reflection",
+    "rarity": "common",
+    "tags": ["оберег", "защита"],
+    "cost": 5,
+    "weight": 0.1,
+    "locations": ["Лавки торговцев"],
+    "quantity": 10
+  },
+  {
+    "id": "shadow_mastiff_eye",
+    "name": "Теневого мастифа глаз",
+    "description": "Глаз магической гончей, способный видеть в темноте.",
+    "type": "creature",
+    "category": "creature",
+    "elements": ["divination"],
+    "impurity": "energy",
+    "rarity": "common",
+    "tags": ["глаз", "зверь", "тьма"],
+    "cost": 10,
+    "weight": 0.2,
+    "locations": ["План Теней"],
+    "quantity": 10
+  },
+  {
+    "id": "hemlock",
+    "name": "Болиголов",
+    "description": "Ядовитое растение с психоактивными свойствами.",
+    "type": "plant",
+    "category": "plant",
+    "elements": ["psychic"],
+    "impurity": "poison",
+    "rarity": "uncommon",
+    "tags": ["растение", "яд"],
+    "cost": 27,
+    "weight": 0.1,
+    "locations": ["Горы", "Лес", "Луг", "Холмы"],
+    "quantity": 10
+  },
+  {
+    "id": "gauth_large_eye",
+    "name": "Гаута большой глаз",
+    "description": "Центральный глаз аберрации, испускающий негативную энергию.",
+    "type": "creature",
+    "category": "creature",
+    "elements": ["decay"],
+    "impurity": "matter",
+    "rarity": "uncommon",
+    "tags": ["аберрация", "глаз"],
+    "cost": 247,
+    "weight": 0.5,
+    "locations": ["Подземье"],
+    "quantity": 10
+  },{
+    "id": "dissolved_ether",
+    "name": "Растворённый эфир",
+    "description": "Эфирная субстанция в жидком виде. Основа для очень редких зелий.",
+    "type": "dissolved_ether",
+    "category": "other",
+    "elements": [],
+    "rarity": "very rare",
+    "tags": ["база", "эфир", "планарный"],
+    "cost": 1000,
+    "weight": 0.3,
+    "locations": ["Планарный разлом", "Астральная обсерватория"],
+    "quantity": 5,
+    "isBase": true
+  },
+  {
+    "id": "henbane_infusion",
+    "name": "Белены настой",
+    "description": "Настойка из белены, используемая в ритуалах прорицания.",
+    "type": "other",
+    "category": "other",
+    "elements": ["divination"],
+    "rarity": "common",
+    "tags": ["настойка", "прорицание"],
+    "cost": 10,
+    "weight": 0.5,
+    "locations": ["Лавки торговцев", "Жилища ведьм"],
+    "quantity": 10
+  },
+  {
+    "id": "small_pearl",
+    "name": "Жемчужина малая",
+    "description": "Небольшая жемчужина, способная фокусировать силовую энергию.",
+    "type": "mineral",
+    "category": "mineral",
+    "elements": ["force"],
+    "rarity": "common",
+    "tags": ["сила", "жемчуг"],
+    "cost": 2,
+    "weight": 0.1,
+    "locations": ["Побережье", "Под водой"],
+    "quantity": 10
+  },
+  {
+    "id": "angel_blood",
+    "name": "Кровь ангела",
+    "description": "Серебристая кровь небожителя, наполненная сияющей энергией.",
+    "type": "creature",
+    "category": "creature",
+    "elements": ["celestial"],
+    "impurity": "radiance",
+    "rarity": "rare",
+    "tags": ["небожитель", "кровь", "священное"],
+    "cost": 125,
+    "weight": 0.1,
+    "locations": ["Верхние планы"],
     "quantity": 5
   }
 ]

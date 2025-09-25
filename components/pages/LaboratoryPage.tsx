@@ -1,4 +1,4 @@
-// components/LaboratoryPage.tsx
+// components/pages/LaboratoryPage.tsx
 
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -16,34 +16,31 @@ interface LaboratoryPageProps {
   store: ReturnType<typeof useAlchemyStore>;
 }
 
-
-
 export function LaboratoryPage({ store }: LaboratoryPageProps) {
   const [isBrewingMode, setIsBrewingMode] = useState(false);
 
   const laboratoryRecipes = store.getLaboratoryRecipes();
 
-  // Рассчитываем бонус персонажа к варке
   const activeEquipment = store.availableEquipment.find(eq => eq.id === store.character.activeEquipmentId);
   const equipmentBonus = activeEquipment ? activeEquipment.brewingBonus : 0;
   const proficiencyBonus = store.character.alchemyToolsProficiency ? 2 : 0;
   const totalCharacterBonus = equipmentBonus + proficiencyBonus;
 
-
   const handleBrew = (recipeId: string) => {
     const recipe = store.recipes.find(r => r.id === recipeId);
     if (!recipe) return;
     const result = store.brewPotion(recipe);
-
     if (result.success) {
       toast.success(result.message, {
         icon: <CheckCircle className="h-4 w-4" />,
-        duration: 3000
+        duration: 5000,
+        style: { whiteSpace: 'pre-wrap' }
       });
     } else {
       toast.error(result.message, {
         icon: <AlertTriangle className="h-4 w-4" />,
-        duration: 4000
+        duration: 6000,
+        style: { whiteSpace: 'pre-wrap' }
       });
     }
   };
@@ -51,10 +48,21 @@ export function LaboratoryPage({ store }: LaboratoryPageProps) {
   const getLabStats = () => {
     const totalRecipes = laboratoryRecipes.length;
     const availableRecipes = laboratoryRecipes.filter(recipe => {
-      const { canBrew } = store.canBrewRecipe(recipe);
-      return canBrew;
+        return recipe.components.every(component =>
+            store.ingredients.some(ing => {
+                if (component.requiredElements && component.requiredElements.length > 0) {
+                    if (!component.requiredElements.every(el => ing.elements?.includes(el))) return false;
+                }
+                if (component.categories && component.categories.length > 0) {
+                    if (!component.categories.includes(ing.category)) return false;
+                }
+                if (component.types && component.types.length > 0) {
+                    if (!component.types.includes(ing.type as any)) return false;
+                }
+                return true;
+            })
+        )
     }).length;
-
     return { totalRecipes, availableRecipes };
   };
 
@@ -62,22 +70,21 @@ export function LaboratoryPage({ store }: LaboratoryPageProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1>Алхимическая лаборатория</h1>
-          <p className="text-muted-foreground">
-            Варите зелья из добавленных рецептов
-          </p>
+        <div className="flex items-center justify-between">
+            <div>
+            <h1>Алхимическая лаборатория</h1>
+            <p className="text-muted-foreground">
+                Варите зелья из добавленных рецептов
+            </p>
+            </div>
+            <div className="flex items-center gap-2">
+            <Badge variant="outline" className="gap-1">
+                <FlaskConical className="h-3 w-3" />
+                {totalRecipes} рецептов
+            </Badge>
+            </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="gap-1">
-            <FlaskConical className="h-3 w-3" />
-            {totalRecipes} рецептов
-          </Badge>
-        </div>
-      </div>
 
-      {/* Статистика лаборатории */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardHeader className="pb-3">
@@ -99,7 +106,6 @@ export function LaboratoryPage({ store }: LaboratoryPageProps) {
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
@@ -116,7 +122,6 @@ export function LaboratoryPage({ store }: LaboratoryPageProps) {
         </Card>
       </div>
 
-      {/* Предупреждения */}
       {totalRecipes === 0 && (
         <Alert>
           <AlertTriangle className="h-4 w-4" />
@@ -141,7 +146,6 @@ export function LaboratoryPage({ store }: LaboratoryPageProps) {
                 {isBrewingMode ? 'Выйти из режима варки' : 'Режим варки'}
               </Button>
             </div>
-
             <div className="card-grid-responsive">
               {laboratoryRecipes.map((recipe) => (
                 <motion.div
@@ -154,13 +158,16 @@ export function LaboratoryPage({ store }: LaboratoryPageProps) {
                     recipe={recipe}
                     ingredients={store.ingredients}
                     onToggleLaboratory={(recipeId) => store.removeRecipeFromLaboratory(recipeId)}
-                    onSelectIngredient={store.selectIngredientForComponent}
-                    getSelectedIngredient={store.getSelectedIngredient}
-                    canBrew={isBrewingMode}
                     onBrew={handleBrew}
+                    canBrew={isBrewingMode}
                     characterBonus={totalCharacterBonus}
                     isInLaboratory={true}
                     brewingMode={store.character.brewingMode}
+                    onSelectIngredient={store.selectIngredientForComponent}
+                    getSelectedIngredient={store.getSelectedIngredient}
+                    toggleMagicalDust={store.toggleMagicalDust}
+                    isMagicalDustActive={store.isMagicalDustActive}
+                    hasMagicalDust={store.hasMagicalDust}
                   />
                 </motion.div>
               ))}
@@ -169,13 +176,13 @@ export function LaboratoryPage({ store }: LaboratoryPageProps) {
         ) : (
           <div className="text-center py-12">
             <div className="space-y-2">
-              <FlaskConical className="h-12 w-12 mx-auto text-muted-foreground" />
-              <p className="text-muted-foreground">
-                Лаборатория пуста
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Добавьте рецепты из книги рецептов, чтобы начать варить зелья
-              </p>
+                <FlaskConical className="h-12 w-12 mx-auto text-muted-foreground" />
+                <p className="text-muted-foreground">
+                    Лаборатория пуста
+                </p>
+                <p className="text-sm text-muted-foreground">
+                    Добавьте рецепты из книги рецептов, чтобы начать варить зелья
+                </p>
             </div>
           </div>
         )}

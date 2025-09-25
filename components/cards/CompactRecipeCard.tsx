@@ -3,11 +3,13 @@
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { FlaskConical } from "lucide-react";
+import { FlaskConical, Beaker } from "lucide-react";
 import { CompactCard } from "./CompactCard";
 import type { Recipe, Ingredient, RecipeComponent, AlchemicalElement, IngredientType, PotionBase } from "../../hooks/types";
-import { getRarityColor, getRarityName, getRarityDetails, getPotionTypeName, getPotionTypeColor, getPotionQualityName, getPotionQualityColor, getAlchemicalElementDetails, getPotionBaseDetails } from "../../hooks/types";
+import { getRarityColor, getRarityName, getRarityDetails, getPotionTypeName, getPotionTypeColor, getPotionQualityName, getPotionQualityColor, getAlchemicalElementDetails, getPotionBaseDetails, getAlchemicalElementName } from "../../hooks/types";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { Checkbox } from "../ui/checkbox";
+import { ELEMENT_RANK, getImpurityEffect } from "../../hooks/stores/useAlchemyStore";
 
 interface CompactRecipeCardProps {
   recipe: Recipe;
@@ -20,6 +22,9 @@ interface CompactRecipeCardProps {
   isInLaboratory?: boolean;
   getSelectedIngredient?: (recipeId: string, componentId: string) => string | undefined;
   brewingMode?: 'percentage' | 'ttrpg';
+  toggleMagicalDust?: (recipeId: string) => void;
+  isMagicalDustActive?: (recipeId: string) => boolean;
+  hasMagicalDust?: () => boolean;
 }
 
 function ComponentSelector({
@@ -96,7 +101,21 @@ function ComponentSelector({
             <SelectValue placeholder="Выберите ингредиент">
               {selectedIngredient ? (
                 <div className="flex items-center justify-between w-full">
-                  <span>{selectedIngredient.name} (×{selectedIngredient.quantity})</span>
+                  <div className="flex items-center gap-2">
+                    {selectedIngredient.impurity && (
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Beaker className="h-3 w-3 text-purple-500 shrink-0" />
+                            </TooltipTrigger>
+                            <TooltipContent className="text-white dark:text-black">
+                                <div className="text-xs text-white dark:text-black">
+                                    Примесь: {getAlchemicalElementName(selectedIngredient.impurity)}
+                                </div>
+                            </TooltipContent>
+                        </Tooltip>
+                    )}
+                    <span>{selectedIngredient.name} (×{selectedIngredient.quantity})</span>
+                  </div>
                   {!isSelectedIngredientValid && (
                     <span className="text-red-500 text-xs ml-2"> ⚠️ </span>
                   )}
@@ -139,7 +158,10 @@ export function CompactRecipeCard({
   characterBonus = 0,
   getSelectedIngredient,
   isInLaboratory = false,
-  brewingMode = 'percentage'
+  brewingMode = 'percentage',
+  toggleMagicalDust,
+  isMagicalDustActive,
+  hasMagicalDust
 }: CompactRecipeCardProps) {
   const rarityDetails = getRarityDetails(recipe.rarity);
   const rarityColor = getRarityColor(recipe.rarity);
@@ -226,6 +248,22 @@ export function CompactRecipeCard({
       selectedIng.quantity >= component.quantity;
   }) || false;
 
+  const selectedIngredientIds = recipe.components.map(c => getSelectedIngredient?.(recipe.id, c.id)).filter(Boolean) as string[];
+  const selectedIngredients = ingredients.filter(ing => selectedIngredientIds.includes(ing.id));
+  const impurities = selectedIngredients.map(ing => ing.impurity).filter(Boolean) as AlchemicalElement[];
+  let dominantImpurity: AlchemicalElement | undefined;
+  if (impurities.length > 0) {
+      dominantImpurity = impurities.reduce((dominant, current) => {
+          const dominantRank = ELEMENT_RANK[dominant] || 0;
+          const currentRank = ELEMENT_RANK[current] || 0;
+          return currentRank > dominantRank ? current : dominant;
+      });
+  }
+
+  const impurityEffect = dominantImpurity ? getImpurityEffect(dominantImpurity, rarityDetails.rarityModifier) : null;
+  const hasMagicalDustInInventory = hasMagicalDust ? hasMagicalDust() : false;
+  const magicalDustIsActive = isMagicalDustActive?.(recipe.id) ?? false;
+
   const actions = (
     <div className="flex items-center gap-1 shrink-0">
       {isInLaboratory && canBrew && onBrew && (
@@ -275,6 +313,37 @@ export function CompactRecipeCard({
               <p className="text-sm text-muted-foreground">Нет компонентов</p>
             )}
           </div>
+        )}
+
+        {isInLaboratory && dominantImpurity && impurityEffect && (
+            <div className="space-y-3 p-3 border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
+                <div className="flex items-center gap-2">
+                    <Beaker className="h-4 w-4 text-purple-500" />
+                    <h4 className="text-sm font-medium text-purple-700 dark:text-purple-300">Потенциальный эффект примеси</h4>
+                </div>
+                <p className={`text-xs text-muted-foreground transition-opacity ${magicalDustIsActive ? 'line-through opacity-50' : ''}`}>
+                    {impurityEffect}
+                </p>
+
+                {hasMagicalDustInInventory && (
+                    <div className="pt-2 border-t border-purple-200 dark:border-purple-800">
+                        <div className="flex items-center space-x-2 mt-2">
+                            <Checkbox
+                                id={`dust-${recipe.id}`}
+                                checked={magicalDustIsActive}
+                                onCheckedChange={() => toggleMagicalDust?.(recipe.id)}
+                                onClick={(e) => e.stopPropagation()}
+                            />
+                            <label
+                                htmlFor={`dust-${recipe.id}`}
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                                Использовать Магическую пыль (в наличии: {ingredients.find(ing => ing.id === 'magical_dust')?.quantity})
+                            </label>
+                        </div>
+                    </div>
+                )}
+            </div>
         )}
 
         <div className="pt-2 border-t space-y-2">

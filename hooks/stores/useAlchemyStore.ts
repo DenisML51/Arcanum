@@ -6,28 +6,74 @@ import { useCharacterStore } from './useCharacterStore';
 import { useDataStore } from './useDataStore';
 import { useFiltersStore } from './useFiltersStore';
 import { useIngredientSelectionStore } from './useIngredientSelectionStore';
-import type { Ingredient, Recipe, RecipeComponent, Potion } from '../types';
-import { getRarityDetails } from '../types';
+import type { Recipe, Potion, AlchemicalElement } from '../types';
+import { getRarityDetails, getAlchemicalElementName } from '../types';
 
+// --- ДАННЫЕ ДЛЯ МЕХАНИКИ ПРОВАЛОВ И УСПЕХОВ ---
 const FLAW_TABLE = [
-  { range: [1, 10], effect: "Ошибки - путь к успеху. Редкость зелья повышается на 1 (не выше Легендарной)."}, // [cite: 2014]
-  { range: [11, 20], effect: "Неконтролируемый полиморфизм. Выпивший меняет расу на случайную на время действия зелья."}, // [cite: 2014]
-  { range: [21, 30], effect: "Гремучая смесь. Выпивший получает 1к6 степеней Истощения."}, // [cite: 2014]
-  { range: [31, 40], effect: "Некачественные ингредиенты. Редкость зелья снижается на 1 (не ниже Обычной)."}, // [cite: 2014]
-  { range: [41, 50], effect: "Богомерзкое варево. Пока активен эффект зелья, магическое лечение вместо исцеления наносит выпившему некротический урон."}, // [cite: 2014]
-  { range: [51, 100], effect: "Внезапное открытие. Зелье превращается в Зелье экспериментальной алхимии."}, // [cite: 2014]
+  { range: [1, 10], effect: "Ошибки - путь к успеху. Редкость зелья повышается на 1 (не выше Легендарной)." },
+  { range: [11, 20], effect: "Неконтролируемый полиморфизм. Выпивший меняет расу на случайную на время действия зелья." },
+  { range: [21, 30], effect: "Гремучая смесь. Выпивший получает 1к6 степеней Истощения." },
+  { range: [31, 40], effect: "Некачественные ингредиенты. Редкость зелья снижается на 1 (не ниже Обычной)." },
+  { range: [41, 50], effect: "Богомерзкое варево. Пока активен эффект зелья, магическое лечение вместо исцеления наносит выпившему некротический урон." },
+  { range: [51, 100], effect: "Внезапное открытие. Зелье превращается в Зелье экспериментальной алхимии." },
 ];
 
 const EXCELLENCE_TABLE = [
-  { range: [1, 10], effect: "Неконтролируемое деление. Вы изготавливаете два зелья. Их редкость снижается на 1 от первоначальной (не ниже Обычной)."}, // [cite: 2017]
-  { range: [11, 20], effect: "Экономный подход. Изготовление не затратило Базу зелья."}, // [cite: 2017]
-  { range: [21, 30], effect: "Первая проба. По окончании изготовления изготовитель получает эффект зелья."}, // [cite: 2017]
-  { range: [31, 40], effect: "Внезапное открытие. В процессе изготовления вы создали ещё одно варево. Вы получаете ещё одно зелье. Совершите бросок по таблице «Эффектов экспериментальной алхимии» для определения его эффекта."}, // [cite: 2017]
-  { range: [41, 50], effect: "Тщательная очистка. Зелье не имеет эффектов от примесей. Если примесей нет, зелье не имеет негативных эффектов, содержащихся в описании зелья."}, // [cite: 2017]
-  { range: [51, 100], effect: "Награда с небес. Изготовитель получает Вдохновение."}, // [cite: 2017]
+  { range: [1, 10], effect: "Неконтролируемое деление. Вы изготавливаете два зелья. Их редкость снижается на 1 от первоначальной (не ниже Обычной)." },
+  { range: [11, 20], effect: "Экономный подход. Изготовление не затратило Базу зелья." },
+  { range: [21, 30], effect: "Первая проба. По окончании изготовления изготовитель получает эффект зелья." },
+  { range: [31, 40], effect: "Внезапное открытие. В процессе изготовления вы создали ещё одно варево. Совершите бросок по таблице «Эффектов экспериментальной алхимии»." },
+  { range: [41, 50], effect: "Тщательная очистка. Зелье не имеет эффектов от примесей. Если примесей нет, зелье не имеет негативных эффектов, содержащихся в описании." },
+  { range: [51, 100], effect: "Награда с небес. Изготовитель получает Вдохновение." },
 ];
 
-// Главный хук, объединяющий все остальные хуки
+// --- ДАННЫЕ ДЛЯ МЕХАНИКИ ПРИМЕСЕЙ ---
+export const ELEMENT_RANK: Record<string, number> = {
+  'time': 4, 'matter': 4, 'stasis': 4, 'space': 4, 'decay': 4, 'mind': 4, 'chaos': 4, 'energy': 4,
+  'embodiment': 3, 'challenge': 3, 'illusion': 3, 'necromancy': 3, 'reflection': 3, 'enchantment': 3, 'transmutation': 3, 'divination': 3,
+  'sound': 2, 'radiance': 2, 'acid': 2, 'necrotic': 2, 'fire': 2, 'foam': 2, 'psychic': 2, 'force': 2, 'physical': 2, 'cold': 2, 'electricity': 2, 'poison': 2,
+  'aberration': 1, 'giant': 1, 'humanoid': 1, 'dragon': 1, 'beast': 1, 'construct': 1, 'monster': 1, 'celestial': 1, 'undead': 1, 'plant': 1, 'slime': 1, 'fey': 1, 'elemental': 1, 'fiend': 1,
+};
+
+export const getImpurityEffect = (impurity: AlchemicalElement, rarityMod: number): string => {
+    const rarityDice = `k${(rarityMod * 2) + 2}`;
+    switch(impurity) {
+        case 'time': return "Длительность действия эффектов зелья заменяется случайной (1к6): 1: Об, 2: Не, 3: Ре, 4: Ор, 5: Ле, 6: 1 раунд.";
+        case 'matter': return `${100 - (10 * rarityMod)}% шанс возвратить один из ингредиентов при изготовлении.`;
+        case 'decay': return "По окончании изготовления зелья изготовитель считается Нежитью, пока не закончит продолжительный отдых.";
+        case 'mind': return `+1${rarityDice} к результату броска Алхимии при изготовлении.`;
+        case 'stasis': return `По окончании варки зелья скорость изготовителя уменьшается на ${5 * rarityMod} фт, пока он не закончит продолжительный отдых.`;
+        case 'space': return "Время варки зелья удваивается.";
+        case 'chaos': return "По окончании варки зелья срабатывает случайный эффект Дикой магии.";
+        case 'energy': return `По окончании варки зелья скорость изготовителя увеличивается на ${5 * rarityMod} фт, пока он не закончит продолжительный отдых.`;
+        case 'sound': return "Выпивший с помехой совершает проверки характеристик, полагающиеся на слух.";
+        case 'radiance': return "Выпивший излучает яркий свет в пределах 5 фт и тусклый свет в пределах ещё 5 фт и не получает преимущества от Невидимости.";
+        case 'psychic': return `-1${rarityDice} к результату броска при изготовлении этого зелья.`;
+        case 'force': return "Если зелье является Низким, его эффект всё равно считается магическим.";
+        case 'poison': return "Выпивший должен совершить спасбросок Телосложения с базовой сложностью, иначе будет Отравлен парами на 1 минуту.";
+        case 'acid': case 'necrotic': case 'fire': case 'foam': case 'physical': case 'cold': case 'electricity':
+            return `Выпивший получает 2${rarityDice} урона типа '${getAlchemicalElementName(impurity)}'.`;
+        case 'aberration': return `Частичная трансформация: Из вашего лба вырастают небольшие антенны. Вы получаете телепатию в пределах ${rarityMod * 5} фт.`;
+        case 'giant': return "Частичная трансформация: Вы считаетесь существом на 1 размер больше при определении вашей массы.";
+        case 'humanoid': return "Частичная трансформация: Вы получаете владение случайным набором инструментов по выбору Мастера.";
+        case 'dragon': return "Частичная трансформация: Вашу кожу частично покрывает чешуя. Вы считаетесь существом на 1 размер больше при определении вашей массы.";
+        case 'beast': return `Частичная трансформация: Ваше лицо обрастает жёсткой шерстью. У вас вырастают когти, вы получаете безоружную атаку 1${rarityDice} колющего урона.`;
+        case 'fiend': return "Частичная трансформация: Ваше тело неестественно краснеет. Вы получаете сопротивление урону огнём.";
+        case 'construct': return "Частичная трансформация: Ваши зрачки и радужки становятся квадратными. Вы считаетесь Конструктом для заклинаний и магического лечения.";
+        case 'monster': return "Частичная трансформация: Ваша мимика пугает. Вы получаете преимущество на Запугивание, но помеху на остальные проверки Харизмы.";
+        case 'celestial': return "Частичная трансформация: Ваша кожа становится абсолютно белой. Вы получаете сопротивление урону излучением.";
+        case 'undead': return "Частичная трансформация: Ваше тело становится мертвенно ледяным. Вы считаетесь Нежитью для заклинаний и магического лечения.";
+        case 'plant': return "Частичная трансформация: В ваших волосах распускаются крошечные цветы. Вы получаете двойной урон при падении.";
+        case 'slime': return "Частичная трансформация: Ваши ноги издают чавкающие звуки при ходьбе. Вы можете протиснуться через пространство шириной до 1 дюйма.";
+        case 'fey': return "Частичная трансформация: От вас исходит медовый аромат. При выпадении «1» при вашем броске к20, срабатывает случайный эффект Дикой магии.";
+        case 'elemental': return "Частичная трансформация: Прикосновение к вам сродни касанию к водной глади. Вы можете протиснуться через пространство шириной до 1 дюйма.";
+        case 'embodiment': case 'challenge': case 'illusion': case 'necromancy': case 'reflection': case 'enchantment': case 'transmutation': case 'divination':
+            return `Срабатывает случайное заклинание школы '${getAlchemicalElementName(impurity)}'. (Эффект требует броска по таблице из правил).`;
+        default: return "Неизвестный эффект примеси.";
+    }
+};
+
 export function useAlchemyStore() {
   const inventory = useInventoryStore();
   const potions = usePotionStore();
@@ -36,147 +82,22 @@ export function useAlchemyStore() {
   const filters = useFiltersStore();
   const ingredientSelection = useIngredientSelectionStore();
 
-  // Методы для варки зелий
   const canBrewRecipe = (recipe: Recipe): { canBrew: boolean; missingIngredients: string[] } => {
+    if (!recipe.components) return { canBrew: false, missingIngredients: ['Нет компонентов'] };
     const missingIngredients: string[] = [];
-
     for (const component of recipe.components) {
-      // Проверяем, есть ли выбранный ингредиент для этого компонента
       const selectedIngredientId = ingredientSelection.getSelectedIngredient(recipe.id, component.id);
-      
       if (!selectedIngredientId) {
-        // Если нет выбранного ингредиента, добавляем в список отсутствующих
         missingIngredients.push(component.name);
         continue;
       }
-
-      // Проверяем доступность выбранного ингредиента
       const available = inventory.isIngredientAvailable(selectedIngredientId, component.quantity);
       if (!available) {
         const ingredient = inventory.getIngredient(selectedIngredientId);
         missingIngredients.push(ingredient?.name || 'Неизвестный ингредиент');
       }
     }
-
-    return {
-      canBrew: missingIngredients.length === 0,
-      missingIngredients
-    };
-  };
-
-  const findSuitableIngredient = (component: RecipeComponent): Ingredient | undefined => {
-    return inventory.ingredients.find(ingredient => {
-      // Проверяем количество
-      if (ingredient.quantity < component.quantity) return false;
-
-      // Проверяем тип (для совместимости)
-      if (component.types && component.types.length > 0) {
-        if (!component.types.includes(ingredient.type)) return false;
-      }
-
-      // Проверяем категорию
-      if (component.categories && component.categories.length > 0) {
-        if (!component.categories.includes(ingredient.category)) return false;
-      }
-
-      // Проверяем элементы - должны быть ВСЕ требуемые элементы
-      if (component.requiredElements && component.requiredElements.length > 0) {
-        const hasAllRequiredElements = component.requiredElements.every(requiredElement =>
-          ingredient.elements && ingredient.elements.includes(requiredElement)
-        );
-        if (!hasAllRequiredElements) return false;
-      }
-
-      return true;
-    });
-  };
-
-    const brewPotion = (recipe: Recipe): { success: boolean; message: string; potion?: Potion } => {
-    // ... (проверка canBrew остается без изменений)
-    const { canBrew, missingIngredients } = canBrewRecipe(recipe);
-    if (!canBrew) {
-      return {
-        success: false,
-        message: `Недостаточно ингредиентов: ${missingIngredients.join(', ')}`
-      };
-    }
-
-    const rarityDetails = getRarityDetails(recipe.rarity);
-    const targetDifficulty = 5 * rarityDetails.rarityModifier + 5 + recipe.components.length;
-    const brewResult = determineBrewedQuality(targetDifficulty, character.character.brewingMode);
-
-    character.incrementStat('totalBrews');
-
-    // При любом провале ингредиенты тратятся
-    const usedIngredients = recipe.components.map(component => ({
-      id: ingredientSelection.getSelectedIngredient(recipe.id, component.id)!,
-      quantity: component.quantity
-    }));
-    inventory.useIngredients(usedIngredients);
-    character.incrementStat('ingredientsUsed', usedIngredients.reduce((sum, ing) => sum + ing.quantity, 0));
-
-    if (!brewResult.success) {
-      character.incrementStat('failedBrews');
-
-      let message = `Варка провалилась! (Бросок: ${brewResult.rollResults.mainRoll} против СЛ ${targetDifficulty})`;
-      if (brewResult.flawEffect) {
-        message += `\nИзъян: ${brewResult.flawEffect}`;
-      }
-
-      // Создаем "испорченное" зелье с описанием изъяна
-      const flawedPotion: Omit<Potion, 'id'> = {
-        name: `Испорченное ${recipe.name}`,
-        description: recipe.description,
-        effect: "Эффект непредсказуем из-за неудачной варки.",
-        rarity: recipe.rarity,
-        potionType: recipe.potionType,
-        potionQuality: recipe.potionQuality,
-        brewedQuality: 'poor',
-        flawEffect: brewResult.flawEffect,
-        tags: [...recipe.tags, 'испорченное'],
-        quantity: 1,
-        recipeId: recipe.id,
-        dateCreated: new Date().toISOString(),
-        components: recipe.components,
-        rollResults: brewResult.rollResults
-      };
-      potions.addPotion(flawedPotion);
-
-      return { success: false, message };
-    }
-
-    // Логика для успешной варки
-    const newPotion: Omit<Potion, 'id'> = {
-      name: recipe.name,
-      description: recipe.description,
-      effect: recipe.effect,
-      rarity: recipe.rarity,
-      potionType: recipe.potionType,
-      potionQuality: recipe.potionQuality,
-      brewedQuality: brewResult.quality,
-      excellenceEffect: brewResult.excellenceEffect,
-      tags: recipe.tags,
-      quantity: 1,
-      recipeId: recipe.id,
-      dateCreated: new Date().toISOString(),
-      components: recipe.components,
-      rollResults: brewResult.rollResults
-    };
-    potions.addPotion(newPotion);
-
-    character.incrementStat('successfulBrews');
-    character.incrementStat('potionsCreated');
-
-    let message = `Зелье "${recipe.name}" успешно создано! (Бросок: ${brewResult.rollResults.mainRoll} против СЛ ${targetDifficulty})`;
-    if (brewResult.excellenceEffect) {
-        message += `\nИзысканность: ${brewResult.excellenceEffect}`;
-    }
-
-    return {
-      success: true,
-      message,
-      potion: { ...newPotion, id: Date.now().toString() }
-    };
+    return { canBrew: missingIngredients.length === 0, missingIngredients };
   };
 
   const determineBrewedQuality = (
@@ -187,13 +108,7 @@ export function useAlchemyStore() {
     quality: 'poor' | 'standard' | 'excellent';
     flawEffect?: string;
     excellenceEffect?: string;
-    rollResults: {
-      naturalRoll: number;
-      bonus: number;
-      mainRoll: number;
-      fumbleRoll?: number;
-      excellenceRoll?: number
-    }
+    rollResults: { naturalRoll: number; bonus: number; mainRoll: number; fumbleRoll?: number; excellenceRoll?: number }
   } => {
     let bonus = 0;
     const activeEquipment = character.equipment.find(eq => eq.id === character.character.activeEquipmentId);
@@ -203,9 +118,13 @@ export function useAlchemyStore() {
     const naturalRoll = Math.floor(Math.random() * 20) + 1;
     const mainRoll = naturalRoll + bonus;
 
-    const success = mainRoll >= targetDifficulty;
+    let success = mainRoll >= targetDifficulty;
+    if (mode === 'percentage') {
+        const successPercentage = Math.max(5, Math.min(95, ((21 - (targetDifficulty - bonus)) / 20) * 100));
+        success = (Math.random() * 100) < successPercentage;
+    }
 
-    const rollResults = { naturalRoll, bonus, mainRoll, fumbleRoll: undefined, excellenceRoll: undefined };
+    const rollResults = { naturalRoll, bonus, mainRoll };
 
     if (!success) {
       const fumbleRoll = Math.floor(Math.random() * 100) + 1;
@@ -229,219 +148,246 @@ export function useAlchemyStore() {
       };
     }
 
+    return { success: true, quality: 'standard', rollResults };
+  };
+
+  const brewPotion = (recipe: Recipe): { success: boolean; message: string; potion?: Potion } => {
+    if (!canBrewRecipe(recipe).canBrew) {
+      return { success: false, message: `Недостаточно ингредиентов: ${canBrewRecipe(recipe).missingIngredients.join(', ')}` };
+    }
+
+    const rarityDetails = getRarityDetails(recipe.rarity);
+    const targetDifficulty = 5 * rarityDetails.rarityModifier + 5 + recipe.components.length;
+    const brewResult = determineBrewedQuality(targetDifficulty, character.character.brewingMode);
+
+    character.incrementStat('totalBrews');
+
+    const usedIngredients = recipe.components.map(component => ({
+      id: ingredientSelection.getSelectedIngredient(recipe.id, component.id)!,
+      quantity: component.quantity
+    }));
+
+    const magicalDustIsActive = ingredientSelection.isMagicalDustActive(recipe.id);
+    if (magicalDustIsActive) {
+        const dust = inventory.getIngredient('magical_dust');
+        if (dust && dust.quantity > 0) {
+            usedIngredients.push({ id: 'magical_dust', quantity: 1 });
+        } else {
+            // Если магическая пыль выбрана, но её нет в инвентаре, отключаем её использование
+            ingredientSelection.toggleMagicalDust(recipe.id);
+            return { success: false, message: 'Недостаточно магической пыли в инвентаре!' };
+        }
+    }
+
+    const usedIngredientObjects = usedIngredients.map(used => inventory.getIngredient(used.id)!).filter(Boolean);
+
+    // Проверяем, действительно ли магическая пыль используется (есть в usedIngredients)
+    const isMagicalDustActuallyUsed = usedIngredients.some(ing => ing.id === 'magical_dust');
+    
+    let impurityEffect: string | undefined = undefined;
+    if (!isMagicalDustActuallyUsed) {
+        const impurities = usedIngredientObjects.map(ing => ing.impurity).filter(Boolean) as AlchemicalElement[];
+        if (impurities.length > 0) {
+            let dominantImpurity: AlchemicalElement | undefined = impurities.reduce((dominant, current) => {
+                const dominantRank = ELEMENT_RANK[dominant] || 0;
+                const currentRank = ELEMENT_RANK[current] || 0;
+                return currentRank > dominantRank ? current : dominant;
+            });
+
+            if (dominantImpurity) {
+                impurityEffect = getImpurityEffect(dominantImpurity, rarityDetails.rarityModifier);
+            }
+        }
+    }
+
+    inventory.useIngredients(usedIngredients);
+    character.incrementStat('ingredientsUsed', usedIngredients.reduce((sum, ing) => sum + ing.quantity, 0));
+
+    if (!brewResult.success) {
+      character.incrementStat('failedBrews');
+      let message = `Варка провалилась! (Бросок: ${brewResult.rollResults.mainRoll} против СЛ ${targetDifficulty})`;
+      if (brewResult.flawEffect) {
+        message += `\nИзъян: ${brewResult.flawEffect}`;
+      }
+      if (impurityEffect) {
+        message += `\nСработала примесь: ${impurityEffect}`;
+      }
+
+      const flawedPotion: Omit<Potion, 'id'> = {
+        name: `Испорченное ${recipe.name}`,
+        description: recipe.description,
+        effect: "Эффект непредсказуем из-за неудачной варки.",
+        rarity: recipe.rarity,
+        potionType: recipe.potionType,
+        potionQuality: recipe.potionQuality,
+        brewedQuality: 'poor',
+        flawEffect: brewResult.flawEffect,
+        impurityEffect: impurityEffect,
+        tags: [...recipe.tags, 'испорченное'],
+        quantity: 1,
+        recipeId: recipe.id,
+        dateCreated: new Date().toISOString(),
+        components: recipe.components,
+        rollResults: brewResult.rollResults
+      };
+      potions.addPotion(flawedPotion);
+
+      return { success: false, message };
+    }
+
+    const newPotion: Omit<Potion, 'id'> = {
+      name: recipe.name,
+      description: recipe.description,
+      effect: recipe.effect,
+      rarity: recipe.rarity,
+      potionType: recipe.potionType,
+      potionQuality: recipe.potionQuality,
+      brewedQuality: brewResult.quality,
+      excellenceEffect: brewResult.excellenceEffect,
+      impurityEffect: impurityEffect,
+      tags: recipe.tags,
+      quantity: 1,
+      recipeId: recipe.id,
+      dateCreated: new Date().toISOString(),
+      components: recipe.components,
+      rollResults: brewResult.rollResults
+    };
+    potions.addPotion(newPotion);
+
+    character.incrementStat('successfulBrews');
+    character.incrementStat('potionsCreated');
+
+    let message = `Зелье "${recipe.name}" успешно создано! (Бросок: ${brewResult.rollResults.mainRoll} против СЛ ${targetDifficulty})`;
+    if (brewResult.excellenceEffect) {
+        message += `\nИзысканность: ${brewResult.excellenceEffect}`;
+    }
+    if (impurityEffect) {
+        message += `\nСработала примесь: ${impurityEffect}`;
+    }
+
     return {
       success: true,
-      quality: 'standard',
-      rollResults
+      message,
+      potion: { ...newPotion, id: Date.now().toString() }
     };
   };
 
-  // Методы для работы с рецептами
-  const selectIngredientForComponent = (recipeId: string, componentId: string, ingredientId: string | undefined) => {
-    ingredientSelection.setSelectedIngredient(recipeId, componentId, ingredientId);
+  const buyIngredient = (ingredientId: string, quantity: number) => {
+    const ingredientData = data.ingredients.find(ing => ing.id === ingredientId);
+    if (!ingredientData) {
+      return { success: false, message: 'Ингредиент не найден в базе данных' };
+    }
+    const totalCost = ingredientData.cost * quantity;
+    if (!character.spendGold(totalCost)) {
+      return { success: false, message: 'Недостаточно золота' };
+    }
+    inventory.buyIngredient(ingredientData, quantity);
+    return { success: true, message: `Куплено ${quantity} x ${ingredientData.name}` };
   };
 
-  const getSelectedIngredient = (recipeId: string, componentId: string) => {
-    return ingredientSelection.getSelectedIngredient(recipeId, componentId);
+  const sellIngredient = (ingredientId: string, quantity: number) => {
+    const ingredient = inventory.getIngredient(ingredientId);
+    if (!ingredient || ingredient.quantity < quantity) {
+      return { success: false, message: 'Недостаточно ингредиентов для продажи' };
+    }
+    const sellPrice = Math.floor(ingredient.cost * quantity * 0.5);
+    character.earnGold(sellPrice);
+    inventory.sellIngredient(ingredientId, quantity);
+    return { success: true, message: `Продано ${quantity} x ${ingredient.name} за ${sellPrice} зм` };
   };
 
-  const clearIngredientSelection = (recipeId: string, componentId: string) => {
-    ingredientSelection.clearSelection(recipeId, componentId);
+  const exploreLocation = (biomeId: string) => {
+    const biome = data.getBiome(biomeId);
+    if (!biome) {
+      return { success: false, message: 'Биом не найден' };
+    }
+    if (!character.spendGold(biome.cost)) {
+      return { success: false, message: 'Недостаточно золота для исследования' };
+    }
+    const result = data.exploreLocation(biomeId);
+
+    if (result.items.length > 0) {
+      result.items.forEach(item => {
+        const ingredientData = data.getIngredient(item.id);
+        if (ingredientData) {
+          inventory.addIngredient({ ...ingredientData, quantity: item.quantity });
+        }
+      });
+    }
+
+    return result;
   };
 
-  const clearAllIngredientSelections = () => {
-    ingredientSelection.clearAllSelections();
+  const hasMagicalDust = () => {
+    const dust = inventory.getIngredient('magical_dust');
+    return dust && dust.quantity > 0;
   };
 
   return {
-    // Инвентарь
+    // Inventory
     ingredients: inventory.ingredients,
-    allIngredients: data.ingredients, // Все доступные ингредиенты из JSON
+    allIngredients: data.ingredients,
     addIngredient: inventory.addIngredient,
     updateIngredientQuantity: inventory.updateIngredientQuantity,
     removeIngredient: inventory.removeIngredient,
     getIngredient: inventory.getIngredient,
-    getTotalIngredients: inventory.getTotalIngredients,
-    getIngredientsByCategory: inventory.getIngredientsByCategory,
     isIngredientAvailable: inventory.isIngredientAvailable,
     cleanDuplicates: inventory.cleanDuplicates,
+    swapIngredientElements: inventory.swapIngredientElements,
 
-    // Зелья
+    // Potions
     potions: potions.potions,
     addPotion: potions.addPotion,
     updatePotionQuantity: potions.updatePotionQuantity,
-    removePotion: potions.removePotion,
     togglePotionFavorite: potions.togglePotionFavorite,
-    getPotion: potions.getPotion,
-    getPotionsByType: potions.getPotionsByType,
-    getFavoritePotions: potions.getFavoritePotions,
-    getTotalPotions: potions.getTotalPotions,
-    consumePotion: potions.consumePotion,
 
-    // Персонаж
+    // Character & Equipment
     character: character.character,
     currency: character.currency,
     stats: character.stats,
     equipment: character.equipment,
-    ownedEquipment: character.ownedEquipment,
     availableEquipment: character.getOwnedEquipment(),
     availableForPurchaseEquipment: character.getAvailableForPurchaseEquipment(),
-    hasEquipment: character.hasEquipment,
-    activeEquipment: character.activeEquipment,
     playerGold: character.getTotalGold(),
+    getTotalGold: character.getTotalGold,
     updateCharacterName: character.updateCharacterName,
     updateCharacterLevel: character.updateCharacterLevel,
     updateAlchemyToolsProficiency: character.updateAlchemyToolsProficiency,
     updateCharacterStats: character.updateCharacterStats,
     updateCurrency: character.updateCurrency,
-    spendGold: character.spendGold,
-    earnGold: character.earnGold,
-    getTotalGold: character.getTotalGold,
     buyEquipment: character.buyEquipment,
     setActiveEquipment: character.setActiveEquipment,
-    updateStats: character.updateStats,
+    updateBrewingMode: character.updateBrewingMode,
     incrementStat: character.incrementStat,
 
-    // Данные
+    // Data
     recipes: data.recipes,
     biomes: data.biomes,
     isLoading: data.isLoading,
-    error: data.error,
-    reloadData: data.reloadData,
     getRecipe: data.getRecipe,
     getBiome: data.getBiome,
-    getIngredientData: data.getIngredient,
-    getRecipesByType: data.getRecipesByType,
-    getRecipesByRarity: data.getRecipesByRarity,
-
-    // Фильтры
-    activeFilters: filters.filters,
-    updateFilter: filters.updateFilter,
-    resetFilters: filters.resetFilters,
-    toggleFilterValue: filters.toggleFilterValue,
-    hasActiveFilters: filters.hasActiveFilters,
-
-    // Варка зелий
-    canBrewRecipe,
-    updateBrewingMode: character.updateBrewingMode,
-    findSuitableIngredient,
-    brewPotion,
-    selectIngredientForComponent,
-    getSelectedIngredient,
-    clearIngredientSelection,
-    clearAllIngredientSelections,
-    
-    // Методы для магазина
-    buyIngredient: (ingredientId: string, quantity: number) => {
-      // Находим ингредиент в данных JSON
-      const allIngredients = data.recipes.length > 0 ? 
-        [...inventory.ingredients] : []; // Можно добавить список ингредиентов для покупки
-      
-      const ingredient = allIngredients.find(ing => ing.id === ingredientId);
-      if (!ingredient) {
-        return { success: false, message: 'Ингредиент не найден' };
-      }
-      
-      const totalCost = ingredient.cost * quantity;
-      if (!character.spendGold(totalCost)) {
-        return { success: false, message: 'Недостаточно золота' };
-      }
-      
-      // Добавляем ингредиент в инвентарь
-      const existingIngredient = inventory.getIngredient(ingredientId);
-      if (existingIngredient) {
-        inventory.updateIngredientQuantity(ingredientId, existingIngredient.quantity + quantity);
-      } else {
-        inventory.addIngredient({...ingredient, quantity});
-      }
-      
-      return { success: true, message: `Куплено ${quantity} x ${ingredient.name}` };
-    },
-    
-    sellIngredient: (ingredientId: string, quantity: number) => {
-      const ingredient = inventory.getIngredient(ingredientId);
-      if (!ingredient || ingredient.quantity < quantity) {
-        return { success: false, message: 'Недостаточно ингредиентов' };
-      }
-      
-      const sellPrice = Math.floor(ingredient.cost * quantity * 0.5); // Продаем за половину цены
-      character.earnGold(sellPrice);
-      inventory.updateIngredientQuantity(ingredientId, ingredient.quantity - quantity);
-      
-      return { success: true, message: `Продано ${quantity} x ${ingredient.name} за ${sellPrice} зм` };
-    },
-    
-    // Методы для исследований
-    exploreLocation: (biomeId: string) => {
-      const biome = data.getBiome(biomeId);
-      if (!biome) {
-        return { success: false, message: 'Биом не найден', items: [] };
-      }
-      
-      if (!character.spendGold(biome.cost)) {
-        return { success: false, message: 'Недостаточно золота для исследования', items: [] };
-      }
-      
-      // Простая логика исследования - добавляем случайные ингредиенты
-      const foundItems: { id: string; quantity: number; name: string }[] = [];
-      const allIngredients = [
-        ...biome.commonIngredients,
-        ...biome.uncommonIngredients,
-        ...biome.rareIngredients,
-        ...biome.legendaryIngredients
-      ];
-      
-      allIngredients.forEach(available => {
-        if (Math.random() < available.chance) {
-          const [min, max] = available.quantity;
-          const quantity = Math.floor(Math.random() * (max - min + 1)) + min;
-          
-          // Получаем информацию об ингредиенте из данных
-          const ingredientData = data.getIngredient(available.id);
-          if (!ingredientData) {
-            console.warn(`Ингредиент с ID ${available.id} не найден в данных`);
-            return;
-          }
-          
-          // Добавляем ингредиент в инвентарь (автоматически стекается с существующими)
-          inventory.addIngredient({
-            ...ingredientData,
-            quantity: quantity
-          });
-          
-          foundItems.push({ 
-            id: available.id, 
-            quantity, 
-            name: ingredientData.name 
-          });
-        }
-      });
-      
-      // Формируем детальное сообщение о находках
-      let message = `Исследование завершено! Найдено предметов: ${foundItems.length}`;
-      if (foundItems.length > 0) {
-        message += '\n\nНайденные ингредиенты:';
-        foundItems.forEach(item => {
-          message += `\n• ${item.name} ×${item.quantity}`;
-        });
-      } else {
-        message += '\n\nК сожалению, ничего не найдено.';
-      }
-      
-      return { 
-        success: true, 
-        message,
-        items: foundItems
-      };
-    },
-    
-    // Лаборатория
     addRecipeToLaboratory: data.addRecipeToLaboratory,
     removeRecipeFromLaboratory: data.removeRecipeFromLaboratory,
     isRecipeInLaboratory: data.isRecipeInLaboratory,
     getLaboratoryRecipes: data.getLaboratoryRecipes,
-    
-    // Заглушки для совместимости
-    isIngredientCompatibleWithComponent: () => true
+
+    // Filters
+    activeFilters: filters.filters,
+    updateFilter: filters.updateFilter,
+    resetFilters: filters.resetFilters,
+
+    // Brewing
+    canBrewRecipe,
+    brewPotion,
+    selectIngredientForComponent: ingredientSelection.setSelectedIngredient,
+    getSelectedIngredient: ingredientSelection.getSelectedIngredient,
+    toggleMagicalDust: ingredientSelection.toggleMagicalDust,
+    isMagicalDustActive: ingredientSelection.isMagicalDustActive,
+    hasMagicalDust,
+
+    // Shop & Exploration
+    buyIngredient,
+    sellIngredient,
+    exploreLocation,
   };
 }

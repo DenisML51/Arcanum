@@ -106,5 +106,101 @@
         "types": []
       }
     ]
-  }
+  },{
+    "id": "potion_of_equality",
+    "name": "Зелье Равенства и Братства",
+    "description": "При обработке этим зельем ингредиента, его основной элемент и примесь меняются местами.",
+    "effect": "Используется для обработки одного ингредиента с примесью.",
+    "rarity": "uncommon",
+    "potionType": "potion",
+    "potionQuality": "common",
+    "tags": ["преобразование", "очистка"],
+    "inLaboratory": false,
+    "cost": 284,
+    "components": [
+      {
+        "id": "eq-base",
+        "name": "База (Необычная)",
+        "description": "Основа для необычного зелья.",
+        "quantity": 1,
+        "requiredElements": [],
+        "categories": ["other"],
+        "tags": ["база"],
+        "types": ["enchanted_ink"]
+      },
+      {
+        "id": "eq-transmutation",
+        "name": "Компонент Преобразования",
+        "description": "Ингредиент со свойством Преобразования.",
+        "quantity": 1,
+        "requiredElements": ["transmutation"],
+        "categories": ["plant", "mineral"],
+        "tags": [],
+        "types": []
+      },
+      {
+        "id": "eq-opposites",
+        "name": "Противоположные элементы",
+        "description": "Два любых ингредиента с противоположными стихиями (например, Огонь и Холод).",
+        "quantity": 2,
+        "requiredElements": [],
+        "categories": [],
+        "tags": ["стихия"],
+        "types": []
+      }
+    ]
+  },{
+  "id": "elixir_of_insight",
+  "name": "Эликсир озарения",
+  "description": "На 8 часов дарует +1к6 к броскам атаки и спасброскам, использующим Интеллект, Мудрость или Харизму.",
+  "effect": "На 8 часов +1к6 к атакам и спасброскам ИНТ, МУД, ХАР.",
+  "rarity": "very rare",
+  "potionType": "elixir",
+  "potionQuality": "high",
+  "tags": ["бафф", "разум", "социальное", "боевое"],
+  "inLaboratory": false,
+  "cost": 4913,
+  "components": [
+    {
+      "id": "c_base_re",
+      "name": "База (Очень редкая)",
+      "description": "Основа для очень редкого зелья. [РЭ]",
+      "quantity": 1,
+      "requiredElements": [],
+      "categories": ["other"],
+      "tags": ["база"],
+      "types": ["dissolved_ether"]
+    },
+    {
+      "id": "c_divination_school",
+      "name": "Компонент Прорицания",
+      "description": "Ингредиент, несущий в себе силу школы Прорицания. [Прор]",
+      "quantity": 1,
+      "requiredElements": ["divination"],
+      "categories": [],
+      "tags": [],
+      "types": []
+    },
+    {
+      "id": "c_force_element",
+      "name": "Компонент Силового поля",
+      "description": "Ингредиент со стихией Силового поля. [СП]",
+      "quantity": 1,
+      "requiredElements": ["force"],
+      "categories": [],
+      "tags": [],
+      "types": []
+    },
+    {
+      "id": "c_celestial_creature",
+      "name": "Компонент вида Небожитель",
+      "description": "Часть или эссенция существа, относящегося к Небожителям. [Неб]",
+      "quantity": 1,
+      "requiredElements": ["celestial"],
+      "categories": ["creature"],
+      "tags": [],
+      "types": []
+    }
+  ]
+}
 ]
