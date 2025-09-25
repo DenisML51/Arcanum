@@ -29,7 +29,6 @@ const rarityColors = {
   legendary: "bg-orange-500"
 };
 
-// Удаляем старые типы, теперь используем функции из store
 
 const rarityLabels = {
   common: 'Обычный',
@@ -40,16 +39,11 @@ const rarityLabels = {
 };
 
 export const CompactIngredientCard = memo(function CompactIngredientCard({ ingredient, onQuantityChange }: CompactIngredientCardProps) {
-  // Отладка для проверки данных ингредиента
   if (!ingredient) {
     console.error('CompactIngredientCard: ingredient is undefined');
     return <div>Ошибка: ингредиент не найден</div>;
   }
 
-  // Удаляем навязчивые предупреждения для пользовательских ингредиентов
-  // if (!ingredient.category && !ingredient.isBase) {
-  //   console.warn('CompactIngredientCard: ingredient missing category:', ingredient);
-  // }
 
   const handleQuantityChange = useCallback((newQuantity: number) => {
     if (newQuantity >= 0) {
