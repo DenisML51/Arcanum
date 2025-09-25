@@ -143,6 +143,7 @@ export interface Character {
   level: number;
   alchemyToolsProficiency: boolean;
   activeEquipmentId: string;
+  brewingMode: 'percentage' | 'ttrpg';
   baseStats: {
     strength: number;
     dexterity: number;
@@ -233,15 +234,15 @@ export const getRarityName = (rarity: string): string => {
   }
 };
 
-export const getRarityDetails = (rarity: string): { savingThrow: number; brewingTimeText: string } => {
+export const getRarityDetails = (rarity: string): { savingThrow: number; brewingTimeText: string; rarityModifier: number } => {
   switch (rarity) {
-    case 'common': return { savingThrow: 10, brewingTimeText: '1 час' };
-    case 'uncommon': return { savingThrow: 12, brewingTimeText: '2 часа' };
-    case 'rare': return { savingThrow: 15, brewingTimeText: '4 часа' };
-    case 'very rare': return { savingThrow: 18, brewingTimeText: '8 часов' };
-    case 'legendary': return { savingThrow: 20, brewingTimeText: '1 день' };
-    case 'artifact': return { savingThrow: 25, brewingTimeText: '1 неделя' };
-    default: return { savingThrow: 10, brewingTimeText: '1 час' };
+    case 'common': return { savingThrow: 10, brewingTimeText: '1 час', rarityModifier: 1 };
+    case 'uncommon': return { savingThrow: 14, brewingTimeText: '2 часа', rarityModifier: 2 };
+    case 'rare': return { savingThrow: 18, brewingTimeText: '4 часа', rarityModifier: 3 };
+    case 'very rare': return { savingThrow: 22, brewingTimeText: '8 часов', rarityModifier: 4 };
+    case 'legendary': return { savingThrow: 26, brewingTimeText: '24 часа', rarityModifier: 5 };
+    case 'artifact': return { savingThrow: 30, brewingTimeText: 'Особая', rarityModifier: 6 };
+    default: return { savingThrow: 10, brewingTimeText: '1 час', rarityModifier: 1 };
   }
 };
 

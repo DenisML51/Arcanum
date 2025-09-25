@@ -7,7 +7,7 @@ import { useDataStore } from './useDataStore';
 import { useFiltersStore } from './useFiltersStore';
 import { useIngredientSelectionStore } from './useIngredientSelectionStore';
 import type { Ingredient, Recipe, RecipeComponent, Potion } from '../types';
-import { getQualityEffect } from '../types';
+import { getQualityEffect, getRarityDetails } from '../types';
 
 // Главный хук, объединяющий все остальные хуки
 export function useAlchemyStore() {
@@ -75,7 +75,6 @@ export function useAlchemyStore() {
 
   const brewPotion = (recipe: Recipe): { success: boolean; message: string; potion?: Potion } => {
     const { canBrew, missingIngredients } = canBrewRecipe(recipe);
-    
     if (!canBrew) {
       return {
         success: false,
@@ -83,42 +82,47 @@ export function useAlchemyStore() {
       };
     }
 
-    // Списываем ингредиенты (только выбранные пользователем)
-    const usedIngredients: { id: string; quantity: number }[] = [];
-    
-    for (const component of recipe.components) {
-      const ingredientId = ingredientSelection.getSelectedIngredient(recipe.id, component.id);
-      
-      if (!ingredientId) {
-        return {
-          success: false,
-          message: `Не выбран ингредиент для компонента: ${component.name}`
-        };
+    // Шаг 1: Рассчитываем правильную сложность
+    const rarityDetails = getRarityDetails(recipe.rarity);
+    const targetDifficulty = 5 * rarityDetails.rarityModifier + 5 + recipe.components.length;
+
+    // Шаг 2: Симулируем варку
+    const brewResult = determineBrewedQuality(targetDifficulty, character.character.brewingMode);
+
+    // Обновляем общую статистику попыток
+    character.incrementStat('totalBrews');
+
+    // Шаг 3: Проверяем результат варки
+    if (!brewResult.success) {
+      character.incrementStat('failedBrews');
+      // Ингредиенты все равно тратятся при провале
+      const usedIngredientsOnFail = recipe.components.map(component => ({
+        id: ingredientSelection.getSelectedIngredient(recipe.id, component.id)!,
+        quantity: component.quantity
+      }));
+      inventory.useIngredients(usedIngredientsOnFail);
+
+      let message = `Варка провалилась! (Бросок: ${brewResult.rollResults.mainRoll} против СЛ ${targetDifficulty})`;
+      if (brewResult.rollResults.fumbleRoll) {
+        message += `\nКритический провал! (d100): ${brewResult.rollResults.fumbleRoll}`;
       }
-      
-      usedIngredients.push({ id: ingredientId, quantity: component.quantity });
+      return { success: false, message };
     }
 
-    // Проверяем еще раз и списываем
-    const success = inventory.useIngredients(usedIngredients);
-    
-    if (!success) {
-      return {
-        success: false,
-        message: 'Ошибка при использовании ингредиентов'
-      };
-    }
+    // Шаг 4: Списываем ингредиенты при успехе
+    const usedIngredients = recipe.components.map(component => ({
+      id: ingredientSelection.getSelectedIngredient(recipe.id, component.id)!,
+      quantity: component.quantity
+    }));
+    inventory.useIngredients(usedIngredients);
 
-    // Создаем зелье
-    const qualityResult = determineBrewedQuality();
-    const qualityEffect = getQualityEffect(qualityResult.quality);
-    
-    // Формируем описание с учетом эффекта качества
+    // Шаг 5: Создаем зелье
+    const qualityEffect = getQualityEffect(brewResult.quality);
     let finalDescription = recipe.description;
     if (qualityEffect) {
       finalDescription += `\n\nОсобенность: ${qualityEffect}`;
     }
-    
+
     const potion: Omit<Potion, 'id'> = {
       name: recipe.name,
       description: finalDescription,
@@ -126,38 +130,28 @@ export function useAlchemyStore() {
       rarity: recipe.rarity,
       potionType: recipe.potionType,
       potionQuality: recipe.potionQuality,
-      brewedQuality: qualityResult.quality,
+      brewedQuality: brewResult.quality,
       tags: recipe.tags,
       quantity: 1,
       recipeId: recipe.id,
       dateCreated: new Date().toISOString(),
       components: recipe.components,
-      rollResults: qualityResult.rollResults
+      rollResults: brewResult.rollResults
     };
-
     potions.addPotion(potion);
 
-    // Обновляем статистику
-    character.incrementStat('totalBrews');
+    // Обновляем статистику успеха
     character.incrementStat('successfulBrews');
     character.incrementStat('potionsCreated');
     character.incrementStat('ingredientsUsed', usedIngredients.reduce((sum, ing) => sum + ing.quantity, 0));
 
-    // Формируем сообщение с результатами бросков
-    let message = `Зелье "${recipe.name}" успешно создано!`;
-    message += `\n🎲 Основной бросок: ${qualityResult.rollResults.naturalRoll} + ${qualityResult.rollResults.bonus} = ${qualityResult.rollResults.mainRoll}`;
-    
-    if (qualityResult.rollResults.fumbleRoll) {
-      message += `\n💥 Провал (к100): ${qualityResult.rollResults.fumbleRoll}`;
+    // Формируем сообщение
+    let message = `Зелье "${recipe.name}" успешно создано! (Бросок: ${brewResult.rollResults.mainRoll} против СЛ ${targetDifficulty})`;
+    if (brewResult.rollResults.excellenceRoll) {
+        message += `\nКритический успех! (d100): ${brewResult.rollResults.excellenceRoll}`;
     }
-    if (qualityResult.rollResults.excellenceRoll) {
-      message += `\n⭐ Успех (к100): ${qualityResult.rollResults.excellenceRoll}`;
-    }
-    
-    message += `\nКачество: ${qualityResult.quality === 'poor' ? 'Изъян' : qualityResult.quality === 'excellent' ? 'Изысканное' : 'Стандартное'}`;
-    
     if (qualityEffect) {
-      message += `\nОсобенность: ${qualityEffect}`;
+        message += `\nОсобенность: ${qualityEffect}`;
     }
 
     return {
@@ -167,57 +161,70 @@ export function useAlchemyStore() {
     };
   };
 
-  const determineBrewedQuality = (): { quality: 'poor' | 'standard' | 'excellent'; rollResults: { naturalRoll: number; bonus: number; mainRoll: number; fumbleRoll?: number; excellenceRoll?: number } } => {
-    // Бросок к20 для основного результата
-    const naturalRoll = Math.floor(Math.random() * 20) + 1;
-    
+  const determineBrewedQuality = (
+    targetDifficulty: number,
+    mode: 'percentage' | 'ttrpg'
+  ): {
+    success: boolean;
+    quality: 'poor' | 'standard' | 'excellent';
+    rollResults: {
+      naturalRoll: number;
+      bonus: number;
+      mainRoll: number;
+      fumbleRoll?: number;
+      excellenceRoll?: number
+    }
+  } => {
     // Бонус от оборудования и навыков
     let bonus = 0;
-    if (character.activeEquipment) {
-      bonus += character.activeEquipment.brewingBonus;
+    const activeEquipment = character.equipment.find(eq => eq.id === character.character.activeEquipmentId);
+    if (activeEquipment) {
+      bonus += activeEquipment.brewingBonus;
     }
     if (character.character.alchemyToolsProficiency) {
-      bonus += 2; // Профициенси в инструментах алхимика дает +2
+      bonus += 2;
     }
 
+    const naturalRoll = Math.floor(Math.random() * 20) + 1;
     const mainRoll = naturalRoll + bonus;
-    
-    // Дополнительные броски для критических результатов
+
+    let success: boolean;
+    if (mode === 'ttrpg') {
+        success = mainRoll >= targetDifficulty;
+    } else { // percentage mode
+        const successPercentage = Math.max(5, Math.min(95, ((21 - (targetDifficulty - bonus)) / 20) * 100));
+        success = Math.random() * 100 < successPercentage;
+    }
+
+    let quality: 'poor' | 'standard' | 'excellent';
+    if (!success) {
+        quality = 'poor';
+    } else {
+        if (naturalRoll === 20) {
+            quality = 'excellent';
+        } else if (mainRoll >= targetDifficulty + 10) {
+            quality = 'excellent';
+        } else {
+            quality = 'standard';
+        }
+    }
+
+    // Провалы и успехи
     let fumbleRoll: number | undefined;
     let excellenceRoll: number | undefined;
-    
+
     if (naturalRoll === 1) {
-      // Критический провал - бросок к100
+      quality = 'poor';
       fumbleRoll = Math.floor(Math.random() * 100) + 1;
-    } else if (naturalRoll === 20) {
-      // Критический успех - бросок к100
+    } else if (naturalRoll === 20 && success) {
+      quality = 'excellent';
       excellenceRoll = Math.floor(Math.random() * 100) + 1;
     }
 
-    // Определяем качество на основе результата
-    let quality: 'poor' | 'standard' | 'excellent';
-    
-    if (naturalRoll === 1 || mainRoll < 10) {
-      quality = 'poor';
-    } else if (naturalRoll === 20 || mainRoll >= 25) {
-      quality = 'excellent';
-    } else if (mainRoll >= 15) {
-      quality = 'excellent';
-    } else if (mainRoll >= 10) {
-      quality = 'standard';
-    } else {
-      quality = 'poor';
-    }
-
     return {
+      success,
       quality,
-      rollResults: {
-        naturalRoll,
-        bonus,
-        mainRoll,
-        fumbleRoll,
-        excellenceRoll
-      }
+      rollResults: { naturalRoll, bonus, mainRoll, fumbleRoll, excellenceRoll }
     };
   };
 
@@ -308,6 +315,7 @@ export function useAlchemyStore() {
 
     // Варка зелий
     canBrewRecipe,
+    updateBrewingMode: character.updateBrewingMode,
     findSuitableIngredient,
     brewPotion,
     selectIngredientForComponent,
