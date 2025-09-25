@@ -88,7 +88,7 @@ export function IngredientCard({ ingredient, onQuantityChange }: IngredientCardP
       <CardContent className="space-y-4">
         <div className="flex items-center gap-1 text-sm text-muted-foreground">
           <MapPin className="h-3 w-3" />
-          <span>{ingredient.location}</span>
+          <span>{ingredient.locations}</span>
         </div>
 
         {ingredient.tags.length > 0 && (
@@ -99,19 +99,6 @@ export function IngredientCard({ ingredient, onQuantityChange }: IngredientCardP
                 <Badge key={tag} variant="outline" className="text-xs">
                   {tag}
                 </Badge>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {ingredient.properties.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-sm">Свойства:</p>
-            <div className="space-y-1">
-              {ingredient.properties.map((property) => (
-                <div key={property} className="text-sm text-muted-foreground">
-                  • {property}
-                </div>
               ))}
             </div>
           </div>
