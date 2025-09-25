@@ -4,24 +4,18 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Progress } from "../ui/progress";
 import {
-  Coins,
   Search,
   AlertTriangle,
-  Mountain,
-  Trees,
-  Sun,
-  Flame,
-  Sparkles,
-  MapPin
 } from "lucide-react";
 import { CompactCard } from "./CompactCard";
-import type { Biome } from "../../hooks/types";
+import type { Biome } from "@/hooks/types.ts";
 
 interface CompactBiomeCardProps {
   biome: Biome;
   playerGold: number;
   onExplore: (biomeId: string) => void;
   ingredients: any[];
+  isDisabled?: boolean;
 }
 
 const difficultyColors = {
@@ -36,13 +30,6 @@ const difficultyLabels = {
   hard: "Сложный"
 };
 
-const biomeIcons = {
-  forest: Trees,
-  mountains: Mountain,
-  meadows: Sun,
-  dragon_lair: Flame,
-  fairy_ring: Sparkles
-} as const;
 
 const biomeTypeColors = {
   forest: "bg-emerald-500",
@@ -64,7 +51,8 @@ export function CompactBiomeCard({
   biome,
   playerGold,
   onExplore,
-  ingredients
+  ingredients,
+  isDisabled = false
 }: CompactBiomeCardProps) {
   const canAfford = playerGold >= biome.cost;
   const difficultyInfo = {
@@ -72,7 +60,6 @@ export function CompactBiomeCard({
     color: difficultyColors[biome.difficulty]
   };
 
-  // Вычисляем общий шанс найти что-то
   const allIngredients = [
     ...biome.commonIngredients,
     ...biome.uncommonIngredients,
@@ -109,7 +96,7 @@ export function CompactBiomeCard({
         e.stopPropagation();
         onExplore(biome.id);
       }}
-      disabled={!canAfford}
+      disabled={!canAfford || isDisabled}
       size="sm"
       variant={canAfford ? "default" : "secondary"}
       className="gap-1 shrink-0"

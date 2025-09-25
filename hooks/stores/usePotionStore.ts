@@ -14,6 +14,8 @@ interface PotionStore {
   getFavoritePotions: () => Potion[];
   getTotalPotions: () => number;
   consumePotion: (id: string, quantity?: number) => boolean;
+
+  setPotions: (potions: Potion[]) => void;
 }
 
 const STORAGE_KEY = 'alchemy-potions';
@@ -105,6 +107,10 @@ export function usePotionStore(): PotionStore {
     return true;
   };
 
+  const setPotionsState = (newPotions: Potion[]) => {
+    setPotions(Array.isArray(newPotions) ? newPotions : []);
+  };
+
   return {
     potions,
     addPotion,
@@ -115,6 +121,7 @@ export function usePotionStore(): PotionStore {
     getPotionsByType,
     getFavoritePotions,
     getTotalPotions,
-    consumePotion
+    consumePotion,
+    setPotions: setPotionsState,
   };
 }

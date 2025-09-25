@@ -41,11 +41,10 @@ import {
   Brain,
   Activity
 } from "lucide-react";
-import type { Currency } from "../../hooks/types";
-import { convertToGold } from "../../hooks/types";
+import { convertToGold } from "@/hooks/types.ts";
 import { motion } from "framer-motion";
 import { CompactPotionCard } from "../cards/CompactPotionCard";
-import { useAlchemyStore } from "../../hooks/stores/useAlchemyStore";
+import { useAlchemyStore } from "@/hooks/stores/useAlchemyStore.ts";
 
 interface HomePageProps {
   store: ReturnType<typeof useAlchemyStore>;
@@ -591,7 +590,7 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
                 { name: 'ИНТ', value: baseStats.intelligence, modifier: Math.floor((baseStats.intelligence - 10) / 2), icon: Brain },
                 { name: 'МУД', value: baseStats.wisdom, modifier: Math.floor((baseStats.wisdom - 10) / 2), icon: Star },
                 { name: 'ХАР', value: baseStats.charisma, modifier: Math.floor((baseStats.charisma - 10) / 2), icon: User }
-              ].map((stat, index) => {
+              ].map((stat, _index) => {
                 const Icon = stat.icon;
                 return (
                   <div key={stat.name} className="stat-container">

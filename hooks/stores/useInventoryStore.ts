@@ -15,6 +15,7 @@ interface InventoryStore {
   swapIngredientElements: (ingredientId: string) => { success: boolean, message: string };
   buyIngredient: (ingredient: Ingredient, quantity: number) => void;
   sellIngredient: (ingredientId: string, quantity: number) => void;
+  setIngredients: (ingredients: Ingredient[]) => void;
 }
 
 const STORAGE_KEY = 'alchemy-inventory';
@@ -34,6 +35,10 @@ export function useInventoryStore(): InventoryStore {
     }
     return [];
   });
+
+  const setIngredientsState = (newIngredients: Ingredient[]) => {
+    setIngredients(Array.isArray(newIngredients) ? newIngredients : []);
+  };
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(ingredients));
@@ -168,6 +173,7 @@ export function useInventoryStore(): InventoryStore {
     updateIngredientQuantity,
     removeIngredient,
     getIngredient,
+    setIngredients,
     isIngredientAvailable,
     useIngredients,
     cleanDuplicates,

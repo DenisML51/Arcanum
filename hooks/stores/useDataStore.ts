@@ -18,6 +18,10 @@ interface DataStore {
   getRecipesByRarity: (rarity: string) => Recipe[];
   addRecipeToLaboratory: (recipeId: string) => void;
   removeRecipeFromLaboratory: (recipeId: string) => void;
+
+  setLaboratoryRecipes: (recipeIds: string[]) => void;
+  addCustomIngredient: (ingredient: Ingredient) => void;
+
   isRecipeInLaboratory: (recipeId: string) => boolean;
   getLaboratoryRecipes: () => Recipe[];
   exploreLocation: (biomeId: string) => { success: boolean; message: string; items: { id: string; quantity: number; name: string }[] };
@@ -132,6 +136,20 @@ export function useDataStore(): DataStore {
     };
   };
 
+  const setLaboratoryRecipesState = (recipeIds: string[]) => {
+    setLaboratoryRecipes(new Set(Array.isArray(recipeIds) ? recipeIds : []));
+  };
+
+  const addCustomIngredientState = (ingredient: Ingredient) => {
+    setIngredients(prev => {
+      // Avoid adding duplicates if an ingredient with the same ID already exists
+      if (prev.some(ing => ing.id === ingredient.id)) {
+        return prev;
+      }
+      return [...prev, ingredient];
+    });
+  };
+
   return {
     recipes,
     biomes,
@@ -148,6 +166,9 @@ export function useDataStore(): DataStore {
     removeRecipeFromLaboratory,
     isRecipeInLaboratory,
     getLaboratoryRecipes,
-    exploreLocation
+    exploreLocation,
+
+    setLaboratoryRecipes: setLaboratoryRecipesState,
+    addCustomIngredient: addCustomIngredientState,
   };
 }

@@ -26,12 +26,10 @@ export function LaboratoryPage({ store }: LaboratoryPageProps) {
   const proficiencyBonus = store.character.alchemyToolsProficiency ? 2 : 0;
   const totalCharacterBonus = equipmentBonus + proficiencyBonus;
 
-  // Функция для добавления уведомления
   const addNotification = useCallback((message: string, type: 'success' | 'error' = 'success') => {
     const id = Date.now().toString();
     setNotifications(prev => [...prev, { id, message, type }]);
     
-    // Автоматически удаляем уведомление через 3 секунды
     setTimeout(() => {
       setNotifications(prev => prev.filter(n => n.id !== id));
     }, 3000);
@@ -204,7 +202,6 @@ export function LaboratoryPage({ store }: LaboratoryPageProps) {
         )}
       </div>
 
-      {/* Анимированные уведомления */}
       <div className="fixed bottom-4 right-4 z-50 space-y-3">
         <AnimatePresence>
           {notifications.map((notification) => (

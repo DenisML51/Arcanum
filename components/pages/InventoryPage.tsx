@@ -4,7 +4,6 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Checkbox } from "../ui/checkbox";
 import { Separator } from "../ui/separator";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/tabs";
@@ -12,7 +11,7 @@ import { Search, Filter, X, Package, Database, CheckCircle, AlertTriangle } from
 import { CompactIngredientCard } from "../cards/CompactIngredientCard";
 import { AllIngredientsCard } from "../cards/AllIngredientsCard";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAlchemyStore } from "../../hooks/stores/useAlchemyStore";
+import { useAlchemyStore } from "@/hooks/stores/useAlchemyStore.ts";
 
 interface InventoryPageProps {
   store: ReturnType<typeof useAlchemyStore>;
@@ -41,12 +40,10 @@ export function InventoryPage({ store }: InventoryPageProps) {
   const [forceUpdate, setForceUpdate] = useState(0);
   const [notifications, setNotifications] = useState<Array<{ id: string; message: string; type: 'success' | 'error' }>>([]);
 
-  // Отслеживаем изменения в store.ingredients
   useEffect(() => {
     setForceUpdate(prev => prev + 1);
   }, [store.ingredients]);
 
-  // Функция для фильтрации ингредиентов
   const filterIngredients = (ingredients: typeof store.ingredients) => {
     return ingredients.filter(ingredient => {
       const filters = store.activeFilters;
@@ -67,25 +64,20 @@ export function InventoryPage({ store }: InventoryPageProps) {
         return false;
       }
       
-      // Фильтрация по рецептам - проверяем, используется ли ингредиент в выбранных рецептах
       if (filters.availableForRecipes.length > 0) {
         const isUsedInSelectedRecipes = filters.availableForRecipes.some(recipeId => {
           const recipe = store.recipes.find(r => r.id === recipeId);
           if (!recipe) return false;
           
-          // Проверяем, используется ли этот ингредиент в компонентах рецепта
           return recipe.components.some(component => {
-            // Проверяем совместимость по типу
             if (component.types && component.types.length > 0) {
               if (!component.types.includes(ingredient.type)) return false;
             }
             
-            // Проверяем совместимость по категории
             if (component.categories && component.categories.length > 0) {
               if (!component.categories.includes(ingredient.category)) return false;
             }
             
-            // Проверяем элементы - должны быть ВСЕ требуемые элементы
             if (component.requiredElements && component.requiredElements.length > 0) {
               const hasAllRequiredElements = component.requiredElements.every(requiredElement =>
                 ingredient.elements && ingredient.elements.includes(requiredElement)
@@ -106,17 +98,14 @@ export function InventoryPage({ store }: InventoryPageProps) {
     });
   };
 
-  // Фильтрация ингредиентов в наличии
   const filteredInventoryIngredients = useMemo(() => {
     return filterIngredients(store.ingredients);
   }, [store.ingredients, store.activeFilters, store.recipes]);
 
-  // Фильтрация всех ингредиентов с правильным количеством из инвентаря
   const filteredAllIngredients = useMemo(() => {
     const allIngredients = store.allIngredients || [];
     const filtered = filterIngredients(allIngredients);
     
-    // Удаляем дубликаты по ID на случай, если они все еще есть
     const uniqueIngredients = filtered.reduce((acc, ingredient) => {
       const existingIndex = acc.findIndex(existing => existing.id === ingredient.id);
       if (existingIndex === -1) {
@@ -125,29 +114,26 @@ export function InventoryPage({ store }: InventoryPageProps) {
       return acc;
     }, [] as typeof filtered);
     
-    // Для каждого ингредиента проверяем, есть ли он в инвентаре
     const result = uniqueIngredients.map(ingredient => {
-      const inventoryIngredient = Array.isArray(store.ingredients) 
+      const inventoryIngredient = Array.isArray(store.ingredients)
         ? store.ingredients.find(inv => inv.id === ingredient.id)
         : null;
       const quantity = inventoryIngredient ? inventoryIngredient.quantity : 0;
       const isInInventory = !!inventoryIngredient;
-      
+
       return {
         ...ingredient,
         quantity,
         isInInventory
       };
     });
-    
+
     return result;
   }, [store.allIngredients, store.ingredients, store.activeFilters, store.recipes, forceUpdate]);
 
-  // Выбираем активный список ингредиентов в зависимости от вкладки
   const filteredIngredients = activeTab === "inventory" ? filteredInventoryIngredients : filteredAllIngredients;
   const recipesInLab = store.getLaboratoryRecipes();
 
-  // Получаем все уникальные теги из активного списка ингредиентов
   const allTags = Array.from(new Set(
     Array.isArray(filteredIngredients) ? filteredIngredients.flatMap(ing => ing.tags || []) : []
   ));
@@ -180,18 +166,15 @@ export function InventoryPage({ store }: InventoryPageProps) {
     store.updateFilter('availableForRecipes', newRecipes);
   };
 
-  // Функция для добавления уведомления
   const addNotification = useCallback((message: string, type: 'success' | 'error' = 'success') => {
     const id = Date.now().toString();
     setNotifications(prev => [...prev, { id, message, type }]);
     
-    // Автоматически удаляем уведомление через 3 секунды
     setTimeout(() => {
       setNotifications(prev => prev.filter(n => n.id !== id));
     }, 3000);
   }, []);
 
-  // Функция для добавления ингредиента
   const handleAddIngredient = useCallback((id: string) => {
     const allIngredient = store.allIngredients?.find(ing => ing.id === id);
     if (!allIngredient) {
@@ -204,12 +187,10 @@ export function InventoryPage({ store }: InventoryPageProps) {
       : null;
 
     if (existingIngredient) {
-      // Если ингредиент уже есть, увеличиваем количество
       store.updateIngredientQuantity(id, existingIngredient.quantity + 1);
       addNotification(`Добавлен ${allIngredient.name} (теперь: ${existingIngredient.quantity + 1})`);
     } else {
-      // Если ингредиента нет, добавляем новый
-      const newIngredient = { 
+      const newIngredient = {
         ...allIngredient, 
         quantity: 1
       };
@@ -219,14 +200,12 @@ export function InventoryPage({ store }: InventoryPageProps) {
 
   }, [store.allIngredients, store.ingredients, store.addIngredient, store.updateIngredientQuantity, addNotification]);
 
-  // Функция для удаления ингредиента
   const handleRemoveIngredient = useCallback((id: string) => {
     const existingIngredient = Array.isArray(store.ingredients) 
       ? store.ingredients.find(ing => ing.id === id)
       : null;
 
     if (!existingIngredient) {
-      // Получаем название ингредиента из allIngredients для сообщения
       const allIngredient = store.allIngredients?.find(ing => ing.id === id);
       const ingredientName = allIngredient?.name || 'Ингредиент';
       addNotification(`${ingredientName} отсутствует в инвентаре`, 'error');
@@ -234,11 +213,9 @@ export function InventoryPage({ store }: InventoryPageProps) {
     }
 
     if (existingIngredient.quantity > 1) {
-      // Если больше 1, уменьшаем количество
       store.updateIngredientQuantity(id, existingIngredient.quantity - 1);
       addNotification(`Убран ${existingIngredient.name} (осталось: ${existingIngredient.quantity - 1})`);
     } else {
-      // Если 1 или меньше, удаляем полностью
       store.removeIngredient(id);
       addNotification(`Удален ${existingIngredient.name} из инвентаря`);
     }
@@ -293,7 +270,6 @@ export function InventoryPage({ store }: InventoryPageProps) {
         </div>
       </div>
 
-      {/* Вкладки */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="inventory" className="flex items-center gap-2">
@@ -347,7 +323,6 @@ export function InventoryPage({ store }: InventoryPageProps) {
         </TabsContent>
       </Tabs>
 
-      {/* Уведомления */}
       <div className="fixed bottom-4 right-4 z-50 space-y-3">
         <AnimatePresence>
           {notifications.map((notification) => (
@@ -383,8 +358,7 @@ export function InventoryPage({ store }: InventoryPageProps) {
   );
 }
 
-// Компонент для отображения ингредиентов в наличии
-function InventoryContent({ 
+function InventoryContent({
   filteredIngredients, 
   store, 
   showFilters, 
@@ -417,7 +391,6 @@ function InventoryContent({
 }) {
   return (
     <>
-      {/* Поиск */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
@@ -428,7 +401,6 @@ function InventoryContent({
         />
       </div>
 
-      {/* Панель фильтров */}
       <AnimatePresence>
         {showFilters && (
           <motion.div
@@ -450,7 +422,6 @@ function InventoryContent({
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-                {/* Тип ингредиентов */}
                 <div className="space-y-2">
                   <h4 className="text-sm">Тип</h4>
                   <div className="space-y-2">
@@ -469,7 +440,6 @@ function InventoryContent({
                   </div>
                 </div>
 
-                {/* Редкость */}
                 <div className="space-y-2">
                   <h4 className="text-sm">Редкость</h4>
                   <div className="space-y-2">
@@ -488,7 +458,6 @@ function InventoryContent({
                   </div>
                 </div>
 
-                {/* Теги */}
                 <div className="space-y-2">
                   <h4 className="text-sm">Теги</h4>
                   <div className="space-y-2 max-h-40 overflow-y-auto scrollbar-hide">
@@ -507,7 +476,6 @@ function InventoryContent({
                   </div>
                 </div>
 
-                {/* Нужны для рецептов */}
                 {recipesInLab.length > 0 && (
                   <div className="space-y-2">
                     <h4 className="text-sm">Нужны для рецептов</h4>
@@ -535,7 +503,6 @@ function InventoryContent({
 
       <Separator />
 
-      {/* Результаты */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
           Найдено: {filteredIngredients.length} из {store.ingredients.length} ингредиентов
@@ -593,7 +560,6 @@ function InventoryContent({
         )}
       </div>
 
-      {/* Сетка ингредиентов */}
       <div className="card-grid-responsive">
         <AnimatePresence mode="popLayout">
           {filteredIngredients.map((ingredient) => (
@@ -634,8 +600,7 @@ function InventoryContent({
   );
 }
 
-// Компонент для отображения всех ингредиентов
-function AllIngredientsContent({ 
+function AllIngredientsContent({
   filteredIngredients, 
   store, 
   showFilters, 
@@ -672,7 +637,6 @@ function AllIngredientsContent({
 }) {
   return (
     <>
-      {/* Поиск */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
@@ -683,7 +647,6 @@ function AllIngredientsContent({
         />
       </div>
 
-      {/* Панель фильтров */}
       <AnimatePresence>
         {showFilters && (
           <motion.div
@@ -705,7 +668,6 @@ function AllIngredientsContent({
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-                {/* Тип ингредиентов */}
                 <div className="space-y-2">
                   <h4 className="text-sm">Тип</h4>
                   <div className="space-y-2">
@@ -724,7 +686,6 @@ function AllIngredientsContent({
                   </div>
                 </div>
 
-                {/* Редкость */}
                 <div className="space-y-2">
                   <h4 className="text-sm">Редкость</h4>
                   <div className="space-y-2">
@@ -743,7 +704,6 @@ function AllIngredientsContent({
                   </div>
                 </div>
 
-                {/* Теги */}
                 <div className="space-y-2">
                   <h4 className="text-sm">Теги</h4>
                   <div className="space-y-2 max-h-40 overflow-y-auto scrollbar-hide">
@@ -762,7 +722,6 @@ function AllIngredientsContent({
                   </div>
                 </div>
 
-                {/* Нужны для рецептов */}
                 {recipesInLab.length > 0 && (
                   <div className="space-y-2">
                     <h4 className="text-sm">Нужны для рецептов</h4>
@@ -790,7 +749,6 @@ function AllIngredientsContent({
 
       <Separator />
 
-      {/* Результаты */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
           Найдено: {filteredIngredients.length} из {store.allIngredients?.length || 0} ингредиентов
@@ -848,11 +806,9 @@ function AllIngredientsContent({
         )}
       </div>
 
-      {/* Сетка ингредиентов */}
       <div className="card-grid-responsive">
         <AnimatePresence mode="popLayout">
           {filteredIngredients.map((ingredient) => {
-            // Используем уже вычисленное значение isInInventory из filteredAllIngredients
             const isInInventory = ingredient.isInInventory || false;
             
             return (
