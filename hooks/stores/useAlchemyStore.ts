@@ -7,7 +7,7 @@ import { useDataStore } from './useDataStore';
 import { useFiltersStore } from './useFiltersStore';
 import { useIngredientSelectionStore } from './useIngredientSelectionStore';
 import type { Ingredient, Recipe, RecipeComponent, Potion } from '../types';
-import { getQualityEffect, getRarityDetails } from '../types';
+import { getRarityDetails } from '../types';
 
 const FLAW_TABLE = [
   { range: [1, 10], effect: "Ошибки - путь к успеху. Редкость зелья повышается на 1 (не выше Легендарной)."}, // [cite: 2014]
