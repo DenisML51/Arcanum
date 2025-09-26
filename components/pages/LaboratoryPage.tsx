@@ -1,13 +1,13 @@
 // components/pages/LaboratoryPage.tsx
 
-import { useState, useCallback } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { useState, useCallback, useMemo } from "react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import { Progress } from "../ui/progress";
+import { Input } from "../ui/input";
 import { Alert, AlertDescription } from "../ui/alert";
 import { CompactRecipeCard } from "../cards/CompactRecipeCard";
-import { FlaskConical, Package, AlertTriangle, CheckCircle } from "lucide-react";
+import { FilterDrawer, FilterGroup, FilterCheckbox } from "../common/FilterDrawer";
+import { FlaskConical, AlertTriangle, CheckCircle, Search, Filter, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAlchemyStore } from "../../hooks/stores/useAlchemyStore";
 import type { PotionRarity } from "../../hooks/types";
@@ -19,6 +19,11 @@ interface LaboratoryPageProps {
 export function LaboratoryPage({ store }: LaboratoryPageProps) {
   const [isBrewingMode, setIsBrewingMode] = useState(false);
   const [notifications, setNotifications] = useState<Array<{ id: string; message: string; type: 'success' | 'error' }>>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [selectedRarities, setSelectedRarities] = useState<string[]>([]);
+  const [selectedPotionTypes, setSelectedPotionTypes] = useState<string[]>([]);
+  const [selectedPotionQualities, setSelectedPotionQualities] = useState<string[]>([]);
 
   const laboratoryRecipes = store.getLaboratoryRecipes();
 
@@ -47,28 +52,65 @@ export function LaboratoryPage({ store }: LaboratoryPageProps) {
     }
   };
 
-  const getLabStats = () => {
-    const totalRecipes = laboratoryRecipes.length;
-    const availableRecipes = laboratoryRecipes.filter(recipe => {
-        return recipe.components.every(component =>
-            store.ingredients.some(ing => {
-                if (component.requiredElements && component.requiredElements.length > 0) {
-                    if (!component.requiredElements.every(el => ing.elements?.includes(el))) return false;
-                }
-                if (component.categories && component.categories.length > 0) {
-                    if (!component.categories.includes(ing.category)) return false;
-                }
-                if (component.types && component.types.length > 0) {
-                    if (!component.types.includes(ing.type as any)) return false;
-                }
-                return true;
-            })
-        )
-    }).length;
-    return { totalRecipes, availableRecipes };
-  };
+  const totalRecipes = laboratoryRecipes.length;
 
-  const { totalRecipes, availableRecipes } = getLabStats();
+  // Опции для фильтров
+  const rarityOptions = [
+    { value: 'common', label: 'Обычная' },
+    { value: 'uncommon', label: 'Необычная' },
+    { value: 'rare', label: 'Редкая' },
+    { value: 'very rare', label: 'Очень редкая' },
+    { value: 'legendary', label: 'Легендарная' },
+    { value: 'artifact', label: 'Артефакт' }
+  ];
+
+  const potionTypeOptions = [
+    { value: 'potion', label: 'Зелье' },
+    { value: 'elixir', label: 'Эликсир' },
+    { value: 'oil', label: 'Масло' }
+  ];
+
+  const potionQualityOptions = [
+    { value: 'low', label: 'Низкое' },
+    { value: 'medium', label: 'Среднее' },
+    { value: 'high', label: 'Высокое' }
+  ];
+
+  // Фильтрация рецептов
+  const filteredRecipes = useMemo(() => {
+    return laboratoryRecipes.filter(recipe => {
+      // Поиск по названию, описанию и эффекту
+      const matchesSearch = !searchTerm || 
+        recipe.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        recipe.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        recipe.effect.toLowerCase().includes(searchTerm.toLowerCase());
+
+      // Фильтр по редкости
+      const matchesRarity = selectedRarities.length === 0 || selectedRarities.includes(recipe.rarity);
+
+      // Фильтр по типу зелья
+      const matchesPotionType = selectedPotionTypes.length === 0 || selectedPotionTypes.includes(recipe.potionType);
+
+      // Фильтр по качеству зелья
+      const matchesPotionQuality = selectedPotionQualities.length === 0 || selectedPotionQualities.includes(recipe.potionQuality);
+
+      return matchesSearch && matchesRarity && matchesPotionType && matchesPotionQuality;
+    });
+  }, [laboratoryRecipes, searchTerm, selectedRarities, selectedPotionTypes, selectedPotionQualities]);
+
+  // Проверка наличия активных фильтров
+  const hasActiveFilters = searchTerm !== "" || 
+    selectedRarities.length > 0 || 
+    selectedPotionTypes.length > 0 || 
+    selectedPotionQualities.length > 0;
+
+  // Очистка всех фильтров
+  const clearAllFilters = () => {
+    setSearchTerm("");
+    setSelectedRarities([]);
+    setSelectedPotionTypes([]);
+    setSelectedPotionQualities([]);
+  };
 
   return (
     <div className="space-y-6">
@@ -82,47 +124,48 @@ export function LaboratoryPage({ store }: LaboratoryPageProps) {
             <div className="flex items-center gap-2">
             <Badge variant="outline" className="gap-1">
                 <FlaskConical className="h-3 w-3" />
-                {totalRecipes} рецептов
+                {filteredRecipes.length} из {totalRecipes} рецептов
             </Badge>
             </div>
         </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <FlaskConical className="h-4 w-4" />
-              Готовые к варке
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-2xl">{availableRecipes}</span>
-                <span className="text-sm text-muted-foreground">из {totalRecipes}</span>
-              </div>
-              <Progress
-                value={totalRecipes > 0 ? (availableRecipes / totalRecipes) * 100 : 0}
-                className="h-2"
-              />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Package className="h-4 w-4" />
-              Рецептов в работе
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl">{totalRecipes}</div>
-            <p className="text-sm text-muted-foreground">
-              активных рецептов
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+        {/* Поиск и фильтры */}
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Поиск по названию, описанию или эффекту..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => setIsFilterOpen(true)}
+            className="gap-2"
+          >
+            <Filter className="h-4 w-4" />
+            Фильтры
+            {hasActiveFilters && (
+              <Badge variant="secondary" className="ml-2">
+                Активны
+              </Badge>
+            )}
+          </Button>
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearAllFilters}
+              className="gap-1"
+            >
+              <X className="h-4 w-4" />
+              Очистить
+            </Button>
+          )}
+        </div>
+
 
       {totalRecipes === 0 && (
         <Alert>
@@ -139,11 +182,14 @@ export function LaboratoryPage({ store }: LaboratoryPageProps) {
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">
-                  {availableRecipes} из {totalRecipes} рецептов готовы к варке
+                  {hasActiveFilters 
+                    ? `${filteredRecipes.length} из ${totalRecipes} рецептов соответствуют фильтрам`
+                    : `${totalRecipes} рецептов в лаборатории`
+                  }
                 </p>
                 {isBrewingMode && (
                   <p className="text-xs text-green-600 dark:text-green-400 font-medium">
-                    ✓ Режим варки активен - выберите ингредиенты и варите зелья
+                    ✓ Режим варки активен - выберите ингредиенты и изготовьте зелья
                   </p>
                 )}
               </div>
@@ -161,8 +207,9 @@ export function LaboratoryPage({ store }: LaboratoryPageProps) {
                 {isBrewingMode ? 'Завершить варку' : 'Начать варку'}
               </Button>
             </div>
-            <div className="card-grid-responsive">
-              {laboratoryRecipes.map((recipe) => (
+            {filteredRecipes.length > 0 ? (
+              <div className="card-grid-responsive">
+                {filteredRecipes.map((recipe) => (
                 <motion.div
                   key={recipe.id}
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -186,8 +233,32 @@ export function LaboratoryPage({ store }: LaboratoryPageProps) {
                     hasMagicalDust={store.hasMagicalDust}
                   />
                 </motion.div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="space-y-2">
+                  <Search className="h-12 w-12 mx-auto text-muted-foreground" />
+                  <p className="text-muted-foreground">
+                    Рецепты не найдены
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Попробуйте изменить поисковый запрос или фильтры
+                  </p>
+                  {hasActiveFilters && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={clearAllFilters}
+                      className="mt-4"
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Очистить фильтры
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
           </>
         ) : (
           <div className="text-center py-12">
@@ -203,6 +274,77 @@ export function LaboratoryPage({ store }: LaboratoryPageProps) {
           </div>
         )}
       </div>
+
+      {/* Filter Drawer */}
+      <FilterDrawer
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        hasActiveFilters={hasActiveFilters}
+        clearAllFilters={clearAllFilters}
+      >
+        <FilterGroup 
+          title="Редкость" 
+          activeCount={selectedRarities.length}
+        >
+          {rarityOptions.map((option) => (
+            <FilterCheckbox
+              key={option.value}
+              id={`rarity-${option.value}`}
+              label={option.label}
+              checked={selectedRarities.includes(option.value)}
+              onCheckedChange={(checked) => {
+                if (checked) {
+                  setSelectedRarities(prev => [...prev, option.value]);
+                } else {
+                  setSelectedRarities(prev => prev.filter(r => r !== option.value));
+                }
+              }}
+            />
+          ))}
+        </FilterGroup>
+
+        <FilterGroup 
+          title="Тип зелья" 
+          activeCount={selectedPotionTypes.length}
+        >
+          {potionTypeOptions.map((option) => (
+            <FilterCheckbox
+              key={option.value}
+              id={`potion-type-${option.value}`}
+              label={option.label}
+              checked={selectedPotionTypes.includes(option.value)}
+              onCheckedChange={(checked) => {
+                if (checked) {
+                  setSelectedPotionTypes(prev => [...prev, option.value]);
+                } else {
+                  setSelectedPotionTypes(prev => prev.filter(t => t !== option.value));
+                }
+              }}
+            />
+          ))}
+        </FilterGroup>
+
+        <FilterGroup 
+          title="Качество зелья" 
+          activeCount={selectedPotionQualities.length}
+        >
+          {potionQualityOptions.map((option) => (
+            <FilterCheckbox
+              key={option.value}
+              id={`potion-quality-${option.value}`}
+              label={option.label}
+              checked={selectedPotionQualities.includes(option.value)}
+              onCheckedChange={(checked) => {
+                if (checked) {
+                  setSelectedPotionQualities(prev => [...prev, option.value]);
+                } else {
+                  setSelectedPotionQualities(prev => prev.filter(q => q !== option.value));
+                }
+              }}
+            />
+          ))}
+        </FilterGroup>
+      </FilterDrawer>
 
       <div className="fixed bottom-4 right-4 z-50 space-y-3">
         <AnimatePresence>

@@ -7,7 +7,6 @@ import { Button } from "../ui/button";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { Progress } from "../ui/progress";
 import { Separator } from "../ui/separator";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Checkbox } from "../ui/checkbox";
@@ -32,9 +31,7 @@ import {
   User,
   Zap,
   Star,
-  TrendingUp,
   Settings,
-  Award,
   ShoppingBag,
   Shield,
   Heart,
@@ -88,12 +85,6 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
   const laboratoryRecipes = recipes.filter(r => r.inLaboratory).length;
   const netGold = stats.goldEarned - stats.goldSpent;
 
-  const recentActivity = [
-    stats.successfulBrews > 0 && `Сварено зелий: ${stats.successfulBrews}`,
-    stats.ingredientsUsed > 0 && `Использовано ингредиентов: ${stats.ingredientsUsed}`,
-    stats.goldEarned > 0 && `Заработано золота: ${stats.goldEarned}`,
-    laboratoryRecipes > 0 && `Рецептов в лаборатории: ${laboratoryRecipes}`
-  ].filter(Boolean).slice(0, 3);
 
 
   const handleSaveCharacter = () => {
@@ -158,7 +149,7 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-start gap-4">
-                <Avatar className="character-avatar h-16 w-16 self-center">
+                <Avatar className="character-avatar h-16 w-16 mt-1">
                   <AvatarFallback className="text-xl">
                     {character.name.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
@@ -684,93 +675,6 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
         })}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.6 }}
-        >
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Award className="h-5 w-5" />
-                Прогресс мастерства
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span>Начинающий алхимик</span>
-                  <span>{Math.min(100, (stats.successfulBrews / 5) * 100).toFixed(0)}%</span>
-                </div>
-                <Progress value={Math.min(100, (stats.successfulBrews / 5) * 100)} />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Сварите 5 зелий для получения звания
-                </p>
-              </div>
-
-              <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span>Опытный варщик</span>
-                  <span>{Math.min(100, (stats.successfulBrews / 25) * 100).toFixed(0)}%</span>
-                </div>
-                <Progress value={Math.min(100, (stats.successfulBrews / 25) * 100)} />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Сварите 25 зелий для получения звания
-                </p>
-              </div>
-
-              <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span>Мастер алхимии</span>
-                  <span>{Math.min(100, (stats.successfulBrews / 100) * 100).toFixed(0)}%</span>
-                </div>
-                <Progress value={Math.min(100, (stats.successfulBrews / 100) * 100)} />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Сварите 100 зелий для получения звания
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.7 }}
-        >
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Последние достижения
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {recentActivity.length > 0 ? (
-                recentActivity.map((activity, index) => (
-                  <div key={index} className="flex items-center gap-3 p-2 bg-muted/50 rounded">
-                    <div className="h-2 w-2 bg-primary rounded-full" />
-                    <span className="text-sm">{activity}</span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  Начните варить зелья, чтобы увидеть свой прогресс здесь!
-                </p>
-              )}
-
-              {laboratoryRecipes > 0 && (
-                <div className="mt-4 p-3 bg-primary/10 rounded border border-primary/20">
-                  <p className="text-sm">
-                    💡 У вас {laboratoryRecipes} рецептов готовы к варке в лаборатории!
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}

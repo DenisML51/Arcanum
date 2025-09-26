@@ -345,7 +345,7 @@ export function CompactRecipeCard({
                         variant="default"
                         >
                         <FlaskConical className="h-4 w-4 mr-2" />
-                        {allComponentsSelectedAndValid ? 'Сварить зелье' : 'Выберите ингредиенты'}
+                        {allComponentsSelectedAndValid ? 'Изготовить' : 'Выберите ингредиенты'}
                     </Button>
                     {!allComponentsSelectedAndValid && (
                         <span className="text-xs text-red-500 font-medium">
@@ -521,22 +521,26 @@ export function CompactRecipeCard({
                 )}
                 
                 <div className="pt-2 border-t space-y-2">
-                    <Button
-                        onClick={() => onToggleLaboratory(recipe.id)}
-                        variant="outline"
-                        className={`w-full text-xs ${
-                        isInLaboratory
-                        ? 'text-muted-foreground hover:text-destructive hover:border-destructive'
-                        : 'text-primary hover:text-primary-foreground'
-                        }`}
-                        size="sm"
-                    >
-                        {isInLaboratory ? (
-                            <>Убрать из лаборатории</>
-                        ) : (
-                            <><FlaskConical className="h-4 w-4 mr-2" />Добавить в лабораторию</>
-                        )}
-                    </Button>
+                    {isInLaboratory ? (
+                        <Button
+                            onClick={() => onToggleLaboratory(recipe.id)}
+                            variant="outline"
+                            className="w-full text-xs text-muted-foreground hover:text-destructive hover:border-destructive"
+                            size="sm"
+                        >
+                            Убрать из лаборатории
+                        </Button>
+                    ) : (
+                        <Button
+                            onClick={() => onToggleLaboratory(recipe.id)}
+                            variant="outline"
+                            className="w-full text-xs text-primary hover:text-primary-foreground"
+                            size="sm"
+                        >
+                            <FlaskConical className="h-4 w-4 mr-2" />
+                            Добавить в лабораторию
+                        </Button>
+                    )}
                 </div>
             </div>
         </CompactCard>
