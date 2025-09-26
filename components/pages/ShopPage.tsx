@@ -87,25 +87,6 @@ export function ShopPage({ store }: ShopPageProps) {
         </TabsList>
 
         <TabsContent value="buy" className="space-y-6">
-          <Card className="border-green-200 bg-green-50/50 dark:border-green-800 dark:bg-green-950/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <ShoppingCart className="h-4 w-4" />
-                Покупка ингредиентов
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm space-y-2">
-              <div className="flex items-start gap-2">
-                <Package className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
-                <span>Все ингредиенты доступны для покупки по полной стоимости</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <Coins className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
-                <span>Цены указаны за единицу товара</span>
-              </div>
-            </CardContent>
-          </Card>
-
           <div className="card-grid-max-2">
             {store.ingredients.map((ingredient) => (
               <motion.div
@@ -126,25 +107,6 @@ export function ShopPage({ store }: ShopPageProps) {
         </TabsContent>
 
         <TabsContent value="sell" className="space-y-6">
-          <Card className="border-blue-200 bg-blue-50/50 dark:border-blue-800 dark:bg-blue-950/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <TrendingUp className="h-4 w-4" />
-                Продажа ингредиентов
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm space-y-2">
-              <div className="flex items-start gap-2">
-                <Package className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" />
-                <span>Продавайте только то, что у вас есть в инвентаре</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <Coins className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" />
-                <span>Цена продажи составляет 50% от стоимости покупки</span>
-              </div>
-            </CardContent>
-          </Card>
-
           {availableIngredients.length === 0 ? (
             <Card>
               <CardContent className="text-center py-8">

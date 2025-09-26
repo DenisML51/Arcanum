@@ -117,29 +117,6 @@ export function ExplorationPage({ store }: ExplorationPageProps) {
 
       <Separator />
 
-      <Card className="border-blue-200 bg-blue-50/50 dark:border-blue-800 dark:bg-blue-950/50">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <MapPin className="h-4 w-4" />
-            Советы исследователю
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm">
-          <div className="flex items-start gap-2">
-            <TrendingUp className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
-            <span>Сложные локации дают более редкие ингредиенты</span>
-          </div>
-          <div className="flex items-start gap-2">
-            <TrendingDown className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" />
-            <span>Легкие локации дешевле и безопаснее для новичков</span>
-          </div>
-          <div className="flex items-start gap-2">
-            <AlertTriangle className="h-4 w-4 text-yellow-500 shrink-0 mt-0.5" />
-            <span>Исследование стоит золота, даже если ничего не найдено</span>
-          </div>
-        </CardContent>
-      </Card>
-
       <div>
         <h3 className="mb-4">Доступные локации</h3>
         {store.biomes.length === 0 ? (
