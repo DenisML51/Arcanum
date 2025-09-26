@@ -68,7 +68,8 @@ const potionBaseOptions = [
   { value: 'spring_water', label: 'Родниковая вода' },
   { value: 'enchanted_ink', label: 'Волшебные чернила' },
   { value: 'thick_magical_ink', label: 'Густые волшебные чернила' },
-  { value: 'dissolved_ether', label: 'Растворённый эфир' }
+  { value: 'dissolved_ether', label: 'Растворённый эфир' },
+  { value: 'irminsul_juice', label: 'Сок Ирминсуля' }
 ];
 
 export function InventoryPage({ store }: InventoryPageProps) {

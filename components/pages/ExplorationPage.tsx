@@ -112,6 +112,10 @@ export function ExplorationPage({ store }: ExplorationPageProps) {
             <Coins className="h-4 w-4" />
             {Math.floor(store.getTotalGold())} золота
           </Badge>
+          <Badge variant="outline" className="gap-1 px-3 py-1">
+            <TrendingUp className="h-4 w-4" />
+            {store.ingredients.length} ингредиентов
+          </Badge>
         </div>
       </div>
 

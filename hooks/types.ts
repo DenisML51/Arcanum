@@ -5,7 +5,7 @@ export type IngredientCategory = 'plant' | 'mineral' | 'creature' | 'other';
 export type AlchemicalElement =
   // Сущность
   | 'time' | 'matter' | 'stasis' | 'space' | 'decay' | 'mind' | 'chaos' | 'energy' | 'sound' | 'radiance' | 'acid' | 'necrotic' | 'fire' | 'foam'
-  // Шкала
+  // Школа
   | 'embodiment' | 'challenge' | 'illusion' | 'necromancy' | 'reflection' | 'enchantment' | 'transmutation' | 'divination' | 'psychic' | 'force' | 'physical' | 'cold' | 'electricity' | 'poison'
   // Вид существа
   | 'aberration' | 'giant' | 'humanoid' | 'dragon' | 'beast' | 'healing' | 'construct' | 'monster' | 'celestial' | 'undead' | 'plant' | 'slime' | 'fey' | 'elemental' | 'fiend'
@@ -392,7 +392,7 @@ export const getPotionBaseDetails = (base: PotionBase): { name: string; shortCod
     case 'enchanted_ink': return { name: 'Волшебные чернила', shortCode: 'ВЧ', color: 'bg-cyan-600' };
     case 'thick_magical_ink': return { name: 'Густые волшебные чернила', shortCode: 'ГВЧ', color: 'bg-cyan-600' };
     case 'dissolved_ether': return { name: 'Растворённый эфир', shortCode: 'РЭ', color: 'bg-cyan-600' };
-    case 'irminsul_juice': return { name: 'Сок Ирминсула', shortCode: 'СИ', color: 'bg-cyan-600' };
+    case 'irminsul_juice': return { name: 'Сок Ирминсуля', shortCode: 'СИ', color: 'bg-orange-600' };
     default: return { name: base, shortCode: '?', color: 'bg-gray-400' };
   }
 };

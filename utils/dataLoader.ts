@@ -1,11 +1,11 @@
 // utils/dataLoader.ts
 
 import type { Ingredient, Recipe, Biome, Equipment } from '../hooks/types';
+import { generateBiomesFromIngredients } from './biomeGenerator';
 
 // Прямой импорт JSON файлов
 import ingredientsData from '../data/ingredients.json';
 import recipesData from '../data/recipes.json';
-import biomesData from '../data/biomes.json';
 import equipmentData from '../data/equipment.json';
 
 // Функции для загрузки данных из JSON файлов
@@ -55,20 +55,15 @@ export async function loadRecipes(): Promise<Recipe[]> {
 
 export async function loadBiomes(): Promise<Biome[]> {
   try {
-    const biomes = biomesData as Biome[];
+    // Загружаем ингредиенты для генерации биомов
+    const ingredients = await loadIngredients();
     
-    // Удаляем дубликаты по ID
-    const uniqueBiomes = biomes.reduce((acc, biome) => {
-      const existingIndex = acc.findIndex(existing => existing.id === biome.id);
-      if (existingIndex === -1) {
-        acc.push(biome);
-      } else {
-        console.warn(`Duplicate biome found with ID: ${biome.id} (${biome.name})`);
-      }
-      return acc;
-    }, [] as Biome[]);
+    // Генерируем биомы на основе ингредиентов
+    const generatedBiomes = generateBiomesFromIngredients(ingredients);
     
-    return uniqueBiomes;
+    console.log(`Generated ${generatedBiomes.length} biomes from ${ingredients.length} ingredients`);
+    
+    return generatedBiomes;
   } catch (error) {
     console.error('Error loading biomes:', error);
     return [];
