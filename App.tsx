@@ -49,9 +49,9 @@ export default function App() {
     }, 300);
   };
 
-  const totalIngredients = Array.isArray(store.ingredients) ? store.ingredients.reduce((sum, ing) => sum + ing.quantity, 0) : 0;
+  const totalIngredients = Array.isArray(store.ingredients) ? store.ingredients.reduce((sum, ing) => sum + (ing.quantity > 0 ? ing.quantity : 0), 0) : 0;
   const laboratoryRecipes = store.getLaboratoryRecipes().length;
-  const totalPotions = Array.isArray(store.potions) ? store.potions.reduce((sum, potion) => sum + potion.quantity, 0) : 0;
+  const totalPotions = Array.isArray(store.potions) ? store.potions.reduce((sum, potion) => sum + (potion.quantity > 0 ? potion.quantity : 0), 0) : 0;
 
   const readyToBrewRecipes = store.getLaboratoryRecipes().filter(recipe => {
     const { canBrew } = store.canBrewRecipe(recipe);

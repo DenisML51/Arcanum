@@ -3,8 +3,9 @@ import { useState, useMemo } from "react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { FlaskConical, Beaker, Zap } from "lucide-react";
+import { FlaskConical, Beaker, Zap, ChevronDown, ChevronRight } from "lucide-react";
 import { CompactCard } from "./CompactCard";
+import { motion, AnimatePresence } from "framer-motion";
 import type { Recipe, Ingredient, RecipeComponent, AlchemicalElement, IngredientType, PotionBase, PotionRarity } from "../../hooks/types";
 import {
     getRarityColor,
@@ -23,6 +24,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { Checkbox } from "../ui/checkbox";
 import { ELEMENT_RANK, getImpurityEffect } from "../../hooks/stores/useAlchemyStore";
+
 
 interface CompactRecipeCardProps {
     recipe: Recipe;
@@ -176,6 +178,7 @@ export function CompactRecipeCard({
     isMagicalDustActive,
     hasMagicalDust
 }: CompactRecipeCardProps) {
+    const [showComponents, setShowComponents] = useState(false);
     const [selectedRarity, setSelectedRarity] = useState<PotionRarity>(recipe.rarity);
     const isUniversal = recipe.recipeType === 'universal';
 
@@ -239,7 +242,7 @@ export function CompactRecipeCard({
         { label: rarityDetails.brewingTimeText, variant: "secondary" as const },
         ...(isInLaboratory ? [
         {
-            label: allComponentsSelectedAndValid ? 'Готово к варке' : 'Выберите ингредиенты',
+            label: allComponentsSelectedAndValid ? 'Готово к варке' : 'Подготовьте',
             className: allComponentsSelectedAndValid
             ? 'bg-green-600 text-white border-none animate-pulse'
             : 'bg-orange-500 text-white border-none',
@@ -366,13 +369,40 @@ export function CompactRecipeCard({
         >
             <div className="space-y-4">
                 {isUniversal && isInLaboratory && (
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Редкость варки</label>
+                    <div className={`relative p-4 bg-gradient-to-br rounded-xl border ${
+                        currentRarity === 'common' ? 'from-gray-50 to-gray-100 dark:from-gray-950/20 dark:to-gray-900/20 border-gray-200 dark:border-gray-800' :
+                        currentRarity === 'uncommon' ? 'from-green-50 to-green-100 dark:from-green-950/20 dark:to-green-900/20 border-green-200 dark:border-green-800' :
+                        currentRarity === 'rare' ? 'from-blue-50 to-blue-100 dark:from-blue-950/20 dark:to-blue-900/20 border-blue-200 dark:border-blue-800' :
+                        currentRarity === 'very rare' ? 'from-purple-50 to-purple-100 dark:from-purple-950/20 dark:to-purple-900/20 border-purple-200 dark:border-purple-800' :
+                        currentRarity === 'legendary' ? 'from-orange-50 to-orange-100 dark:from-orange-950/20 dark:to-orange-900/20 border-orange-200 dark:border-orange-800' :
+                        currentRarity === 'artifact' ? 'from-red-50 to-red-100 dark:from-red-950/20 dark:to-red-900/20 border-red-200 dark:border-red-800' :
+                        'from-gray-50 to-gray-100 dark:from-gray-950/20 dark:to-gray-900/20 border-gray-200 dark:border-gray-800'
+                    }`}>
+                        <div className="absolute top-2 right-2">
+                            <div className={`w-2 h-2 ${rarityColor} rounded-full opacity-60`}></div>
+                        </div>
+                        <div className={`text-xs font-medium mb-3 uppercase tracking-wide ${
+                            currentRarity === 'common' ? 'text-gray-600 dark:text-gray-400' :
+                            currentRarity === 'uncommon' ? 'text-green-600 dark:text-green-400' :
+                            currentRarity === 'rare' ? 'text-blue-600 dark:text-blue-400' :
+                            currentRarity === 'very rare' ? 'text-purple-600 dark:text-purple-400' :
+                            currentRarity === 'legendary' ? 'text-orange-600 dark:text-orange-400' :
+                            currentRarity === 'artifact' ? 'text-red-600 dark:text-red-400' :
+                            'text-gray-600 dark:text-gray-400'
+                        }`}>Редкость варки</div>
                         <Select
                             value={selectedRarity}
                             onValueChange={(value: PotionRarity) => setSelectedRarity(value)}
                         >
-                            <SelectTrigger onClick={(e) => e.stopPropagation()}>
+                            <SelectTrigger onClick={(e) => e.stopPropagation()} className={`bg-white dark:bg-gray-800 ${
+                                currentRarity === 'common' ? 'border-gray-200 dark:border-gray-700' :
+                                currentRarity === 'uncommon' ? 'border-green-200 dark:border-green-700' :
+                                currentRarity === 'rare' ? 'border-blue-200 dark:border-blue-700' :
+                                currentRarity === 'very rare' ? 'border-purple-200 dark:border-purple-700' :
+                                currentRarity === 'legendary' ? 'border-orange-200 dark:border-orange-700' :
+                                currentRarity === 'artifact' ? 'border-red-200 dark:border-red-700' :
+                                'border-gray-200 dark:border-gray-700'
+                            }`}>
                                 <SelectValue placeholder="Выберите редкость" />
                             </SelectTrigger>
                             <SelectContent>
@@ -386,9 +416,12 @@ export function CompactRecipeCard({
                     </div>
                 )}
 
-                <div className="p-3 bg-muted/30 rounded-lg">
-                    <div className="text-xs text-muted-foreground mb-1">Эффект</div>
-                    <div className="text-sm font-medium text-left">{recipe.effect}</div>
+                <div className="relative p-4 bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/20">
+                    <div className="absolute top-2 right-2">
+                        <div className="w-2 h-2 bg-primary rounded-full opacity-60"></div>
+                    </div>
+                    <div className="text-xs font-medium text-primary mb-2 uppercase tracking-wide">Эффект</div>
+                    <div className="text-sm font-medium text-foreground leading-relaxed">{recipe.effect}</div>
                 </div>
                 
                 {recipe.recipeType === 'evolution' && evolutionPeers.length > 1 && (
@@ -413,7 +446,7 @@ export function CompactRecipeCard({
                 )}
 
                 {isInLaboratory && dominantImpurity && impurityEffect && (
-                    <div className="space-y-3 p-3 border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
+                    <div className="space-y-3 p-3 border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-950/20 rounded-xl">
                         <div className="flex items-center gap-2">
                             <Beaker className="h-4 w-4 text-purple-500" />
                             <h4 className="text-sm font-medium text-purple-700 dark:text-purple-300">Потенциальный эффект примеси</h4>
@@ -444,21 +477,46 @@ export function CompactRecipeCard({
 
                 {isInLaboratory && (
                     <div className="space-y-3">
-                        <h4 className="text-sm">Компоненты:</h4>
-                        {recipe.components?.map((component) => (
-                            <ComponentSelector
-                                key={component.id}
-                                component={component}
-                                ingredients={ingredients}
-                                recipeId={recipe.id}
-                                onSelectIngredient={onSelectIngredient}
-                                selectedIngredientId={getSelectedIngredient?.(recipe.id, component.id)}
-                                isUniversal={isUniversal}
-                                selectedRarity={currentRarity}
-                            />
-                        )) || (
-                            <p className="text-sm text-muted-foreground">Нет компонентов</p>
-                        )}
+                        <button
+                            onClick={() => setShowComponents(!showComponents)}
+                            className="flex items-center gap-2 text-sm font-medium text-left hover:text-primary transition-colors"
+                        >
+                            {showComponents ? (
+                                <ChevronDown className="h-4 w-4" />
+                            ) : (
+                                <ChevronRight className="h-4 w-4" />
+                            )}
+                            Выбрать компоненты
+                        </button>
+                        
+                        <AnimatePresence>
+                            {showComponents && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: 'auto', opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={{ duration: 0.2, ease: 'easeInOut' }}
+                                    className="overflow-hidden"
+                                >
+                                    <div className="space-y-3">
+                                        {recipe.components?.map((component) => (
+                                            <ComponentSelector
+                                                key={component.id}
+                                                component={component}
+                                                ingredients={ingredients}
+                                                recipeId={recipe.id}
+                                                onSelectIngredient={onSelectIngredient}
+                                                selectedIngredientId={getSelectedIngredient?.(recipe.id, component.id)}
+                                                isUniversal={isUniversal}
+                                                selectedRarity={currentRarity}
+                                            />
+                                        )) || (
+                                            <p className="text-sm text-muted-foreground">Нет компонентов</p>
+                                        )}
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
                 )}
                 

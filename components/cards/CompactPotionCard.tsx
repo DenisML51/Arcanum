@@ -66,9 +66,13 @@ export function CompactPotionCard({ potion, onQuantityChange, onToggleFavorite }
       className="transition-all hover:shadow-md"
     >
       <div className="space-y-4">
-        <p className="text-sm text-muted-foreground">
-          {potion.description}
-        </p>
+        <div className="relative p-4 bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/20">
+          <div className="absolute top-2 right-2">
+            <div className="w-2 h-2 bg-primary rounded-full opacity-60"></div>
+          </div>
+          <div className="text-xs font-medium text-primary mb-2 uppercase tracking-wide">Эффект</div>
+          <div className="text-sm font-medium text-foreground leading-relaxed">{potion.effect}</div>
+        </div>
 
         {potion.flawEffect && (
           <div className="space-y-2">
@@ -83,7 +87,7 @@ export function CompactPotionCard({ potion, onQuantityChange, onToggleFavorite }
                 </Tooltip>
               <span className="font-medium">Изъян:</span>
             </div>
-            <div className="p-2 rounded text-sm bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800">
+            <div className="p-3 rounded-xl text-sm bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800">
               {potion.flawEffect}
             </div>
           </div>
@@ -102,7 +106,7 @@ export function CompactPotionCard({ potion, onQuantityChange, onToggleFavorite }
               </Tooltip>
               <span className="font-medium">Изысканность:</span>
             </div>
-            <div className="p-2 rounded text-sm bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800">
+            <div className="p-3 rounded-xl text-sm bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800">
               {potion.excellenceEffect}
             </div>
           </div>
@@ -121,21 +125,12 @@ export function CompactPotionCard({ potion, onQuantityChange, onToggleFavorite }
               </Tooltip>
               <span className="font-medium">Эффект примеси:</span>
             </div>
-            <div className="p-2 rounded text-sm bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800">
+            <div className="p-3 rounded-xl text-sm bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800">
               {potion.impurityEffect}
             </div>
           </div>
         )}
 
-        <div className="space-y-2">
-          <div className="flex items-center gap-1 text-sm">
-            <FlaskConical className="h-3 w-3 text-primary" />
-            <span>Эффект:</span>
-          </div>
-          <p className="text-sm bg-muted/50 p-2 rounded">
-            {potion.effect}
-          </p>
-        </div>
 
 
         {potion.tags && potion.tags.length > 0 && (
@@ -151,9 +146,6 @@ export function CompactPotionCard({ potion, onQuantityChange, onToggleFavorite }
           </div>
         )}
 
-        <div className="pt-2 border-t text-xs text-muted-foreground">
-          💡 Измените количество зелий в вашем инвентаре
-        </div>
       </div>
     </CompactCard>
   );

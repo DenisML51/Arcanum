@@ -68,7 +68,7 @@ export function RecipesPage({ store }: RecipesPageProps) {
                 />
             </div>
             <Separator />
-            <Tabs defaultValue="all" className="space-y-6">
+            <Tabs defaultValue="laboratory" className="space-y-6">
                 <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="all">
                         Все рецепты ({filteredRecipes.length})

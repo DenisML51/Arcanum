@@ -83,8 +83,8 @@ export function HomePage({ store, onNavigate }: HomePageProps) {
   }
 
   const successRate = stats.totalBrews > 0 ? (stats.successfulBrews / stats.totalBrews) * 100 : 0;
-  const totalIngredients = ingredients.reduce((sum, ing) => sum + ing.quantity, 0);
-  const totalPotions = potions.reduce((sum, potion) => sum + potion.quantity, 0);
+  const totalIngredients = ingredients.reduce((sum, ing) => sum + (ing.quantity > 0 ? ing.quantity : 0), 0);
+  const totalPotions = potions.reduce((sum, potion) => sum + (potion.quantity > 0 ? potion.quantity : 0), 0);
   const laboratoryRecipes = recipes.filter(r => r.inLaboratory).length;
   const netGold = stats.goldEarned - stats.goldSpent;
 
