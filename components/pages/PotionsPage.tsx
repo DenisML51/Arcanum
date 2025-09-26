@@ -10,6 +10,7 @@ import { Search, Filter, X, FlaskConical } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CompactPotionCard } from "../cards/CompactPotionCard";
 import { useAlchemyStore } from "../../hooks/stores/useAlchemyStore";
+import { FilterDrawer, FilterGroup, FilterCheckbox } from "../common/FilterDrawer";
 
 interface PotionsPageProps {
   store: ReturnType<typeof useAlchemyStore>;
@@ -113,70 +114,50 @@ export function PotionsPage({ store }: PotionsPageProps) {
         />
       </div>
 
-      <AnimatePresence>
-        {showFilters && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="overflow-hidden"
+      <FilterDrawer
+        isOpen={showFilters}
+        onClose={() => setShowFilters(false)}
+        hasActiveFilters={hasActiveFilters}
+        clearAllFilters={clearAllFilters}
+      >
+        <FilterGroup 
+          title="Редкость" 
+          activeCount={store.activeFilters.rarities.length}
+        >
+          {rarityOptions.map((option) => (
+            <FilterCheckbox
+              key={option.value}
+              id={`rarity-${option.value}`}
+              label={option.label}
+              checked={store.activeFilters.rarities.includes(option.value)}
+              onCheckedChange={(checked) => handleRarityFilter(option.value, checked)}
+            />
+          ))}
+        </FilterGroup>
+
+        {allPotionTags.length > 0 && (
+          <FilterGroup 
+            title="Теги зелий"
+            activeCount={store.activeFilters.potionTypes.length}
           >
-            <div className="bg-muted/30 p-4 rounded-lg space-y-4">
-              <div className="flex items-center justify-between">
-                <h3>Фильтры</h3>
-                {hasActiveFilters && (
-                  <Button variant="ghost" size="sm" onClick={clearAllFilters}>
-                    <X className="h-4 w-4 mr-1" />
-                    Очистить все
-                  </Button>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <h4 className="text-sm">Редкость</h4>
-                  <div className="space-y-2">
-                    {rarityOptions.map((option) => (
-                      <div key={option.value} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`rarity-${option.value}`}
-                          checked={store.activeFilters.rarities.includes(option.value)}
-                          onCheckedChange={(checked) => handleRarityFilter(option.value, checked as boolean)}
-                        />
-                        <label htmlFor={`rarity-${option.value}`} className="text-sm">
-                          {option.label}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {allPotionTags.length > 0 && (
-                  <div className="space-y-2 lg:col-span-2">
-                    <h4 className="text-sm">Теги зелий</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {allPotionTags.map((tag) => (
-                        <Badge
-                          key={tag}
-                          variant={store.activeFilters.potionTypes.includes(tag) ? "default" : "outline"}
-                          className="cursor-pointer transition-all hover:scale-105"
-                          onClick={() => handlePotionTypeFilter(tag, !store.activeFilters.potionTypes.includes(tag))}
-                        >
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Нажмите на теги, чтобы фильтровать зелья. Можно выбрать несколько.
-                    </p>
-                  </div>
-                )}
-              </div>
+            <div className="flex flex-wrap gap-2">
+              {allPotionTags.map((tag) => (
+                <Badge
+                  key={tag}
+                  variant={store.activeFilters.potionTypes.includes(tag) ? "default" : "outline"}
+                  className="cursor-pointer transition-all hover:scale-105"
+                  onClick={() => handlePotionTypeFilter(tag, !store.activeFilters.potionTypes.includes(tag))}
+                >
+                  {tag}
+                </Badge>
+              ))}
             </div>
-          </motion.div>
+            <p className="text-xs text-muted-foreground">
+              Нажмите на теги, чтобы фильтровать зелья. Можно выбрать несколько.
+            </p>
+          </FilterGroup>
         )}
-      </AnimatePresence>
+      </FilterDrawer>
 
       <Separator />
 

@@ -13,6 +13,7 @@ import { AllIngredientsCard } from "../cards/AllIngredientsCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAlchemyStore } from "@/hooks/stores/useAlchemyStore.ts";
 import { ALCHEMICAL_ELEMENT_DETAILS } from "@/hooks/types";
+import { FilterDrawer, FilterGroup, FilterCheckbox } from "../common/FilterDrawer";
 
 interface InventoryPageProps {
   store: ReturnType<typeof useAlchemyStore>;
@@ -495,106 +496,118 @@ function InventoryContent({
         />
       </div>
 
-      <AnimatePresence>
-        {showFilters && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="overflow-hidden"
+      <FilterDrawer
+        isOpen={showFilters}
+        onClose={() => setShowFilters(false)}
+        hasActiveFilters={hasActiveFilters}
+        clearAllFilters={clearAllFilters}
+      >
+        <FilterGroup 
+          title="Тип" 
+          activeCount={store.activeFilters.ingredientTypes.length}
+        >
+          {typeOptions.map((option) => (
+            <FilterCheckbox
+              key={option.value}
+              id={`type-${option.value}`}
+              label={option.label}
+              checked={store.activeFilters.ingredientTypes.includes(option.value)}
+              onCheckedChange={(checked) => handleTypeFilter(option.value, checked)}
+            />
+          ))}
+        </FilterGroup>
+
+        <FilterGroup 
+          title="Редкость" 
+          activeCount={store.activeFilters.rarities.length}
+        >
+          {rarityOptions.map((option) => (
+            <FilterCheckbox
+              key={option.value}
+              id={`rarity-${option.value}`}
+              label={option.label}
+              checked={store.activeFilters.rarities.includes(option.value)}
+              onCheckedChange={(checked) => handleRarityFilter(option.value, checked)}
+            />
+          ))}
+        </FilterGroup>
+
+        <FilterGroup 
+          title="Теги"
+          activeCount={store.activeFilters.tags.length}
+        >
+          <div className="max-h-40 overflow-y-auto scrollbar-hide">
+            {allTags.map((tag) => (
+              <FilterCheckbox
+                key={tag}
+                id={`tag-${tag}`}
+                label={tag}
+                checked={store.activeFilters.tags.includes(tag)}
+                onCheckedChange={(checked) => handleTagFilter(tag, checked)}
+              />
+            ))}
+          </div>
+        </FilterGroup>
+
+        <FilterGroup 
+          title={`Элементы (${elementOptions.length})`}
+          activeCount={store.activeFilters.elements.length}
+        >
+          <div className="max-h-40 overflow-y-auto scrollbar-hide">
+            {elementOptions.length === 0 && (
+              <p className="text-xs text-muted-foreground">Элементы не найдены</p>
+            )}
+            {elementOptions.map((option) => (
+              <div key={option.value} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`element-${option.value}`}
+                  checked={store.activeFilters.elements.includes(option.value)}
+                  onCheckedChange={(checked) => handleElementFilter(option.value, checked as boolean)}
+                />
+                <label htmlFor={`element-${option.value}`} className="text-sm flex items-center gap-2">
+                  <span className={`w-3 h-3 rounded-full ${option.color}`}></span>
+                  <span>{option.label}</span>
+                  <span className="text-xs text-muted-foreground">({option.category})</span>
+                </label>
+              </div>
+            ))}
+          </div>
+        </FilterGroup>
+
+        <FilterGroup 
+          title="Базы зелий"
+          activeCount={store.activeFilters.potionBases.length}
+        >
+          {potionBaseOptions.map((option) => (
+            <FilterCheckbox
+              key={option.value}
+              id={`potion-base-${option.value}`}
+              label={option.label}
+              checked={store.activeFilters.potionBases.includes(option.value)}
+              onCheckedChange={(checked) => handlePotionBaseFilter(option.value, checked)}
+            />
+          ))}
+        </FilterGroup>
+
+        {recipesInLab.length > 0 && (
+          <FilterGroup 
+            title="Нужны для рецептов"
+            activeCount={store.activeFilters.availableForRecipes.length}
           >
-            <div className="bg-muted/30 p-4 rounded-lg space-y-4">
-              <div className="flex items-center justify-between">
-                <h3>Фильтры</h3>
-                {hasActiveFilters && (
-                  <Button variant="ghost" size="sm" onClick={clearAllFilters}>
-                    <X className="h-4 w-4 mr-1" />
-                    Очистить все
-                  </Button>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-                <div className="space-y-2">
-                  <h4 className="text-sm">Тип</h4>
-                  <div className="space-y-2">
-                    {typeOptions.map((option) => (
-                      <div key={option.value} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`type-${option.value}`}
-                          checked={store.activeFilters.ingredientTypes.includes(option.value)}
-                          onCheckedChange={(checked) => handleTypeFilter(option.value, checked as boolean)}
-                        />
-                        <label htmlFor={`type-${option.value}`} className="text-sm">
-                          {option.label}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <h4 className="text-sm">Редкость</h4>
-                  <div className="space-y-2">
-                    {rarityOptions.map((option) => (
-                      <div key={option.value} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`rarity-${option.value}`}
-                          checked={store.activeFilters.rarities.includes(option.value)}
-                          onCheckedChange={(checked) => handleRarityFilter(option.value, checked as boolean)}
-                        />
-                        <label htmlFor={`rarity-${option.value}`} className="text-sm">
-                          {option.label}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <h4 className="text-sm">Теги</h4>
-                  <div className="space-y-2 max-h-40 overflow-y-auto scrollbar-hide">
-                    {allTags.map((tag) => (
-                      <div key={tag} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`tag-${tag}`}
-                          checked={store.activeFilters.tags.includes(tag)}
-                          onCheckedChange={(checked) => handleTagFilter(tag, checked as boolean)}
-                        />
-                        <label htmlFor={`tag-${tag}`} className="text-sm">
-                          {tag}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-
-                {recipesInLab.length > 0 && (
-                  <div className="space-y-2">
-                    <h4 className="text-sm">Нужны для рецептов</h4>
-                    <div className="space-y-2 max-h-40 overflow-y-auto scrollbar-hide">
-                      {recipesInLab.map((recipe) => (
-                        <div key={recipe.id} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`recipe-${recipe.id}`}
-                            checked={store.activeFilters.availableForRecipes.includes(recipe.id)}
-                            onCheckedChange={() => handleRecipeFilter(recipe.id)}
-                          />
-                          <label htmlFor={`recipe-${recipe.id}`} className="text-sm">
-                            {recipe.name}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+            <div className="max-h-40 overflow-y-auto scrollbar-hide">
+              {recipesInLab.map((recipe) => (
+                <FilterCheckbox
+                  key={recipe.id}
+                  id={`recipe-${recipe.id}`}
+                  label={recipe.name}
+                  checked={store.activeFilters.availableForRecipes.includes(recipe.id)}
+                  onCheckedChange={() => handleRecipeFilter(recipe.id)}
+                />
+              ))}
             </div>
-          </motion.div>
+          </FilterGroup>
         )}
-      </AnimatePresence>
+      </FilterDrawer>
 
       <Separator />
 
@@ -760,146 +773,118 @@ function AllIngredientsContent({
         />
       </div>
 
-      <AnimatePresence>
-        {showFilters && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="overflow-hidden"
+      <FilterDrawer
+        isOpen={showFilters}
+        onClose={() => setShowFilters(false)}
+        hasActiveFilters={hasActiveFilters}
+        clearAllFilters={clearAllFilters}
+      >
+        <FilterGroup 
+          title="Тип" 
+          activeCount={store.activeFilters.ingredientTypes.length}
+        >
+          {typeOptions.map((option) => (
+            <FilterCheckbox
+              key={option.value}
+              id={`type-${option.value}`}
+              label={option.label}
+              checked={store.activeFilters.ingredientTypes.includes(option.value)}
+              onCheckedChange={(checked) => handleTypeFilter(option.value, checked)}
+            />
+          ))}
+        </FilterGroup>
+
+        <FilterGroup 
+          title="Редкость" 
+          activeCount={store.activeFilters.rarities.length}
+        >
+          {rarityOptions.map((option) => (
+            <FilterCheckbox
+              key={option.value}
+              id={`rarity-${option.value}`}
+              label={option.label}
+              checked={store.activeFilters.rarities.includes(option.value)}
+              onCheckedChange={(checked) => handleRarityFilter(option.value, checked)}
+            />
+          ))}
+        </FilterGroup>
+
+        <FilterGroup 
+          title="Теги"
+          activeCount={store.activeFilters.tags.length}
+        >
+          <div className="max-h-40 overflow-y-auto scrollbar-hide">
+            {allTags.map((tag) => (
+              <FilterCheckbox
+                key={tag}
+                id={`tag-${tag}`}
+                label={tag}
+                checked={store.activeFilters.tags.includes(tag)}
+                onCheckedChange={(checked) => handleTagFilter(tag, checked)}
+              />
+            ))}
+          </div>
+        </FilterGroup>
+
+        <FilterGroup 
+          title={`Элементы (${elementOptions.length})`}
+          activeCount={store.activeFilters.elements.length}
+        >
+          <div className="max-h-40 overflow-y-auto scrollbar-hide">
+            {elementOptions.length === 0 && (
+              <p className="text-xs text-muted-foreground">Элементы не найдены</p>
+            )}
+            {elementOptions.map((option) => (
+              <div key={option.value} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`element-${option.value}`}
+                  checked={store.activeFilters.elements.includes(option.value)}
+                  onCheckedChange={(checked) => handleElementFilter(option.value, checked as boolean)}
+                />
+                <label htmlFor={`element-${option.value}`} className="text-sm flex items-center gap-2">
+                  <span className={`w-3 h-3 rounded-full ${option.color}`}></span>
+                  <span>{option.label}</span>
+                  <span className="text-xs text-muted-foreground">({option.category})</span>
+                </label>
+              </div>
+            ))}
+          </div>
+        </FilterGroup>
+
+        <FilterGroup 
+          title="Базы зелий"
+          activeCount={store.activeFilters.potionBases.length}
+        >
+          {potionBaseOptions.map((option) => (
+            <FilterCheckbox
+              key={option.value}
+              id={`base-${option.value}`}
+              label={option.label}
+              checked={store.activeFilters.potionBases.includes(option.value)}
+              onCheckedChange={(checked) => handlePotionBaseFilter(option.value, checked)}
+            />
+          ))}
+        </FilterGroup>
+
+        {recipesInLab.length > 0 && (
+          <FilterGroup 
+            title="Нужны для рецептов"
+            activeCount={store.activeFilters.availableForRecipes.length}
           >
-            <div className="bg-muted/30 p-4 rounded-lg space-y-4">
-              <div className="flex items-center justify-between">
-                <h3>Фильтры</h3>
-                {hasActiveFilters && (
-                  <Button variant="ghost" size="sm" onClick={clearAllFilters}>
-                    <X className="h-4 w-4 mr-1" />
-                    Очистить все
-                  </Button>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-                <div className="space-y-2">
-                  <h4 className="text-sm">Тип</h4>
-                  <div className="space-y-2">
-                    {typeOptions.map((option) => (
-                      <div key={option.value} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`type-${option.value}`}
-                          checked={store.activeFilters.ingredientTypes.includes(option.value)}
-                          onCheckedChange={(checked) => handleTypeFilter(option.value, checked as boolean)}
-                        />
-                        <label htmlFor={`type-${option.value}`} className="text-sm">
-                          {option.label}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <h4 className="text-sm">Редкость</h4>
-                  <div className="space-y-2">
-                    {rarityOptions.map((option) => (
-                      <div key={option.value} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`rarity-${option.value}`}
-                          checked={store.activeFilters.rarities.includes(option.value)}
-                          onCheckedChange={(checked) => handleRarityFilter(option.value, checked as boolean)}
-                        />
-                        <label htmlFor={`rarity-${option.value}`} className="text-sm">
-                          {option.label}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <h4 className="text-sm">Теги</h4>
-                  <div className="space-y-2 max-h-40 overflow-y-auto scrollbar-hide">
-                    {allTags.map((tag) => (
-                      <div key={tag} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`tag-${tag}`}
-                          checked={store.activeFilters.tags.includes(tag)}
-                          onCheckedChange={(checked) => handleTagFilter(tag, checked as boolean)}
-                        />
-                        <label htmlFor={`tag-${tag}`} className="text-sm">
-                          {tag}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <h4 className="text-sm">Элементы ({elementOptions.length})</h4>
-                  <div className="space-y-2 max-h-40 overflow-y-auto scrollbar-hide">
-                    {elementOptions.length === 0 && (
-                      <p className="text-xs text-muted-foreground">Элементы не найдены</p>
-                    )}
-                    {elementOptions.map((option) => (
-                      <div key={option.value} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`element-${option.value}`}
-                          checked={store.activeFilters.elements.includes(option.value)}
-                          onCheckedChange={(checked) => handleElementFilter(option.value, checked as boolean)}
-                        />
-                        <label htmlFor={`element-${option.value}`} className="text-sm flex items-center gap-2">
-                          <span className={`w-3 h-3 rounded-full ${option.color}`}></span>
-                          <span>{option.label}</span>
-                          <span className="text-xs text-muted-foreground">({option.category})</span>
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <h4 className="text-sm">Базы зелий</h4>
-                  <div className="space-y-2">
-                    {potionBaseOptions.map((option) => (
-                      <div key={option.value} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`base-${option.value}`}
-                          checked={store.activeFilters.potionBases.includes(option.value)}
-                          onCheckedChange={(checked) => handlePotionBaseFilter(option.value, checked as boolean)}
-                        />
-                        <label htmlFor={`base-${option.value}`} className="text-sm">
-                          {option.label}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {recipesInLab.length > 0 && (
-                  <div className="space-y-2">
-                    <h4 className="text-sm">Нужны для рецептов</h4>
-                    <div className="space-y-2 max-h-40 overflow-y-auto scrollbar-hide">
-                      {recipesInLab.map((recipe) => (
-                        <div key={recipe.id} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`recipe-${recipe.id}`}
-                            checked={store.activeFilters.availableForRecipes.includes(recipe.id)}
-                            onCheckedChange={() => handleRecipeFilter(recipe.id)}
-                          />
-                          <label htmlFor={`recipe-${recipe.id}`} className="text-sm">
-                            {recipe.name}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+            <div className="max-h-40 overflow-y-auto scrollbar-hide">
+              {recipesInLab.map((recipe) => (
+                <FilterCheckbox
+                  key={recipe.id}
+                  id={`recipe-${recipe.id}`}
+                  label={recipe.name}
+                  checked={store.activeFilters.availableForRecipes.includes(recipe.id)}
+                  onCheckedChange={() => handleRecipeFilter(recipe.id)}
+                />
+              ))}
             </div>
-          </motion.div>
+          </FilterGroup>
         )}
-      </AnimatePresence>
+      </FilterDrawer>
 
       <Separator />
 
