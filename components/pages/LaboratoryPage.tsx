@@ -10,6 +10,7 @@ import { CompactRecipeCard } from "../cards/CompactRecipeCard";
 import { FlaskConical, Package, AlertTriangle, CheckCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAlchemyStore } from "../../hooks/stores/useAlchemyStore";
+import type { PotionRarity } from "../../hooks/types";
 
 interface LaboratoryPageProps {
   store: ReturnType<typeof useAlchemyStore>;
@@ -35,10 +36,10 @@ export function LaboratoryPage({ store }: LaboratoryPageProps) {
     }, 3000);
   }, []);
 
-  const handleBrew = (recipeId: string) => {
+  const handleBrew = (recipeId: string, brewingRarity?: PotionRarity) => {
     const recipe = store.recipes.find(r => r.id === recipeId);
     if (!recipe) return;
-    const result = store.brewPotion(recipe);
+    const result = store.brewPotion(recipe, brewingRarity || recipe.rarity);
     if (result.success) {
       addNotification(result.message, 'success');
     } else {
@@ -171,8 +172,9 @@ export function LaboratoryPage({ store }: LaboratoryPageProps) {
                   <CompactRecipeCard
                     recipe={recipe}
                     ingredients={store.ingredients}
+                    allRecipes={store.recipes}
                     onToggleLaboratory={(recipeId) => store.removeRecipeFromLaboratory(recipeId)}
-                    onBrew={handleBrew}
+                    onBrew={(recipeId, brewingRarity) => handleBrew(recipeId, brewingRarity)}
                     canBrew={isBrewingMode}
                     characterBonus={totalCharacterBonus}
                     isInLaboratory={true}

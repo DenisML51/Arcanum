@@ -12,6 +12,14 @@ export type AlchemicalElement =
   // Дополнительные
   | 'protection';
 
+export const POTION_BASE_RARITIES: Record<PotionBase, PotionRarity> = {
+    'spring_water': 'common',
+    'enchanted_ink': 'uncommon',
+    'thick_magical_ink': 'rare',
+    'dissolved_ether': 'very rare',
+    'irminsul_juice': 'legendary'
+};
+
 export const ALCHEMICAL_ELEMENT_DETAILS: Record<AlchemicalElement, { name: string; shortCode: string; category: string; color: string; }> = {
   // Сущность
   'time': { name: 'Время', shortCode: 'В', category: 'Сущность', color: 'bg-indigo-500' },
@@ -71,6 +79,7 @@ export type IngredientType = IngredientCategory | PotionBase;
 export type PotionRarity = 'common' | 'uncommon' | 'rare' | 'very rare' | 'legendary' | 'artifact';
 export type PotionType = 'oil' | 'elixir' | 'potion';
 export type PotionQuality = 'low' | 'common' | 'high';
+export type RecipeType = 'unchanging' | 'universal' | 'evolution';
 
 export interface Ingredient {
   id: string;
@@ -116,6 +125,9 @@ export interface Recipe {
   savingThrowType?: 'constitution' | 'wisdom' | 'charisma' | 'dexterity' | 'none';
   inLaboratory: boolean;
   cost: number;
+  recipeType: RecipeType; 
+  evolutionId?: string; 
+  availableRarities?: PotionRarity[];
 }
 
 export interface Potion {
@@ -213,6 +225,8 @@ export interface Filters {
   search: string;
   availableForRecipes: string[];
   potionTypes: string[];
+  elements: string[];
+  potionBases: string[];
 }
 
 export const getPotionTypeName = (type: PotionType): string => {

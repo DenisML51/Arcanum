@@ -17,7 +17,9 @@ const defaultFilters: Filters = {
   tags: [],
   search: '',
   availableForRecipes: [],
-  potionTypes: []
+  potionTypes: [],
+  elements: [],
+  potionBases: []
 };
 
 const STORAGE_KEY = 'alchemy-filters';
@@ -70,7 +72,9 @@ export function useFiltersStore(): FiltersStore {
       filters.rarities.length > 0 ||
       filters.tags.length > 0 ||
       filters.availableForRecipes.length > 0 ||
-      filters.potionTypes.length > 0
+      filters.potionTypes.length > 0 ||
+      filters.elements.length > 0 ||
+      filters.potionBases.length > 0
     );
   };
 

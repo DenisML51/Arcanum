@@ -12,18 +12,21 @@ import { CompactIngredientCard } from "../cards/CompactIngredientCard";
 import { AllIngredientsCard } from "../cards/AllIngredientsCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAlchemyStore } from "@/hooks/stores/useAlchemyStore.ts";
+import { ALCHEMICAL_ELEMENT_DETAILS } from "@/hooks/types";
 
 interface InventoryPageProps {
   store: ReturnType<typeof useAlchemyStore>;
 }
 
 const typeOptions = [
-  { value: 'herb', label: 'Растения' },
+  { value: 'plant', label: 'Растения' },
   { value: 'mineral', label: 'Минералы' },
   { value: 'creature', label: 'Существа' },
-  { value: 'essence', label: 'Эссенции' },
-  { value: 'oil', label: 'Масла' },
-  { value: 'crystal', label: 'Кристаллы' }
+  { value: 'other', label: 'Иное' },
+  { value: 'spring_water', label: 'Родниковая вода' },
+  { value: 'enchanted_ink', label: 'Волшебные чернила' },
+  { value: 'thick_magical_ink', label: 'Густые волшебные чернила' },
+  { value: 'dissolved_ether', label: 'Растворённый эфир' }
 ];
 
 const rarityOptions = [
@@ -32,6 +35,39 @@ const rarityOptions = [
   { value: 'rare', label: 'Редкие' },
   { value: 'very rare', label: 'Очень редкие' },
   { value: 'legendary', label: 'Легендарные' }
+];
+
+// Получаем все уникальные элементы из данных ингредиентов
+const getElementOptions = (ingredients: any[]) => {
+  const allElements = new Set<string>();
+  ingredients.forEach(ingredient => {
+    if (ingredient.elements && Array.isArray(ingredient.elements)) {
+      ingredient.elements.forEach((element: string) => {
+        if (element && element.trim()) { // Проверяем, что элемент не пустой
+          allElements.add(element);
+        }
+      });
+    }
+  });
+  
+  
+  return Array.from(allElements).sort().map(element => {
+    // Используем детали элементов из types.ts
+    const elementDetails = ALCHEMICAL_ELEMENT_DETAILS[element as any];
+    return {
+      value: element,
+      label: elementDetails ? `${elementDetails.name} (${elementDetails.shortCode})` : element,
+      category: elementDetails?.category || 'Неизвестно',
+      color: elementDetails?.color || 'bg-gray-400'
+    };
+  });
+};
+
+const potionBaseOptions = [
+  { value: 'spring_water', label: 'Родниковая вода' },
+  { value: 'enchanted_ink', label: 'Волшебные чернила' },
+  { value: 'thick_magical_ink', label: 'Густые волшебные чернила' },
+  { value: 'dissolved_ether', label: 'Растворённый эфир' }
 ];
 
 export function InventoryPage({ store }: InventoryPageProps) {
@@ -62,6 +98,24 @@ export function InventoryPage({ store }: InventoryPageProps) {
       
       if (filters.tags.length > 0 && !filters.tags.some(tag => ingredient.tags.includes(tag))) {
         return false;
+      }
+      
+      // Фильтрация по элементам
+      if (filters.elements && filters.elements.length > 0) {
+        const hasAnyElement = filters.elements.some(element => 
+          ingredient.elements && ingredient.elements.includes(element as any)
+        );
+        if (!hasAnyElement) {
+          return false;
+        }
+      }
+      
+      // Фильтрация по базам зелий
+      if (filters.potionBases && filters.potionBases.length > 0) {
+        const isPotionBase = ingredient.isBase && filters.potionBases.includes(ingredient.type);
+        if (!isPotionBase) {
+          return false;
+        }
       }
       
       if (filters.availableForRecipes.length > 0) {
@@ -138,6 +192,12 @@ export function InventoryPage({ store }: InventoryPageProps) {
     Array.isArray(filteredIngredients) ? filteredIngredients.flatMap(ing => ing.tags || []) : []
   ));
 
+  // Получаем опции элементов из всех ингредиентов
+  const elementOptions = useMemo(() => {
+    const allIngredients = store.allIngredients || [];
+    return getElementOptions(allIngredients);
+  }, [store.allIngredients]);
+
   const handleTypeFilter = (type: string, checked: boolean) => {
     const newTypes = checked
       ? [...store.activeFilters.ingredientTypes, type]
@@ -164,6 +224,20 @@ export function InventoryPage({ store }: InventoryPageProps) {
       ? store.activeFilters.availableForRecipes.filter(id => id !== recipeId)
       : [...store.activeFilters.availableForRecipes, recipeId];
     store.updateFilter('availableForRecipes', newRecipes);
+  };
+
+  const handleElementFilter = (element: string, checked: boolean) => {
+    const newElements = checked
+      ? [...store.activeFilters.elements, element]
+      : store.activeFilters.elements.filter(e => e !== element);
+    store.updateFilter('elements', newElements);
+  };
+
+  const handlePotionBaseFilter = (base: string, checked: boolean) => {
+    const newBases = checked
+      ? [...store.activeFilters.potionBases, base]
+      : store.activeFilters.potionBases.filter(b => b !== base);
+    store.updateFilter('potionBases', newBases);
   };
 
   const addNotification = useCallback((message: string, type: 'success' | 'error' = 'success') => {
@@ -228,6 +302,8 @@ export function InventoryPage({ store }: InventoryPageProps) {
     store.updateFilter('tags', []);
     store.updateFilter('search', '');
     store.updateFilter('availableForRecipes', []);
+    store.updateFilter('elements', []);
+    store.updateFilter('potionBases', []);
   };
 
   const hasActiveFilters =
@@ -235,7 +311,9 @@ export function InventoryPage({ store }: InventoryPageProps) {
     store.activeFilters.rarities.length > 0 ||
     store.activeFilters.tags.length > 0 ||
     store.activeFilters.search.length > 0 ||
-    store.activeFilters.availableForRecipes.length > 0;
+    store.activeFilters.availableForRecipes.length > 0 ||
+    store.activeFilters.elements.length > 0 ||
+    store.activeFilters.potionBases.length > 0;
 
   return (
     <div className="space-y-6">
@@ -296,8 +374,12 @@ export function InventoryPage({ store }: InventoryPageProps) {
             handleRarityFilter={handleRarityFilter}
             handleTagFilter={handleTagFilter}
             handleRecipeFilter={handleRecipeFilter}
+            handleElementFilter={handleElementFilter}
+            handlePotionBaseFilter={handlePotionBaseFilter}
             typeOptions={typeOptions}
             rarityOptions={rarityOptions}
+            elementOptions={elementOptions}
+            potionBaseOptions={potionBaseOptions}
           />
         </TabsContent>
 
@@ -315,10 +397,14 @@ export function InventoryPage({ store }: InventoryPageProps) {
             handleRarityFilter={handleRarityFilter}
             handleTagFilter={handleTagFilter}
             handleRecipeFilter={handleRecipeFilter}
+            handleElementFilter={handleElementFilter}
+            handlePotionBaseFilter={handlePotionBaseFilter}
             handleAddIngredient={handleAddIngredient}
             handleRemoveIngredient={handleRemoveIngredient}
             typeOptions={typeOptions}
             rarityOptions={rarityOptions}
+            elementOptions={elementOptions}
+            potionBaseOptions={potionBaseOptions}
           />
         </TabsContent>
       </Tabs>
@@ -370,9 +456,13 @@ function InventoryContent({
   handleTypeFilter, 
   handleRarityFilter, 
   handleTagFilter, 
-  handleRecipeFilter, 
+  handleRecipeFilter,
+  handleElementFilter,
+  handlePotionBaseFilter,
   typeOptions, 
-  rarityOptions 
+  rarityOptions,
+  elementOptions,
+  potionBaseOptions
 }: {
   filteredIngredients: any[];
   store: any;
@@ -386,8 +476,12 @@ function InventoryContent({
   handleRarityFilter: (rarity: string, checked: boolean) => void;
   handleTagFilter: (tag: string, checked: boolean) => void;
   handleRecipeFilter: (recipeId: string) => void;
+  handleElementFilter: (element: string, checked: boolean) => void;
+  handlePotionBaseFilter: (base: string, checked: boolean) => void;
   typeOptions: any[];
   rarityOptions: any[];
+  elementOptions: any[];
+  potionBaseOptions: any[];
 }) {
   return (
     <>
@@ -476,6 +570,7 @@ function InventoryContent({
                   </div>
                 </div>
 
+
                 {recipesInLab.length > 0 && (
                   <div className="space-y-2">
                     <h4 className="text-sm">Нужны для рецептов</h4>
@@ -540,6 +635,16 @@ function InventoryContent({
               {store.activeFilters.tags.length > 2 && (
                 <Badge variant="secondary" className="text-xs">
                   +{store.activeFilters.tags.length - 2} тегов
+                </Badge>
+              )}
+              {store.activeFilters.elements.length > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  {store.activeFilters.elements.length} элементов
+                </Badge>
+              )}
+              {store.activeFilters.potionBases.length > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  {store.activeFilters.potionBases.length} баз
                 </Badge>
               )}
               {store.activeFilters.availableForRecipes.slice(0, 1).map(recipeId => {
@@ -612,11 +717,15 @@ function AllIngredientsContent({
   handleTypeFilter, 
   handleRarityFilter, 
   handleTagFilter, 
-  handleRecipeFilter, 
+  handleRecipeFilter,
+  handleElementFilter,
+  handlePotionBaseFilter,
   handleAddIngredient,
   handleRemoveIngredient,
   typeOptions, 
-  rarityOptions 
+  rarityOptions,
+  elementOptions,
+  potionBaseOptions
 }: {
   filteredIngredients: any[];
   store: any;
@@ -630,10 +739,14 @@ function AllIngredientsContent({
   handleRarityFilter: (rarity: string, checked: boolean) => void;
   handleTagFilter: (tag: string, checked: boolean) => void;
   handleRecipeFilter: (recipeId: string) => void;
+  handleElementFilter: (element: string, checked: boolean) => void;
+  handlePotionBaseFilter: (base: string, checked: boolean) => void;
   handleAddIngredient: (id: string) => void;
   handleRemoveIngredient: (id: string) => void;
   typeOptions: any[];
   rarityOptions: any[];
+  elementOptions: any[];
+  potionBaseOptions: any[];
 }) {
   return (
     <>
@@ -722,6 +835,47 @@ function AllIngredientsContent({
                   </div>
                 </div>
 
+                <div className="space-y-2">
+                  <h4 className="text-sm">Элементы ({elementOptions.length})</h4>
+                  <div className="space-y-2 max-h-40 overflow-y-auto scrollbar-hide">
+                    {elementOptions.length === 0 && (
+                      <p className="text-xs text-muted-foreground">Элементы не найдены</p>
+                    )}
+                    {elementOptions.map((option) => (
+                      <div key={option.value} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`element-${option.value}`}
+                          checked={store.activeFilters.elements.includes(option.value)}
+                          onCheckedChange={(checked) => handleElementFilter(option.value, checked as boolean)}
+                        />
+                        <label htmlFor={`element-${option.value}`} className="text-sm flex items-center gap-2">
+                          <span className={`w-3 h-3 rounded-full ${option.color}`}></span>
+                          <span>{option.label}</span>
+                          <span className="text-xs text-muted-foreground">({option.category})</span>
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <h4 className="text-sm">Базы зелий</h4>
+                  <div className="space-y-2">
+                    {potionBaseOptions.map((option) => (
+                      <div key={option.value} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`base-${option.value}`}
+                          checked={store.activeFilters.potionBases.includes(option.value)}
+                          onCheckedChange={(checked) => handlePotionBaseFilter(option.value, checked as boolean)}
+                        />
+                        <label htmlFor={`base-${option.value}`} className="text-sm">
+                          {option.label}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 {recipesInLab.length > 0 && (
                   <div className="space-y-2">
                     <h4 className="text-sm">Нужны для рецептов</h4>
@@ -786,6 +940,16 @@ function AllIngredientsContent({
               {store.activeFilters.tags.length > 2 && (
                 <Badge variant="secondary" className="text-xs">
                   +{store.activeFilters.tags.length - 2} тегов
+                </Badge>
+              )}
+              {store.activeFilters.elements.length > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  {store.activeFilters.elements.length} элементов
+                </Badge>
+              )}
+              {store.activeFilters.potionBases.length > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  {store.activeFilters.potionBases.length} баз
                 </Badge>
               )}
               {store.activeFilters.availableForRecipes.slice(0, 1).map(recipeId => {

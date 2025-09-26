@@ -30,6 +30,21 @@
     "isBase": true
   },
   {
+    "id": "spring_water",
+    "name": "Родниковая вода",
+    "description": "Чистая вода из источника.",
+    "type": "spring_water",
+    "category": "other",
+    "elements": [],
+    "rarity": "common",
+    "tags": ["база", "концентрат", "магия"],
+    "cost": 5,
+    "weight": 0.8,
+    "locations": ["Под водой", "Вода"],
+    "quantity": 0,
+    "isBase": true
+  },
+  {
     "id": "mountain_crystal",
     "name": "Горный хрусталь",
     "description": "Прозрачный кристалл, часто используемый в некромантических ритуалах.",
@@ -230,5 +245,75 @@
     "weight": 0.1,
     "locations": ["Верхние планы"],
     "quantity": 5
+  },
+  {
+    "id": "sea_salt",
+    "name": "Соль морская",
+    "description": "Кристаллы соли, выпаренные из морской воды. Часто используются в ритуалах очищения и преобразования.",
+    "type": "mineral",
+    "category": "mineral",
+    "elements": ["transmutation"],
+    "rarity": "common",
+    "tags": ["минерал", "преобразование", "очищение"],
+    "cost": 12,
+    "weight": 0.1,
+    "locations": ["Лавки торговцев", "Побережье"],
+    "quantity": 0
+  },
+  {
+    "id": "sugar_flower_pollen",
+    "name": "Цветка-сахарка пыльца",
+    "description": "Сладкая пыльца, укрепляющая физическое состояние.",
+    "type": "plant",
+    "category": "plant",
+    "elements": ["physical"],
+    "rarity": "common",
+    "tags": ["растение", "пыльца", "усиление"],
+    "cost": 3,
+    "weight": 0.1,
+    "locations": ["Луг", "Холмы"],
+    "quantity": 0
+  },
+  {
+    "id": "blue_clay",
+    "name": "Глина голубая",
+    "description": "Плотная глина с голубоватым оттенком, основа многих материальных компонентов.",
+    "type": "mineral",
+    "category": "mineral",
+    "elements": ["matter"],
+    "rarity": "common",
+    "tags": ["минерал", "материя", "основа"],
+    "cost": 32,
+    "weight": 0.5,
+    "locations": ["Побережье", "Под водой"],
+    "quantity": 0
+  },
+  {
+    "id": "herbal_collection",
+    "name": "Травяной сбор",
+    "description": "Смесь различных трав, обладающих защитными свойствами. Используется как логическая замена отсутствующему исцеляющему компоненту.",
+    "type": "plant",
+    "category": "plant",
+    "elements": ["reflection"],
+    "rarity": "common",
+    "tags": ["растение", "защита", "сбор"],
+    "cost": 12,
+    "weight": 0.2,
+    "locations": ["Везде, кроме Пустыни и Под водой"],
+    "quantity": 0
+  },
+  {
+    "id": "resin",
+    "name": "Камедь",
+    "description": "Застывшая смола деревьев, слабо светящаяся в темноте.",
+    "type": "plant",
+    "category": "plant",
+    "elements": ["radiance"],
+    "rarity": "common",
+    "tags": ["растение", "смола", "свет"],
+    "cost": 1,
+    "weight": 0.1,
+    "locations": ["Болото", "Лес"],
+    "quantity": 0
   }
 ]

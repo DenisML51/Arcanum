@@ -6,7 +6,7 @@ import { useCharacterStore } from './useCharacterStore';
 import { useDataStore } from './useDataStore';
 import { useFiltersStore } from './useFiltersStore';
 import { useIngredientSelectionStore } from './useIngredientSelectionStore';
-import type { Recipe, Potion, AlchemicalElement } from '../types';
+import type { Recipe, Potion, AlchemicalElement, PotionRarity } from '../types';
 import { getRarityDetails, getAlchemicalElementName } from '../types';
 
 const FLAW_TABLE = [
@@ -149,12 +149,12 @@ export function useAlchemyStore() {
     return { success: true, quality: 'standard', rollResults };
   };
 
-  const brewPotion = (recipe: Recipe): { success: boolean; message: string; potion?: Potion } => {
+  const brewPotion = (recipe: Recipe, brewingRarity: PotionRarity): { success: boolean; message: string; potion?: Potion } => {
     if (!canBrewRecipe(recipe).canBrew) {
       return { success: false, message: `Недостаточно ингредиентов: ${canBrewRecipe(recipe).missingIngredients.join(', ')}` };
     }
 
-    const rarityDetails = getRarityDetails(recipe.rarity);
+    const rarityDetails = getRarityDetails(brewingRarity);
     const targetDifficulty = 5 * rarityDetails.rarityModifier + 5 + recipe.components.length;
     const brewResult = determineBrewedQuality(targetDifficulty, character.character.brewingMode);
 
@@ -213,7 +213,7 @@ export function useAlchemyStore() {
         name: `Испорченное ${recipe.name}`,
         description: recipe.description,
         effect: "Эффект непредсказуем из-за неудачной варки.",
-        rarity: recipe.rarity,
+        rarity: brewingRarity,
         potionType: recipe.potionType,
         potionQuality: recipe.potionQuality,
         brewedQuality: 'poor',
@@ -235,7 +235,7 @@ export function useAlchemyStore() {
       name: recipe.name,
       description: recipe.description,
       effect: recipe.effect,
-      rarity: recipe.rarity,
+      rarity: brewingRarity,
       potionType: recipe.potionType,
       potionQuality: recipe.potionQuality,
       brewedQuality: brewResult.quality,

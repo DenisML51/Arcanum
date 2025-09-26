@@ -7,6 +7,7 @@
     "rarity": "rare",
     "potionType": "potion",
     "potionQuality": "high",
+    "recipeType": "unchanging",
     "tags": ["некромантия", "нежить", "контроль"],
     "inLaboratory": false,
     "cost": 1808,
@@ -202,5 +203,235 @@
       "types": []
     }
   ]
-}
+},
+  {
+    "id": "potion_of_healing",
+    "evolutionId": "healing_potion_line",
+    "name": "Лечения зелье",
+    "description": "Классическое зелье, восстанавливающее жизненные силы.",
+    "effect": "Восстанавливает 2к4 + 2 хита.",
+    "rarity": "common",
+    "potionType": "potion",
+    "potionQuality": "common",
+    "recipeType": "evolution",
+    "tags": ["лечение", "исцеление", "эволюция"],
+    "inLaboratory": false,
+    "cost": 41,
+    "components": [
+      {
+        "id": "c_base_rw",
+        "name": "База (Обычная)",
+        "description": "Родниковая вода для обычного зелья.",
+        "quantity": 1,
+        "requiredElements": [],
+        "categories": ["other"],
+        "tags": ["база"],
+        "types": ["spring_water"]
+      },
+      {
+        "id": "c_matter",
+        "name": "Компонент Материи",
+        "description": "Ингредиент, несущий в себе сущность Материи (М).",
+        "quantity": 1,
+        "requiredElements": ["matter"],
+        "categories": [],
+        "tags": [],
+        "types": []
+      },
+      {
+        "id": "c_radiance",
+        "name": "Компонент Излучения",
+        "description": "Ингредиент с элементом стихии Излучение (Изл).",
+        "quantity": 1,
+        "requiredElements": ["radiance"],
+        "categories": [],
+        "tags": [],
+        "types": []
+      }
+    ]
+  },
+  {
+    "id": "potion_of_greater_healing",
+    "evolutionId": "healing_potion_line",
+    "name": "Зелье большого лечения",
+    "description": "Более мощная версия зелья лечения.",
+    "effect": "Восстанавливает 4к6 + 6 хитов.",
+    "rarity": "uncommon",
+    "potionType": "potion",
+    "potionQuality": "common",
+    "recipeType": "evolution",
+    "tags": ["лечение", "исцеление", "эволюция"],
+    "inLaboratory": false,
+    "cost": 409,
+    "components": [
+      {
+        "id": "c_base_ei",
+        "name": "База (Необычная)",
+        "description": "Волшебные чернила для необычного зелья.",
+        "quantity": 1,
+        "requiredElements": [],
+        "categories": ["other"],
+        "tags": ["база"],
+        "types": ["enchanted_ink"]
+      },
+      {
+        "id": "c_matter",
+        "name": "Компонент Материи",
+        "description": "Ингредиент, несущий в себе сущность Материи (М).",
+        "quantity": 1,
+        "requiredElements": ["matter"],
+        "categories": [],
+        "tags": [],
+        "types": []
+      },
+      {
+        "id": "c_radiance",
+        "name": "Компонент Излучения",
+        "description": "Ингредиент с элементом стихии Излучение (Изл).",
+        "quantity": 1,
+        "requiredElements": ["radiance"],
+        "categories": [],
+        "tags": [],
+        "types": []
+      }
+    ]
+  },
+  {
+    "id": "potion_of_superior_healing",
+    "evolutionId": "healing_potion_line",
+    "name": "Зелье отличного лечения",
+    "description": "Очень мощное исцеляющее зелье.",
+    "effect": "Восстанавливает 6к8 + 12 хитов.",
+    "rarity": "rare",
+    "potionType": "potion",
+    "potionQuality": "common",
+    "recipeType": "evolution",
+    "tags": ["лечение", "исцеление", "эволюция"],
+    "inLaboratory": false,
+    "cost": 2860,
+    "components": [
+      {
+        "id": "c_base_tmi",
+        "name": "База (Редкая)",
+        "description": "Густые волшебные чернила для редкого зелья.",
+        "quantity": 1,
+        "requiredElements": [],
+        "categories": ["other"],
+        "tags": ["база"],
+        "types": ["thick_magical_ink"]
+      },
+      {
+        "id": "c_matter",
+        "name": "Компонент Материи",
+        "description": "Ингредиент, несущий в себе сущность Материи (М).",
+        "quantity": 1,
+        "requiredElements": ["matter"],
+        "categories": [],
+        "tags": [],
+        "types": []
+      },
+      {
+        "id": "c_radiance",
+        "name": "Компонент Излучения",
+        "description": "Ингредиент с элементом стихии Излучение (Изл).",
+        "quantity": 1,
+        "requiredElements": ["radiance"],
+        "categories": [],
+        "tags": [],
+        "types": []
+      }
+    ]
+  },
+  {
+    "id": "potion_of_supreme_healing",
+    "evolutionId": "healing_potion_line",
+    "name": "Превосходное зелье лечения",
+    "description": "Одно из самых сильных исцеляющих зелий.",
+    "effect": "Восстанавливает 8к10 + 20 хитов.",
+    "rarity": "very rare",
+    "potionType": "potion",
+    "potionQuality": "common",
+    "recipeType": "evolution",
+    "tags": ["лечение", "исцеление", "эволюция"],
+    "inLaboratory": false,
+    "cost": 6044,
+    "components": [
+      {
+        "id": "c_base_de",
+        "name": "База (Очень редкая)",
+        "description": "Растворённый эфир для очень редкого зелья.",
+        "quantity": 1,
+        "requiredElements": [],
+        "categories": ["other"],
+        "tags": ["база"],
+        "types": ["dissolved_ether"]
+      },
+      {
+        "id": "c_matter",
+        "name": "Компонент Материи",
+        "description": "Ингредиент, несущий в себе сущность Материи (М).",
+        "quantity": 1,
+        "requiredElements": ["matter"],
+        "categories": [],
+        "tags": [],
+        "types": []
+      },
+      {
+        "id": "c_radiance",
+        "name": "Компонент Излучения",
+        "description": "Ингредиент с элементом стихии Излучение (Изл).",
+        "quantity": 1,
+        "requiredElements": ["radiance"],
+        "categories": [],
+        "tags": [],
+        "types": []
+      }
+    ]
+  },
+  {
+    "id": "potion_of_climbing",
+    "name": "Зелье лазания",
+    "description": "Дарует скорость лазания, равную скорости ходьбы, и преимущество на проверки Атлетики для лазания. Длительность зависит от редкости.",
+    "effect": "Дает скорость лазания, равную скорости ходьбы, и преимущество на Атлетику для лазания.",
+    "rarity": "common",
+    "potionType": "potion",
+    "potionQuality": "low",
+    "recipeType": "universal",
+    "availableRarities": ["common", "uncommon", "rare", "very rare", "legendary"],
+    "tags": ["передвижение", "утилитарное"],
+    "inLaboratory": false,
+    "cost": 21,
+    "components": [
+      {
+        "id": "c_base_universal",
+        "name": "База (зависит от редкости)",
+        "description": "Основа для зелья. Редкость базы определит редкость и силу зелья.",
+        "quantity": 1,
+        "requiredElements": [],
+        "categories": ["other"],
+        "tags": ["база"],
+        "types": ["spring_water", "enchanted_ink", "thick_magical_ink", "dissolved_ether", "irminsul_juice"]
+      },
+      {
+        "id": "c_transmutation",
+        "name": "Компонент Преобразования",
+        "description": "Ингредиент с элементом школы Преобразования (Прео).",
+        "quantity": 1,
+        "requiredElements": ["transmutation"],
+        "categories": [],
+        "tags": [],
+        "types": []
+      },
+      {
+        "id": "c_physical",
+        "name": "Физический компонент",
+        "description": "Ингредиент с элементом Физической стихии (Физ).",
+        "quantity": 1,
+        "requiredElements": ["physical"],
+        "categories": [],
+        "tags": [],
+        "types": []
+      }
+    ]
+  }
 ]
