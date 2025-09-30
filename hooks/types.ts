@@ -17,7 +17,8 @@ export const POTION_BASE_RARITIES: Record<PotionBase, PotionRarity> = {
     'enchanted_ink': 'uncommon',
     'thick_magical_ink': 'rare',
     'dissolved_ether': 'very rare',
-    'irminsul_juice': 'legendary'
+    'irminsul_juice': 'legendary',
+    'primordial_essence': 'artifact'
 };
 
 export const ALCHEMICAL_ELEMENT_DETAILS: Record<AlchemicalElement, { name: string; shortCode: string; category: string; color: string; }> = {
@@ -72,7 +73,7 @@ export const ALCHEMICAL_ELEMENT_DETAILS: Record<AlchemicalElement, { name: strin
   'protection': { name: 'Защита', shortCode: 'Зщ', category: 'Эффект', color: 'bg-rose-500' }
 };
 
-export type PotionBase = 'spring_water' | 'enchanted_ink' | 'thick_magical_ink' | 'dissolved_ether' | 'irminsul_juice';
+export type PotionBase = 'spring_water' | 'enchanted_ink' | 'thick_magical_ink' | 'dissolved_ether' | 'irminsul_juice' | 'primordial_essence';
 
 export type IngredientType = IngredientCategory | PotionBase;
 
@@ -284,6 +285,7 @@ export const getRarityColor = (rarity: string): string => {
     case 'rare': return 'bg-blue-500';
     case 'very rare': return 'bg-purple-500';
     case 'legendary': return 'bg-orange-500';
+    case 'artifact': return 'bg-red-600';
     default: return 'bg-gray-500';
   }
 };
@@ -295,6 +297,7 @@ export const getRarityName = (rarity: string): string => {
     case 'rare': return 'Редкое';
     case 'very rare': return 'Очень редкое';
     case 'legendary': return 'Легендарное';
+    case 'artifact': return 'Артефакт';
     default: return 'Неизвестное';
   }
 };
@@ -350,6 +353,7 @@ export const getPotionBaseName = (base: PotionBase): string => {
     case 'thick_magical_ink': return 'Густые волшебные чернила';
     case 'dissolved_ether': return 'Растворённый эфир';
     case 'irminsul_juice': return 'Сок Ирминсула';
+    case 'primordial_essence': return 'Первородная сущность';
     default: return base;
   }
 };
@@ -361,6 +365,7 @@ export const getPotionBaseRarity = (base: PotionBase): string => {
     case 'thick_magical_ink': return 'rare';
     case 'dissolved_ether': return 'very rare';
     case 'irminsul_juice': return 'legendary';
+    case 'primordial_essence': return 'artifact';
     default: return 'common';
   }
 };
@@ -393,6 +398,7 @@ export const getPotionBaseDetails = (base: PotionBase): { name: string; shortCod
     case 'thick_magical_ink': return { name: 'Густые волшебные чернила', shortCode: 'ГВЧ', color: 'bg-cyan-600' };
     case 'dissolved_ether': return { name: 'Растворённый эфир', shortCode: 'РЭ', color: 'bg-cyan-600' };
     case 'irminsul_juice': return { name: 'Сок Ирминсуля', shortCode: 'СИ', color: 'bg-orange-600' };
+    case 'primordial_essence': return { name: 'Первородная сущность', shortCode: 'ПС', color: 'bg-red-600' };
     default: return { name: base, shortCode: '?', color: 'bg-gray-400' };
   }
 };
