@@ -34,7 +34,7 @@ export const ALCHEMICAL_ELEMENT_DETAILS: Record<AlchemicalElement, { name: strin
   'embodiment': { name: 'Воплощение', shortCode: 'Вопл', category: 'Школа', color: 'bg-sky-500' },
   'challenge': { name: 'Вызов', shortCode: 'Выз', category: 'Школа', color: 'bg-sky-500' },
   'illusion': { name: 'Иллюзия', shortCode: 'Илл', category: 'Школа', color: 'bg-sky-500' },
-  'necromancy': { name: 'Некромантия', shortCode: 'Некр', category: 'Школа', color: 'bg-sky-500' },
+  'necromancy': { name: 'Некромантия', shortCode: 'Некя', category: 'Школа', color: 'bg-sky-500' },
   'reflection': { name: 'Ограждение', shortCode: 'Огр', category: 'Школа', color: 'bg-sky-500' },
   'enchantment': { name: 'Очарование', shortCode: 'Очар', category: 'Школа', color: 'bg-sky-500' },
   'transmutation': { name: 'Преобразование', shortCode: 'Прео', category: 'Школа', color: 'bg-sky-500' },
